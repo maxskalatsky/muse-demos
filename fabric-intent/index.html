@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fabric Intent Copilot — Prototype Demo</title>
+<style>
+  :root { --ink:#1a1a1a; --mut:#5a5a5a; --line:#e2e2e2; --bg:#fafafa; --card:#fff;
+          --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --info:#0969da; --acc:#2c5282; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); background:var(--bg); margin:0; line-height:1.55; }
+  .wrap { max-width:920px; margin:0 auto; padding:24px 20px 64px; }
+  header.top { margin-bottom:20px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  .sub { color:var(--mut); margin:0 0 12px; }
+  .badge { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.06em;
+           text-transform:uppercase; background:#fff3cd; color:#7a5b00; border:1px solid #e8d48b;
+           padding:3px 10px; border-radius:999px; }
+  .honest { background:#f0f4ff; border:1px solid #c9d8f8; border-left:4px solid var(--acc);
+            padding:12px 16px; border-radius:8px; font-size:14px; margin:16px 0; }
+  .honest b { color:var(--acc); }
+  .examples { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 6px; }
+  .ex-btn { flex:1 1 200px; text-align:left; background:var(--card); border:2px solid var(--line);
+            border-radius:10px; padding:12px 14px; cursor:pointer; font-size:14px; }
+  .ex-btn:hover { border-color:var(--acc); }
+  .ex-btn.active { border-color:var(--acc); box-shadow:0 0 0 3px rgba(44,82,130,.12); }
+  .ex-btn .t { font-weight:700; display:block; }
+  .ex-btn .d { color:var(--mut); font-size:13px; }
+  .step { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:18px 20px; margin:14px 0; }
+  .step h2 { font-size:16px; margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+  .n { display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--acc);
+       color:#fff; font-size:14px; font-weight:700; align-items:center; justify-content:center; flex:none; }
+  .step .note { font-size:13px; color:var(--mut); margin:0 0 10px; }
+  /* security hover: background detail, one hover away */
+  .tip { display:inline-block; width:18px; height:18px; border-radius:50%; background:#e8eef5;
+         color:var(--acc); font-size:12px; font-weight:700; text-align:center; line-height:18px;
+         cursor:help; position:relative; flex:none; }
+  .tip:hover::after { content:attr(data-tip); position:absolute; left:26px; top:-8px; width:270px;
+         background:#1a1a1a; color:#fff; font-size:12.5px; font-weight:400; padding:10px 12px;
+         border-radius:8px; z-index:20; line-height:1.5; text-align:left; white-space:normal; }
+  textarea { width:100%; min-height:76px; font:inherit; font-size:14px; padding:10px 12px;
+             border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  button.act { background:var(--acc); color:#fff; border:0; border-radius:8px; padding:10px 18px;
+               font-size:14px; font-weight:600; cursor:pointer; margin-top:10px; }
+  button.act:hover { background:#1e4068; }
+  button.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  button.ghost:hover { border-color:var(--acc); }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px;
+          background:#f6f8fa; border:1px solid var(--line); border-radius:8px; padding:12px 14px;
+          overflow-x:auto; white-space:pre-wrap; word-break:break-word; }
+  .pill { display:inline-block; font-size:12px; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .pill.ok { background:#e6f4ea; color:var(--ok); }
+  .pill.warn { background:#fef3d6; color:var(--warn); }
+  .pill.bad { background:#fde8e8; color:var(--bad); }
+  .pill.info { background:#e8f0fe; color:var(--info); }
+  .check { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid var(--line); }
+  .check:first-of-type { border-top:0; }
+  .check .nm { font-weight:700; font-size:14px; }
+  .check .dt { font-size:13px; color:var(--mut); }
+  .tier { border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:10px 0; }
+  .tier h3 { margin:0 0 6px; font-size:14px; }
+  .tier p { margin:0 0 10px; font-size:13px; color:var(--mut); }
+  .tier input[type=text] { font:inherit; font-size:14px; padding:8px 10px; border:1px solid var(--line);
+                           border-radius:8px; width:260px; max-width:100%; }
+  .trace { list-style:none; margin:10px 0 0; padding:0; }
+  .trace li { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; padding:6px 0;
+              border-top:1px dashed var(--line); display:flex; gap:10px; }
+  .trace li:first-child { border-top:0; }
+  .trace .ts { color:var(--mut); flex:none; }
+  .sim-tag { font-size:11px; font-weight:700; letter-spacing:.05em; color:var(--warn); text-transform:uppercase; }
+  #auditLog { list-style:none; margin:0; padding:0; font-size:13px; }
+  #auditLog li { padding:8px 0; border-top:1px solid var(--line); display:flex; gap:10px; }
+  #auditLog li:first-child { border-top:0; }
+  #auditLog .ts { color:var(--mut); font-family:ui-monospace,Menlo,monospace; flex:none; }
+  .hidden { display:none; }
+  label.cb { display:flex; gap:8px; align-items:flex-start; font-size:14px; margin:10px 0; cursor:pointer; }
+  .verdict { display:inline-block; font-size:13px; font-weight:800; padding:5px 14px; border-radius:999px; }
+  .v-go { background:#e6f4ea; color:var(--ok); }
+  .v-pilot { background:#e8f0fe; color:var(--info); }
+  .v-hybrid { background:#fef3d6; color:var(--warn); }
+  .nums { display:flex; gap:16px; flex-wrap:wrap; margin:8px 0; }
+  .num { flex:1 1 140px; }
+  .num .v { font-size:20px; font-weight:700; }
+  .num .l { font-size:12px; color:var(--mut); }
+  .real { font-size:11px; color:var(--ok); font-weight:700; }
+  .est { font-size:11px; color:var(--warn); font-weight:700; }
+  .prov { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:10px; }
+  .prov div { background:#f6f8fa; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; }
+  .prov .k { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--mut); display:block; }
+  footer { margin-top:28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Fabric Intent Copilot</h1>
+  <p class="sub">Plain language in. Structured network intent out. Every step inspectable.</p>
+  <span class="badge">Prototype demo — not production</span>
+  <div class="honest">
+    <b>What's real, what's not.</b> The intent translations below are <b>real captured responses</b>
+    from a fine-tuned open-weight model, replayed here — the model is <b>not</b> running behind this page.
+    The plan, policy checks, approval flow, provisioning trace, and Fabric API calls are
+    <b>simulated</b>. Built from public information; no unreleased Equinix access.
+  </div>
+</header>
+
+<div class="examples" id="exampleBar" role="tablist" aria-label="Demo examples"></div>
+
+<div class="step" id="s1">
+  <h2><span class="n">1</span> Plain-language request
+    <span class="tip" data-tip="Security starts before the model: nothing typed here reaches any model in this demo — the responses are captured replays. In a live deployment, the request would pass the scrub step first and credentials would live server-side, never in the browser.">i</span></h2>
+  <p class="note">What an operator types. Try editing it — including adding an email or account number — then scrub.</p>
+  <textarea id="reqInput" aria-label="Connectivity request"></textarea><br>
+  <button class="act" id="btnScrub">Scrub &amp; continue</button>
+</div>
+
+<div class="step hidden" id="s2">
+  <h2><span class="n">2</span> Scrubbed request <span class="pill info" id="redactCount"></span>
+    <span class="tip" data-tip="The scrub pass strips emails, phone numbers, IP addresses, and account numbers before any model sees the text. Training data was 100% synthetic for the same reason: nothing real goes in, so nothing real can leak out.">i</span></h2>
+  <p class="note">This is what the model actually sees.</p>
+  <div class="mono" id="scrubbedOut"></div>
+  <div id="scrubDetail" class="note" style="margin-top:8px;"></div>
+  <button class="act" id="btnIntent">Translate to intent</button>
+</div>
+
+<div class="step hidden" id="s3">
+  <h2><span class="n">3</span> Structured intent <span class="pill info">captured model response</span>
+    <span class="tip" data-tip="Real output from our fine-tuned model, captured live and replayed unedited. Base: Llama 3.1 8B Instruct, supervised LoRA fine-tune on 102 synthetic examples. Served on NVIDIA H100 for the capture session, then stopped.">i</span></h2>
+  <p class="note">The fine-tuned model's actual output for this request. Raw JSON, unedited.</p>
+  <div class="mono" id="intentOut"></div><br>
+  <button class="act" id="btnPlan">Build reviewable plan</button>
+</div>
+<div class="step hidden" id="sIx">
+  <h2><span class="n">↗</span> Inference Exchange: where should this run?
+    <span class="tip" data-tip="The cost/control tradeoff: open weights may beat frontier APIs on price per token, and are the only option where regulated data can't leave. Cost figures marked REAL are Together AI prices verified live; EST are labeled estimates; volumes are illustrative.">i</span></h2>
+  <p class="note">The copilot doesn't stop at connectivity — for this workload family, here's the inference placement advice.</p>
+  <div id="ixOut"></div>
+</div>
+
+<div class="step hidden" id="s4">
+  <h2><span class="n">4</span> Reviewable plan <span class="pill info">Tier 1 — read-only</span>
+    <span class="tip" data-tip="Tier 1 covers view and plan: no approval needed because nothing executes. The plan is the intent rendered as plain-English steps a human reviews before anything else happens.">i</span></h2>
+  <p class="note">The intent as plain-English steps a human can review. Nothing executes.</p>
+  <ol id="planOut" style="margin:0; padding-left:22px; font-size:14px;"></ol><br>
+  <button class="act" id="btnPolicy">Run policy checks</button>
+</div>
+
+<div class="step hidden" id="s5">
+  <h2><span class="n">5</span> Policy verdict
+    <span class="tip" data-tip="Policy verdicts are hard gates evaluated against the intent: residency, encryption, capacity. A fail stops the line — no approval tier can override it.">i</span></h2>
+  <p class="note">Hard checks evaluated against the intent. A <b>fail</b> stops the line.</p>
+  <div id="policyOut"></div>
+</div>
+
+<div class="step hidden" id="s6">
+  <h2><span class="n">6</span> Typed approval
+    <span class="tip" data-tip="Approval tiers bind to the action, not the requester: dry-run validation needs one named approver; create/modify/delete needs a named approver plus explicit confirmation. The requester can't pick a weaker tier.">i</span></h2>
+  <p class="note">The action determines the tier — the requester can't pick a weaker one.</p>
+  <div class="tier">
+    <h3>Tier 2 — Validate <span class="pill warn">one named approval · dry-run only</span></h3>
+    <p>Non-destructive validation against inventory and capacity. Nothing is created.</p>
+    <input type="text" id="approver2" placeholder="Approver name (e.g. M. Skalatsky)" aria-label="Tier 2 approver name">
+    <br><button class="act ghost" id="btnValidate">Approve validation (dry-run)</button>
+    <ul class="trace hidden" id="traceValidate"></ul>
+  </div>
+  <div class="tier">
+    <h3>Tier 3 — Provision <span class="pill bad">named approver + explicit confirmation</span></h3>
+    <p>Create / modify / delete.</p>
+    <input type="text" id="approver3" placeholder="Approver name" aria-label="Tier 3 approver name">
+    <label class="cb"><input type="checkbox" id="confirm3">
+      <span>I approve creating the connectivity described above. I understand this is a <b>simulated</b> provisioning in this demo.</span>
+    </label>
+    <button class="act" id="btnProvision">Approve &amp; provision</button>
+    <ul class="trace hidden" id="traceProvision"></ul>
+  </div>
+</div>
+
+<div class="step hidden" id="s7">
+  <h2><span class="n">7</span> Outcome</h2>
+  <div id="outcomeOut" style="font-size:14px;"></div>
+</div>
+
+<div class="step" id="sAudit">
+  <h2><span class="n">✓</span> Audit trail
+    <span class="tip" data-tip="Every action on this page — scrub, translate, plan, policy, approvals, provisioning — is appended here with a timestamp. In production this ships to immutable storage.">i</span></h2>
+  <p class="note">Every action on this page, in order.</p>
+  <ul id="auditLog"></ul>
+</div>
+
+<div class="step" id="sProv">
+  <h2><span class="n">≋</span> Model provenance</h2>
+  <div class="prov">
+    <div><span class="k">Base model</span><b>Meta Llama 3.1 8B Instruct</b> — open weights</div>
+    <div><span class="k">Adaptation</span>Supervised fine-tune, LoRA (rank 64), 3 epochs, 102 synthetic examples</div>
+    <div><span class="k">Fine-tuning</span>Together AI managed fine-tuning</div>
+    <div><span class="k">Serving</span>NVIDIA H100 80GB — ephemeral; ran only for the capture session, then stopped</div>
+  </div>
+</div>
+
+<footer>
+  <div class="honest">
+    <b>Prototype honesty label.</b> Model responses: <b>real</b> (captured live, replayed). Fabric APIs,
+    policy engine, provisioning: <b>simulated</b>. Training data 100% synthetic — no customer data, no secrets.
+    No credentials exist in this page. Built from public information; no unreleased Equinix access.
+  </div>
+</footer>
+
+</div>
+<script>
+/* Captured model responses (real outputs, captured live 2026-09-15) + IX advice per workload */
+const EXAMPLES = [
+  {
+    id: "dallas", title: "Training sprint", desc: "200 Gbps, two weeks, then teardown",
+    request: "Two-week GPU training sprint in Dallas \u2014 contact jdoe@acme.com, 415-555-0132. 200 gigs to the on-prem cluster, then tear it down.",
+    intent: {"intent":{"name":"gpu_training_sprint","workload":"ai_training","summary":"2-week GPU training sprint in Dallas, 200 Gbps to on-prem cluster, then tear down","endpoints":[{"kind":"cloud","location":"dallas"},{"kind":"onprem","location":"dallas"}],"service":{"bandwidth_gbps":200,"burst_gbps":200,"burst_schedule":"none","redundancy":"single","schedule":"24x7"},"constraints":{"data_residency":[],"encryption":true,"latency_msec":0},"sla":"best_effort"}},
+    ix: { verdict:["v-pilot","PILOT \u2014 serverless fits the spikiness"],
+      why:"Low, bursty volume — serverless per-token is the natural shape. A dedicated GPU would idle between sprints.",
+      f:"$300/mo", s:"$27/mo", tagF:"est", tagS:"real",
+      plan:["Point the copilot at the serverless open endpoint.","Fine-tune on experiment logs if quality lags.","Move to dedicated only past ~16B tokens/mo."],
+      control:"Training metadata is IP \u2014 self-hosting keeps it in-house." }
+  },
+  {
+    id: "retail", title: "Store backhaul", desc: "15 stores \u2192 Chicago hub, cheapest path",
+    request: "Fifteen retail stores backhauling POS traffic to the Chicago hub. Nothing fancy, 2 gigs total, cheapest path.",
+    intent: {"intent":{"name":"chicago_pos_backhaul","workload":"branch_aggregation","summary":"15 retail stores backhauling POS traffic to Chicago hub","endpoints":[{"kind":"metro","location":"chicago"},{"kind":"metro","location":"chicago"}],"service":{"bandwidth_gbps":2,"burst_gbps":2,"burst_schedule":"none","redundancy":"single","schedule":"always_on"},"constraints":{"data_residency":[],"encryption":false,"latency_msec":0},"sla":"best_effort"}},
+    ix: { verdict:["v-go","MIGRATE \u2014 volume pays for it"],
+      why:"High, steady volume — the math favors open weights, approaching the band where a dedicated GPU beats serverless.",
+      f:"$640/mo", s:"$58/mo", tagF:"est", tagS:"real",
+      plan:["Start serverless; measure sustained tokens for 60 days.","If volume holds, move to a dedicated H100 (flat monthly).","Fine-tune on POS/ops vocabulary."],
+      control:"Store data stays in your network; no per-transaction data sharing." }
+  },
+  {
+    id: "secaucus", title: "Migration link", desc: "Temporary 100G, remove after",
+    request: "Temporary 100-gig link between the two Secaucus cages for a migration this weekend, then remove it. Ref acct 884213.",
+    intent: {"intent":{"name":"secaucus_migration_link","workload":"hybrid_cloud","summary":"Temporary 100-gig link between Secaucus cages for migration","endpoints":[{"kind":"cage","location":"Secaucus"},{"kind":"cage","location":"Secaucus"}],"service":{"bandwidth_gbps":100,"burst_gbps":100,"burst_schedule":"none","redundancy":"single","schedule":"one_time"},"constraints":{"data_residency":[],"encryption":false,"latency_msec":0},"sla":"best_effort"}},
+    ix: { verdict:["v-pilot","PILOT \u2014 migrate a team first"],
+      why:"Internal users and a forgiving quality bar — the low-cost fine-tune pattern (one afternoon) already proved out on this shape.",
+      f:"$800/mo", s:"$72/mo", tagF:"est", tagS:"real",
+      plan:["Eval the open model on 200 real internal queries.","Fine-tune on internal docs/tickets.","Route 10% of traffic, then 50%, then all."],
+      control:"Self-hosting removes the third party from internal traffic entirely." }
+  }
+];
+
+let current = EXAMPLES[0], policyPassed = false;
+
+function audit(action, detail) {
+  const li = document.createElement("li");
+  const ts = new Date().toLocaleTimeString("en-US", {hour12:false});
+  li.innerHTML = '<span class="ts">' + ts + '</span><span><b>' + action + "</b>" +
+    (detail ? " \u2014 " + detail : "") + "</span>";
+  document.getElementById("auditLog").appendChild(li);
+}
+function scrub(text) {
+  const patterns = [
+    { re: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, label: "email address" },
+    { re: /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g, label: "phone number" },
+    { re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, label: "IP address" },
+    { re: /\b(?:acct|account|acc)[\s#:]*\d{4,}\b/gi, label: "account number" },
+    { re: /\b\d{6,}\b/g, label: "long numeric string" }
+  ];
+  let out = text, hits = [];
+  for (const p of patterns) out = out.replace(p.re, m => { hits.push(p.label + ": " + m); return "[REDACTED]"; });
+  return { scrubbed: out, hits };
+}
+function renderExamples() {
+  const bar = document.getElementById("exampleBar");
+  bar.innerHTML = "";
+  EXAMPLES.forEach(ex => {
+    const b = document.createElement("button");
+    b.className = "ex-btn" + (ex.id === current.id ? " active" : "");
+    b.setAttribute("role", "tab");
+    b.innerHTML = '<span class="t">' + ex.title + '</span><span class="d">' + ex.desc + "</span>";
+    b.onclick = () => selectExample(ex.id);
+    bar.appendChild(b);
+  });
+}
+function selectExample(id) {
+  current = EXAMPLES.find(e => e.id === id);
+  policyPassed = false;
+  ["s2","s3","s4","s5","s6","sIx","s7"].forEach(s => document.getElementById(s).classList.add("hidden"));
+  document.getElementById("traceValidate").classList.add("hidden");
+  document.getElementById("traceProvision").classList.add("hidden");
+  document.getElementById("reqInput").value = current.request;
+  renderExamples();
+  audit("Example selected", current.title);
+}
+document.getElementById("btnScrub").onclick = () => {
+  const raw = document.getElementById("reqInput").value;
+  const { scrubbed, hits } = scrub(raw);
+  document.getElementById("scrubbedOut").textContent = scrubbed;
+  const pill = document.getElementById("redactCount");
+  pill.textContent = hits.length + (hits.length === 1 ? " redaction" : " redactions");
+  pill.className = "pill " + (hits.length ? "warn" : "ok");
+  document.getElementById("scrubDetail").textContent = hits.length
+    ? "Removed before model input: " + hits.join("; ") + "."
+    : "No PII patterns found \u2014 nothing to strip.";
+  document.getElementById("s2").classList.remove("hidden");
+  audit("Input scrubbed", hits.length + " redaction(s); model sees scrubbed text only");
+  document.getElementById("s2").scrollIntoView({behavior:"smooth", block:"nearest"});
+};
+document.getElementById("btnIntent").onclick = () => {
+  document.getElementById("intentOut").textContent = JSON.stringify(current.intent, null, 1);
+  document.getElementById("s3").classList.remove("hidden");
+  renderIx();
+  document.getElementById("sIx").classList.remove("hidden");
+  audit("Intent produced", "captured model response replayed for \u201c" + current.title + "\u201d");
+  document.getElementById("s3").scrollIntoView({behavior:"smooth", block:"nearest"});
+};
+function describeEndpoint(e) {
+  if (e.provider) return e.provider.toUpperCase() + " " + (e.region || "");
+  if (e.kind === "cage") return (e.location || e.metro || "cage") + " cage";
+  if (e.kind === "onprem") return "on-prem cluster (" + (e.location || "?") + ")";
+  return (e.location || e.metro || e.kind || "endpoint");
+}
+function buildPlan(intent) {
+  const steps = [], c = intent.constraints;
+  steps.push("Reserve " + intent.service.bandwidth_gbps + " Gbps between " +
+    intent.endpoints.map(describeEndpoint).join("  \u2194  ") + ".");
+  steps.push("Redundancy: " + (intent.service.redundancy === "diverse_pair" ? "dual diverse paths." : "single path."));
+  if (c.data_residency && c.data_residency.length)
+    steps.push("Pin data residency to: " + c.data_residency.join(", ") + ".");
+  steps.push("Encryption in transit: " + (c.encryption ? "required." : "NOT required by this intent \u2014 flagged in policy check."));
+  if (c.latency_msec) steps.push("Latency budget: under " + c.latency_msec + " ms.");
+  steps.push("Schedule: " + intent.service.schedule + ".");
+  if (/tear down|one_time|temporary|remove it/i.test(intent.summary + " " + intent.service.schedule))
+    steps.push("Teardown at end of window \u2014 capacity released automatically, no orphan circuits.");
+  return steps;
+}
+document.getElementById("btnPlan").onclick = () => {
+  const ol = document.getElementById("planOut");
+  ol.innerHTML = "";
+  buildPlan(current.intent.intent).forEach(s => {
+    const li = document.createElement("li"); li.textContent = s; ol.appendChild(li);
+  });
+  document.getElementById("s4").classList.remove("hidden");
+  audit("Plan built", "read-only rendering, Tier 1 \u2014 no approval needed");
+  document.getElementById("s4").scrollIntoView({behavior:"smooth", block:"nearest"});
+};
+function policyVerdict(intent) {
+  const checks = [], c = intent.constraints, s = intent.service;
+  checks.push(c.data_residency && c.data_residency.length
+    ? {n:"Data residency", st:"ok", d:"Pinned to " + c.data_residency.join(", ") + " \u2014 path validated against allowed regions."}
+    : {n:"Data residency", st:"info", d:"No residency constraint in this request."});
+  checks.push(c.encryption
+    ? {n:"Encryption in transit", st:"ok", d:"Required \u2014 will be verified before traffic flows."}
+    : {n:"Encryption in transit", st:"warn", d:"Not required by intent. Sensitive traffic unencrypted is a risk \u2014 provisioning needs explicit Tier 3 sign-off."});
+  checks.push(s.bandwidth_gbps > 100
+    ? {n:"Capacity review", st:"warn", d:s.bandwidth_gbps + " Gbps exceeds the 100G review threshold \u2014 capacity check required."}
+    : {n:"Capacity review", st:"ok", d:s.bandwidth_gbps + " Gbps within the standard envelope."});
+  checks.push({n:"Approval tier", st:"info", d:"Provisioning is Tier 3 (create) \u2014 named approver plus explicit confirmation."});
+  return checks;
+}
+const PILL = { ok:["ok","PASS"], warn:["warn","FLAG"], bad:["bad","FAIL"], info:["info","NOTE"] };
+document.getElementById("btnPolicy").onclick = () => {
+  const box = document.getElementById("policyOut");
+  box.innerHTML = ""; policyPassed = true;
+  policyVerdict(current.intent.intent).forEach(ch => {
+    if (ch.st === "bad") policyPassed = false;
+    const div = document.createElement("div");
+    div.className = "check";
+    div.innerHTML = '<span class="pill ' + PILL[ch.st][0] + '">' + PILL[ch.st][1] + '</span>' +
+      '<span><span class="nm">' + ch.n + '</span><br><span class="dt">' + ch.d + "</span></span>";
+    box.appendChild(div);
+  });
+  document.getElementById("s5").classList.remove("hidden");
+  document.getElementById("s6").classList.remove("hidden");
+  audit("Policy checks run", policyPassed ? "no hard failures" : "HARD FAILURE \u2014 line stopped");
+  document.getElementById("s5").scrollIntoView({behavior:"smooth", block:"nearest"});
+};
+function runTrace(elId, steps, done) {
+  const ul = document.getElementById(elId);
+  ul.innerHTML = ""; ul.classList.remove("hidden");
+  let i = 0;
+  (function next() {
+    if (i >= steps.length) { done && done(); return; }
+    const li = document.createElement("li");
+    const t = new Date().toLocaleTimeString("en-US", {hour12:false});
+    li.innerHTML = '<span class="ts">' + t + '</span><span>' + steps[i] + ' <span class="sim-tag">simulated</span></span>';
+    ul.appendChild(li); i++;
+    setTimeout(next, 550);
+  })();
+}
+document.getElementById("btnValidate").onclick = () => {
+  const name = document.getElementById("approver2").value.trim();
+  if (!name) { alert("Tier 2 needs a named approver."); return; }
+  audit("Tier 2 approval", "validation (dry-run) approved by " + name);
+  runTrace("traceValidate",
+    ["Resolving endpoints against inventory","Checking capacity on candidate path","Dry-run complete \u2014 no changes made"],
+    () => audit("Validation complete", "dry-run passed, nothing created"));
+};
+function renderIx() {
+  const x = current.ix, box = document.getElementById("ixOut");
+  box.innerHTML =
+    '<p><span class="verdict ' + x.verdict[0] + '">' + x.verdict[1] + "</span></p>" +
+    "<p style='font-size:14px;'>" + x.why + "</p>" +
+    "<div class='nums'>" +
+      "<div class='num'><div class='v'>" + x.f + "</div><div class='l'>Frontier API <span class='" + x.tagF + "'>" + x.tagF.toUpperCase() + "</span></div></div>" +
+      "<div class='num'><div class='v'>" + x.s + "</div><div class='l'>Open weights, serverless <span class='" + x.tagS + "'>" + x.tagS.toUpperCase() + "</span></div></div>" +
+    "</div>" +
+    "<p class='note' style='margin:4px 0 0;'>Illustrative volumes; Together AI serverless price verified live, frontier estimated. " +
+    "Control: " + x.control + "</p>";
+  audit("Inference placement advised", x.verdict[1] + " for " + current.intent.intent.workload);
+}
+document.getElementById("btnProvision").onclick = () => {
+  const name = document.getElementById("approver3").value.trim();
+  const conf = document.getElementById("confirm3").checked;
+  if (!policyPassed) { alert("Policy checks have a hard failure \u2014 resolve it first."); return; }
+  if (!name) { alert("Tier 3 needs a named approver."); return; }
+  if (!conf) { alert("Tier 3 needs the explicit confirmation checkbox."); return; }
+  audit("Tier 3 approval", "provisioning approved by " + name + " with explicit confirmation");
+  runTrace("traceProvision", [
+    "Authenticating service principal",
+    "Reserving " + current.intent.intent.service.bandwidth_gbps + " Gbps on path",
+    "Applying redundancy policy: " + current.intent.intent.service.redundancy,
+    "Enabling encryption: " + (current.intent.intent.constraints.encryption ? "on" : "OFF \u2014 signed off"),
+    "Running health checks", "Circuit ACTIVE"
+  ], () => {
+    const it = current.intent.intent;
+    document.getElementById("outcomeOut").innerHTML = "<b>Done.</b> " + it.summary +
+      " \u2014 provisioned under Tier 3 approval by " + document.getElementById("approver3").value.trim() + ". " +
+      (/tear down|one_time|temporary|remove it/i.test(it.summary)
+        ? "Teardown is scheduled; capacity releases automatically."
+        : "Running " + it.service.schedule + ".") + ' <span class="sim-tag">simulated</span>';
+    document.getElementById("s7").classList.remove("hidden");
+    audit("Provisioning complete", it.name + " (simulated)");
+    document.getElementById("s7").scrollIntoView({behavior:"smooth", block:"nearest"});
+  });
+};
+renderExamples();
+document.getElementById("reqInput").value = current.request;
+audit("Demo loaded", "captured model responses replayed; model not running behind this page");
+</script>
+</body>
+</html>
