@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCPED Triage Copilot — Working Prototype</title>
+<style>
+  :root { --ink:#1b2129; --muted:#68727e; --faint:#9aa3ad; --line:#e2e7ec; --accent:#0b3d66;
+           --wash:#f7f9fb; --ok:#1e7e34; --bad:#b3261e; --teal:#0b7285; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+         color:var(--ink); line-height:1.6; margin:0; background:#fff; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:920px; margin:0 auto; padding:40px 28px 80px; }
+  .eyebrow { font-size:0.75em; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin:0 0 14px; font-weight:600; }
+  h1 { font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:2.1em; line-height:1.2;
+       margin:0 0 8px; letter-spacing:-0.01em; }
+  h2 { font-size:1.15em; font-weight:650; letter-spacing:-0.01em; margin:2.4em 0 0.6em; color:var(--ink); }
+  .sub { color:var(--muted); font-size:0.98em; margin:0 0 8px; line-height:1.55; max-width:44em; }
+  .ver { font-size:0.8em; color:var(--faint); margin-bottom:26px; }
+  .ver a { color:var(--accent); }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:22px 0 8px; }
+  @media (max-width:640px){ .stats { grid-template-columns:repeat(2,1fr); } }
+  .team { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:14px 0; }
+  .analyst { border:1px solid var(--line); padding:12px 14px; background:#fff; }
+  .analyst.busy { border-left:4px solid var(--accent); }
+  .analyst:not(.busy) { border-left:4px solid #c3c9d0; }
+  .aname { font-weight:700; font-size:0.92em; }
+  .aspec { font-size:0.76em; color:var(--muted); margin-bottom:6px; }
+  .atask { font-size:0.82em; margin-bottom:6px; }
+  .atask.idle { color:var(--faint); font-style:italic; }
+  .bar { height:8px; background:var(--wash); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .bar > div { height:100%; background:var(--accent); transition:width 0.4s; }
+  .apct { font-size:0.74em; color:var(--muted); margin-top:4px; }
+  .reco { font-size:0.88em; background:#eef4fa; border:1px solid #c9dcee; border-left:4px solid var(--accent);
+          padding:12px 16px; margin:12px 0; line-height:1.55; }
+  details.dis { font-size:0.85em; margin:14px 0; color:var(--muted); }
+  details.dis summary { cursor:pointer; }
+  details.dis ul { margin:8px 0 0 18px; padding:0; }
+  .task .bar { margin-top:8px; }
+  li.dis-item { cursor:pointer; }
+  li.dis-item:hover { text-decoration:underline; }
+  .task { cursor:pointer; }
+  .task:hover { border-color:#9aa3ad; }
+  .tablewrap { overflow-x:auto; }
+  .modal { position:fixed; inset:0; background:rgba(14,26,38,0.55); display:flex; align-items:flex-start; justify-content:center; padding:40px 16px; z-index:50; }
+  .modal[hidden] { display:none; }
+  .sheet { background:#fff; max-width:720px; width:100%; max-height:calc(100vh - 80px); overflow-y:auto;
+           border-top:5px solid var(--accent); padding:24px 28px 32px; box-shadow:0 12px 40px rgba(0,0,0,0.22); }
+  .sheet-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
+  .sheet-head .id { font-weight:700; font-size:1.02em; }
+  .stage { border-left:3px solid var(--line); padding:2px 0 2px 14px; margin:14px 0; }
+  .stage.done { border-left-color:var(--accent); }
+  .stage .sname { font-weight:700; font-size:0.74em; letter-spacing:1.2px; text-transform:uppercase; color:var(--accent); }
+  .stage.pending .sname { color:var(--faint); }
+  .stage .sbody { font-size:0.94em; margin-top:3px; line-height:1.6; }
+  /* ---- liveness + arrivals + recap ---- */
+  .live { display:inline-flex; align-items:center; gap:6px; font-size:0.4em; font-weight:700; letter-spacing:0.14em;
+          color:var(--ok); border:1px solid var(--ok); border-radius:999px; padding:3px 10px; margin-left:10px; vertical-align:middle; }
+  .live .dot { width:7px; height:7px; border-radius:50%; background:var(--ok); animation:pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+  @keyframes slidein { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:none; } }
+  .task.fresh { animation:slidein 0.35s ease-out; }
+  .arrivals-wrap { display:flex; gap:8px; align-items:center; margin:6px 0 2px; flex-wrap:wrap; }
+  .arr-lbl { font-size:0.78em; color:var(--muted); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .arrivals { display:flex; gap:6px; flex-wrap:wrap; }
+  .arr { font-size:0.76em; padding:2px 9px; border:1px solid var(--line); border-radius:999px; background:#fff; white-space:nowrap; }
+  .arr.p-crit { border-color:var(--bad); color:var(--bad); }
+  .arr.p-high { border-color:#b7791f; color:#8a5a14; }
+  .arr.p-med { border-color:var(--accent); color:var(--accent); }
+  .arr.p-low { border-color:var(--muted); color:var(--muted); }
+  .arr.idle { color:var(--faint); border-style:dashed; }
+  .recap { display:flex; flex-direction:column; gap:10px; margin:12px 0 8px; }
+  .rrow { display:flex; gap:14px; align-items:baseline; background:#fff; border:1px solid var(--line);
+          border-left:4px solid var(--accent); padding:12px 16px; }
+  .rrow .rnum { font-family:Georgia,'Times New Roman',serif; font-size:1.5em; color:var(--accent); font-weight:700; flex:0 0 auto; }
+  details.how { border:1px solid var(--line); background:#fff; margin:8px 0; }
+  details.how summary { cursor:pointer; padding:12px 16px; font-weight:600; font-size:0.86em; color:var(--accent); }
+  details.how summary:hover { text-decoration:underline; }
+  details.how .body { padding:0 16px 14px; line-height:1.6; color:#33404d; }
+  .did { cursor:pointer; text-decoration:underline dotted; text-underline-offset:2px; }
+  .did:hover { color:var(--accent); }
+  .section-sub { color:var(--muted); font-size:0.9em; margin:-6px 0 10px; line-height:1.55; max-width:52em; }
+  .log { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:0.78em; background:#0e1a26; color:#cfe0ee;
+         border-radius:6px; padding:12px 14px; height:190px; overflow-y:auto; margin:10px 0; line-height:1.7; }
+  .log .lt { color:#7fa3c4; }
+  .delta-good { color:#1b7a3d; font-weight:700; }
+  .delta-bad { color:#b3261e; font-weight:700; }
+  .stat { border:1px solid var(--line); padding:14px 16px; background:#fff; }
+  .stat .n { font-family:Georgia,'Times New Roman',serif; font-size:1.8em; color:var(--ink); line-height:1.1; }
+  .stat .l { font-size:0.7em; letter-spacing:1.2px; text-transform:uppercase; color:var(--faint); margin-top:6px; line-height:1.5; }
+  .pattern { background:#eef4fa; border:1px solid #c9dcee; border-left:4px solid var(--accent);
+             padding:14px 18px; margin:18px 0; font-size:0.94em; line-height:1.6; color:#33404d; }
+  .caveat { font-size:0.84em; color:var(--muted); border-top:1px solid var(--line); margin-top:10px; padding-top:8px; }
+  .controls { margin:18px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  button { font-family:inherit; font-size:0.88em; font-weight:600; padding:8px 16px; border:1px solid var(--accent);
+           background:var(--accent); color:#fff; border-radius:6px; cursor:pointer; }
+  button.ghost { background:#fff; color:var(--accent); font-weight:400; }
+  button:hover { opacity:0.88; }
+  .feed { margin:14px 0 0; padding:0; list-style:none; }
+  .task { border:1px solid var(--line); border-left:4px solid #c9a227; margin:0 0 10px; padding:12px 16px; background:#fff; }
+  .task .row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .task .id { font-weight:700; font-size:0.92em; }
+  .task .type { font-size:0.74em; color:#fff; background:var(--muted); border-radius:3px; padding:2px 8px; }
+  .task .desc { margin:6px 0 4px; font-size:0.95em; line-height:1.55; }
+  .task .meta { font-size:0.78em; color:var(--muted); }
+  .pill { font-size:0.72em; font-weight:600; border:1px solid var(--line); border-radius:20px; padding:2px 10px; color:var(--muted); background:var(--wash); }
+  .pill.origin { color:#0b3d66; border-color:#0b3d66; background:#e8eef5; font-weight:700; }
+  .m-actions { display:flex; gap:12px; align-items:center; padding:4px 18px 16px; }
+  .m-actions:empty { display:none; }
+  .evbtn { font:inherit; font-size:0.85em; font-weight:700; color:#fff; background:var(--accent);
+           border:1px solid var(--accent); border-radius:6px; padding:8px 14px; cursor:pointer; }
+  .evbtn:hover { background:#09304f; }
+  .evnote { font-size:0.78em; color:var(--muted); }
+  .score { font-size:0.78em; color:var(--muted); margin-top:8px; border-top:1px dashed var(--line); padding-top:6px; }
+  .score b { color:var(--ink); }
+  .task.p-crit { border-left-color:#b3261e; }
+  .task.p-high { border-left-color:#c9a227; }
+  .task.p-med  { border-left-color:#0b3d66; }
+  .task.p-low  { border-left-color:#9aa0a6; }
+  /* Handoffs from the dark-vessel triage page get their own accent,
+     overriding the band color — provenance is the louder signal. */
+  .task.origin-dv { border-left:4px solid #0b7285; background:#f4fbfb; }
+  .arr.dv { border-color:#0b7285; color:#0b7285; background:#eaf6f7; font-weight:700; cursor:default; }
+  #arr-tip { display:none; position:fixed; z-index:99; max-width:320px; background:#10222e; color:#eaf3f8;
+             font-size:0.82em; line-height:1.45; padding:10px 12px; border-radius:8px; pointer-events:none;
+             box-shadow:0 6px 18px rgba(0,0,0,.25); }
+  #arr-tip .dvtag { display:inline-block; margin:4px 0; padding:1px 8px; border-radius:999px;
+                    background:#0b7285; color:#fff; font-size:0.85em; font-weight:700; }
+  .footer { margin-top:44px; font-size:0.8em; color:var(--faint); border-top:1px solid var(--line); padding-top:14px; line-height:1.7; }
+  code.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:0.85em; background:var(--wash); padding:1px 5px; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Chapter 2 · Synthesis</div>
+  <h1>TCPED triage copilot <span class="live"><span class="dot"></span>LIVE</span></h1>
+  <p class="sub">How a triage copilot could compress the tasking-to-dissemination cycle for maritime surveillance — and where the analyst bottleneck actually bites.</p>
+  <p class="ver">Working prototype · September 10, 2026</p>
+  <p class="ver" style="margin-top:-12px"><a href="index.html" style="color:var(--accent)">← Home</a> · Morning build reviews · <a href="dark-vessel.html" style="color:var(--accent)">Dark vessel anomaly triage →</a></p>
+
+  <h2>Live tasking feed</h2>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="s-queue">0</div><div class="l">Taskings awaiting triage</div></div>
+    <div class="stat"><div class="n" id="s-load">0%</div><div class="l">Team load, measured</div></div>
+    <div class="stat"><div class="n" id="s-oldest">—</div><div class="l">Oldest un-triaged (mm:ss)</div></div>
+    <div class="stat"><div class="n" id="s-dis">0</div><div class="l">Disseminated this session</div></div>
+    <div class="stat"><div class="n" id="s-deduped">0</div><div class="l">Arrivals deduped</div></div>
+  </div>
+
+  <div class="arrivals-wrap"><span class="arr-lbl">RAW ARRIVALS →</span><div class="arrivals" id="arrivals"><span class="arr idle">waiting for arrivals…</span></div></div>
+  <div id="arr-tip"></div>
+
+  <div class="controls">
+    <button id="btn-add">Simulate incoming tasking</button>
+    <button id="btn-auto" class="ghost">Auto-feed: off</button>
+    <button id="btn-sort" class="ghost">Sort: ranked</button>
+  </div>
+
+  <ul class="feed" id="feed"></ul>
+
+  <h2>Watch floor — where the bottleneck lives</h2>
+
+  <div class="team" id="team"></div>
+  <div class="reco" id="reco"></div>
+
+  <div class="sub" style="margin-top:16px;">Shift dashboard</div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="d-ttd">—</div><div class="l">Avg tasking-to-dissemination (watch-min)</div></div>
+    <div class="stat"><div class="n" id="d-wip">0</div><div class="l">In work right now</div></div>
+    <div class="stat"><div class="n" id="d-done">0</div><div class="l">Disseminated</div></div>
+    <div class="stat"><div class="n" id="d-match">—</div><div class="l">Specialty-match rate</div></div>
+  </div>
+
+  <div class="sub" style="margin-top:14px;">Event log — what the floor did, in order</div>
+  <div class="log" id="log" aria-live="polite"></div>
+
+  <h2>Copilot vs. baseline — the compression, measured</h2>
+  <table>
+    <tr><th></th><th>Copilot floor</th><th>Baseline (old rule)</th><th>Delta</th></tr>
+    <tr><td>Avg tasking-to-dissemination</td><td id="c-ttd">—</td><td id="b-ttd">—</td><td id="x-ttd">—</td></tr>
+    <tr><td>Disseminated</td><td id="c-done">0</td><td id="b-done">0</td><td id="x-done">—</td></tr>
+    <tr><td>Specialty-match rate</td><td id="c-match">—</td><td id="b-match">—</td><td id="x-match">—</td></tr>
+  </table>
+
+  <div class="caveat">Final build. All data synthetic; routing weights and time compression stated openly in "How this works" below. Click any tasking in the feed — or any disseminated id in the event log — for its exploitation chain.</div>
+
+  <h2>How this works</h2>
+  <p class="section-sub">The explainer boxes, collapsed so they don't take fixed space. Everything on this page is synthetic.</p>
+
+  <details class="how">
+    <summary>Synthetic data</summary>
+    <div class="body">Every tasking on this page is generated in your browser by a small script — no real vessels, no real sources, no HII or SOUTHCOM claims. The point is the <em>shape</em> of the workflow: taskings arrive, they wait, somebody has to triage them.</div>
+  </details>
+  <details class="how">
+    <summary>How the copilot scores</summary>
+    <div class="body">Every tasking gets three numbers: <b>mission priority</b> (what kind of contact it is), <b>source confidence</b> (how reliable the cueing source is), and <b>team load</b> — measured, not guessed: how busy the analysts are and how deep the queue runs. Score = 0.5 × priority + 0.3 × confidence + 0.2 × load, scaled 0–100. Each card shows its work — a triage copilot that can't explain itself won't be trusted.</div>
+  </details>
+  <details class="how">
+    <summary>Capacity is the constraint</summary>
+    <div class="body">Four analysts, one tasking each at a time. Higher-priority taskings take more cycles — they get worked more thoroughly. A specialty match (imagery analyst on a port-activity check) shortens the job. Idle analysts always claim the highest-scored tasking waiting. When the queue climbs while all four bars are full, you're looking at the absorption problem. Time is compressed: one 4-second tick ≈ 10 watch-minutes, so a 7-cycle tasking stands in for roughly 70 minutes of real work. The durations are illustrative; the queueing dynamics are the point.</div>
+  </details>
+  <details class="how">
+    <summary>Shadow deployment</summary>
+    <div class="body">A second, headless watch floor runs the <em>same</em> taskings — identical priority, confidence, and arrival times — under the old rule: every idle analyst grabs the highest-scored tasking, no specialty consideration. The visible floor uses copilot routing. The difference is measured, not asserted.</div>
+  </details>
+  <details class="how">
+    <summary>How the copilot routes</summary>
+    <div class="body">For each idle analyst and each waiting tasking, fit = score + 15 for a specialty match. Assign the best pair, remove both, repeat. The 15-point bonus is a judgment call, stated openly — it's the value the copilot places on putting the right analyst on the right tasking.</div>
+  </details>
+  <details class="how">
+    <summary>Dark-vessel handoffs</summary>
+    <div class="body">Accepted contacts from the <a href="dark-vessel.html" style="color:var(--accent)">dark-vessel triage</a> page can be disseminated here as taskings (<code>?inject=[...]</code>). They arrive pre-triaged — scored by the detection page — so they skip this floor's dedupe merge and land as their own cards, twinned on both floors to keep the comparison fair. The ◈ tag marks the architecture: detection → triage → tasking. Priority maps from the anomaly score (85+ → 5/5); confidence from the assessment (High → 88%).</div>
+  </details>
+
+  <h2>What this demonstrates</h2>
+  <p class="section-sub">The year-one lever, made concrete.</p>
+  <div class="recap">
+    <div class="rrow"><div class="rnum">1</div><div><b>Absorption, not volume.</b> Arrivals outpace four analysts. That gap — not a shortage of collection — is the actual bottleneck.</div></div>
+    <div class="rrow"><div class="rnum">2</div><div><b>Same capacity, better allocation.</b> The copilot adds no analysts. It changes what they see first, and the shadow floor measures the difference.</div></div>
+    <div class="rrow"><div class="rnum">3</div><div><b>Routing is the product.</b> Ranking is a commodity. Putting the right analyst on the right tasking is where the time comes from.</div></div>
+  </div>
+
+  <div class="footer">
+    TCPED = Tasking, Collection, Processing, Exploitation, Dissemination. Built step by step, local first.
+  </div>
+
+</div>
+
+<div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="sheet">
+    <div class="sheet-head">
+      <span class="id" id="m-title"></span>
+      <button id="m-close" class="ghost">Close</button>
+    </div>
+    <div id="m-body"></div>
+    <div class="m-actions" id="m-actions"></div>
+    <div class="caveat">All content on this card is synthetic — generated in your browser for illustration.</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STEP 1 — the data model and the feed
+   ------------------------------------------------------------
+   A "tasking" is the unit of work flowing through TCPED. Each one
+   carries: what was asked for, where the request came from, when it
+   arrived, and (from Step 2 onward) how the copilot scored it.
+   Everything below is synthetic — generated in-browser, no network.
+   ============================================================ */
+
+// The kinds of collection requests a maritime watch floor sees.
+// Each type knows how to describe a fresh instance of itself.
+const TASKING_TYPES = [
+  { key:'dark-vessel', label:'Dark vessel',
+    desc:() => `Possible AIS-dark contact, ${pick(['eastern Caribbean','Windward Passage','Gulf of Honduras','off the Guajira peninsula'])} — request overflight or task satellite pass.` },
+  { key:'ais-gap', label:'AIS gap',
+    desc:() => `Merchant vessel ${pick(['"CARIB TRADER"','"SANTA LUCIA"','"MAR AZUL"','"OCEAN PEARL"'])} dropped AIS ${pick(['14','22','31','47'])} nm ${pick(['north','south','east','west'])} of ${pick(['Kingston','Cartagena','Colon','Port-au-Prince'])}.` },
+  { key:'port-activity', label:'Port activity',
+    desc:() => `Unusual night-time loading at ${pick(['Puerto Cabello','Manzanillo','Georgetown','Castries'])} — request imagery review against last 30-day baseline.` },
+  { key:'rendezvous', label:'Rendezvous pattern',
+    desc:() => `Two contacts loitering ${pick(['8','12','19'])} nm apart, ${pick(['south of Jamaica','in the Mona Passage','off Aruba'])} — possible at-sea transfer.` },
+];
+
+const SOURCES = ['Coastal radar','Commercial SAT-AIS','Partner-nation tip','Overhead imagery','SIGINT cue'];
+
+/* ============================================================
+   STEP 2 — the scoring engine
+   ------------------------------------------------------------
+   One score from three inputs. The weights are a judgment call,
+   stated openly: priority matters most (mission first), then
+   confidence, then pressure. Two kinds of inputs:
+     - stable attributes (priority, confidence): assessed ONCE at
+       creation, because the contact doesn't change.
+     - dynamic context (pressure): recomputed EVERY render, because
+       the queue around the tasking keeps changing.
+   ============================================================ */
+const WEIGHTS = { priority: 0.5, confidence: 0.3, pressure: 0.2 };
+
+// Mission judgment, encoded: a dark vessel near a chokepoint outranks
+// a routine port-activity check. The ±1 jitter keeps it from feeling
+// like a lookup table.
+const TYPE_PRIORITY = { 'dark-vessel':5, 'rendezvous':4, 'ais-gap':3, 'port-activity':2 };
+// Source reliability, encoded: how much you trust the cue.
+const SOURCE_CONF   = { 'Coastal radar':80, 'Commercial SAT-AIS':74, 'Partner-nation tip':65, 'Overhead imagery':88, 'SIGINT cue':92 };
+
+function jitter(n, amt){ return Math.max(0, Math.min(100, n + (Math.random()*2-1)*amt)); }
+
+// Stable attributes — run once per tasking.
+function assess(k){
+  const base = TYPE_PRIORITY[k.type];
+  k.priority = Math.max(1, Math.min(5, base + (Math.random() < 0.25 ? (Math.random() < 0.5 ? -1 : 1) : 0)));
+  k.confidence = Math.round(jitter(SOURCE_CONF[k.sources[0]], 6));
+}
+
+/* ============================================================
+   STEP 3 — analyst capacity: the bottleneck, modeled
+   ------------------------------------------------------------
+   Four analysts, one tasking each. Work advances one "cycle" per
+   tick (2 seconds). Higher-priority taskings cost more cycles;
+   a specialty match discounts the cost. Deliberately coarse —
+   the point is the dynamics, not the numbers.
+   ============================================================ */
+// Two floors, same people, different routing. The shadow floor is
+// headless — it produces metrics, not UI. This mirrors how you'd
+// evaluate a routing change in production: shadow mode, same inputs.
+function makeTeam(){
+  const t = [
+    { name:'D. Whitfield', role:'Watch lead', specialty:'fusion' },
+    { name:'P. Anand',     role:'Imagery',     specialty:'imagery' },
+    { name:'S. Okafor',    role:'SIGINT',      specialty:'sigint' },
+    { name:'L. Marsh',     role:'Fusion',      specialty:'fusion' },
+  ];
+  t.forEach(a => a.current = null);
+  return t;
+}
+const ANALYSTS = makeTeam();        // visible floor: copilot routing
+const SHADOW_TEAM = makeTeam();     // shadow floor: old greedy rule
+const shadowQueue = [];             // shadow twins of every tasking
+
+// Which analyst specialty fits which tasking type. A match cuts two
+// cycles off the job — this is where routing starts to matter.
+// (Step 4 turns it into explicit copilot recommendations.)
+const SPECIALTY_MATCH = { 'dark-vessel':'fusion', 'ais-gap':'fusion', 'port-activity':'imagery', 'rendezvous':'sigint' };
+
+/* ============================================================
+   STEP 5 — the decision moment: what the analyst actually sees
+   ------------------------------------------------------------
+   Clicking a tasking opens its exploitation chain: the five TCPED
+   stages for that specific item, with what the copilot did and what
+   the analyst found. All narrative text is synthetic and generated
+   in-browser — the structure is the point, not the words.
+   ============================================================ */
+const EXPLOIT = {
+  'dark-vessel': k => `Dark contact ${pick(['correlates with an AIS dropout ~6h prior', 'matches a known smuggling-corridor transit profile', 'is holding a loiter pattern inconsistent with innocent passage'])}. Assessment (${k.confidence >= 80 ? 'high' : 'moderate'} confidence): rendezvous candidate. Recommend continued track and overhead collection on next pass.`,
+  'ais-gap': k => `Gap analysis leaves a ${pick(['40', '70', '110'])} nm uncertainty ellipse between last AIS position and dead reckoning. ${k.confidence >= 80 ? 'Port records corroborate the declared voyage plan — treat as emissions control, not evasion.' : 'No corroborating port records — cannot rule out intentional AIS disablement.'} Recommend coastal-radar reacquisition.`,
+  'port-activity': k => `Imagery review vs. 30-day baseline: ${pick(['loading activity well above baseline for this berth', 'two unlisted small craft alongside during dark hours', 'crane activity inconsistent with declared cargo ops'])}. Recommend ${k.band === 'low' ? 'routine follow-up on next imagery cycle.' : 'priority re-image within 12 hours.'}`,
+  'rendezvous': k => `Two-contact loiter pattern ${pick(['matches three prior at-sea transfer events in this area', 'is atypical for local fishing traffic', 'aligns with a partner-nation tip from last week'])}. Recommend SIGINT cueing and overhead collection; if transfer confirmed, escalate handling.`,
+};
+const DISSEM = {
+  crit: { product:'FLASH report',          to:'SOUTHCOM J2 / watch commander' },
+  high: { product:'Priority spot report',  to:'J2 maritime desk' },
+  med:  { product:'Routine track update',  to:'watch log' },
+  low:  { product:'Watch log entry',       to:'watch log' },
+};
+
+// Measured load for one floor: 60% analysts-busy, 40% queue-depth-
+// per-analyst. Shared by the visible floor and the shadow floor.
+function loadOf(q, team){
+  const busy = team.filter(a => a.current).length;
+  const waiting = q.filter(k => k.status === 'awaiting-triage').length;
+  return Math.round(100 * (0.6 * (busy / team.length) + 0.4 * Math.min(1, waiting / (team.length * 3))));
+}
+function teamLoad(){ return loadOf(queue, ANALYSTS); }
+
+// Dynamic context — run on every render, for both floors.
+function rescoreFloor(q, team){
+  const load = loadOf(q, team);
+  q.forEach(k => {
+    k.pressure = load;
+    k.score = Math.round(
+      WEIGHTS.priority   * (k.priority / 5 * 100) +
+      WEIGHTS.confidence * k.confidence +
+      WEIGHTS.pressure   * load
+    );
+    k.band = k.score >= 80 ? 'crit' : k.score >= 60 ? 'high' : k.score >= 40 ? 'med' : 'low';
+  });
+}
+function rescore(){
+  rescoreFloor(queue, ANALYSTS);
+  rescoreFloor(shadowQueue, SHADOW_TEAM);
+}
+
+// An idle analyst claims the highest-scored waiting tasking.
+function claim(analyst, k){
+  const match = SPECIALTY_MATCH[k.type] === analyst.specialty;
+  k.workRequired = Math.max(2, 2 + k.priority - (match ? 2 : 0));
+  k.workDone = 0;
+  k.claimedBy = analyst.name;
+  k.specialtyMatch = match;
+  k.claimedAt = new Date();
+  k.status = 'in-work';
+  analyst.current = k;
+}
+
+/* ============================================================
+   STEP 4 — routing: the copilot's actual job
+   ------------------------------------------------------------
+   Ranking (Step 2) decides WHAT matters. Routing decides WHO works
+   it. The copilot's rule: fit = score + bonus for specialty match,
+   assigned greedily by best (analyst, tasking) pair. The baseline
+   keeps the old rule: fixed analyst order, top score wins.
+   ============================================================ */
+const MATCH_BONUS = 15;   // judgment call, stated openly
+
+function copilotAssign(idle, waiting){
+  const pairs = [];
+  idle.forEach(a => waiting.forEach(k => {
+    pairs.push({ a, k, fit: k.score + (SPECIALTY_MATCH[k.type] === a.specialty ? MATCH_BONUS : 0) });
+  }));
+  pairs.sort((x, y) => y.fit - x.fit);
+  const usedA = new Set(), usedK = new Set(), assigned = [];
+  pairs.forEach(p => {
+    if (!usedA.has(p.a) && !usedK.has(p.k)){
+      usedA.add(p.a); usedK.add(p.k);
+      assigned.push(p);
+    }
+  });
+  return assigned;
+}
+
+function baselineAssign(idle, waiting){
+  const ranked = [...waiting].sort((x, y) => y.score - x.score || x.receivedAt - y.receivedAt);
+  return idle.map((a, i) => ranked[i] ? { a, k: ranked[i], fit: ranked[i].score } : null).filter(Boolean);
+}
+
+// Advance one floor's work by a cycle. The shadow floor stays silent:
+// it produces metrics, not story.
+function advanceFloor(team, silent){
+  team.forEach(a => {
+    if (a.current){
+      const k = a.current;
+      k.workDone++;
+      if (k.workDone >= k.workRequired){
+        k.status = 'disseminated';
+        k.disseminatedAt = new Date();
+        k.ticksInSystem = tickCount - k.bornTick;
+        if (!silent) logEvent(`${a.name} disseminated <span class="did" data-id="${k.id}">${k.id}</span> — ${k.ticksInSystem * MIN_PER_TICK} watch-min tasking-to-dissemination`);
+        a.current = null;
+      }
+    }
+  });
+}
+
+// Time compression, stated as a constant so it's honest: one 4-second
+// tick represents MIN_PER_TICK minutes of watch-floor time. Durations
+// displayed in "watch-min" are simulated; the queueing behavior is real.
+const MIN_PER_TICK = 10;
+let tickCount = 0;
+
+// --- the simulation tick: advance work, route, redraw -----------------
+function tick(){
+  tickCount++;
+  rescore();   // both floors' scores fresh before routing
+  const prevWaiting = queue.filter(k => k.status === 'awaiting-triage').length;
+
+  // 1. Both floors advance work.
+  advanceFloor(ANALYSTS, false);
+  advanceFloor(SHADOW_TEAM, true);
+
+  // 2a. Copilot floor: specialty-aware assignment.
+  copilotAssign(
+    ANALYSTS.filter(a => !a.current),
+    queue.filter(k => k.status === 'awaiting-triage')
+  ).forEach(({ a, k, fit }) => {
+    k.routedFit = fit;          // remembered for the decision-moment view
+    k.claimTick = tickCount;
+    claim(a, k);
+    logEvent(`${a.name} ← ${k.id} (${k.label.toLowerCase()}, fit ${fit})${k.specialtyMatch ? ' — specialty match' : ''}`);
+  });
+
+  // 2b. Shadow floor: the old greedy rule. Metrics only, no log lines.
+  baselineAssign(
+    SHADOW_TEAM.filter(a => !a.current),
+    shadowQueue.filter(k => k.status === 'awaiting-triage')
+  ).forEach(({ a, k }) => claim(a, k));
+
+  // 3. Queue milestones, then history + redraw.
+  const waiting = queue.filter(k => k.status === 'awaiting-triage').length;
+  if (waiting >= 8 && prevWaiting < 8) logEvent(`Queue backing up — ${waiting} awaiting triage`);
+  if (waiting === 0 && prevWaiting > 0) logEvent(`Queue clear — floor caught up`);
+  render();
+  renderTeam();
+  renderDash();
+  renderCompare();
+}
+function bandLabel(b){ return { crit:'Critical', high:'High', med:'Medium', low:'Low' }[b]; }
+
+// --- small helpers ------------------------------------------------
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function clock(d){ return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+
+// --- the queue: the single source of truth for this page ----------
+let seq = 1041;            // tasking serial numbers start here
+const queue = [];          // every tasking ever received, in arrival order
+const feedEl = document.getElementById('feed');
+
+// One arrival, two taskings: the live one and its shadow twin. Twins
+// share stable attributes (priority, confidence) so the comparison is
+// fair — the ONLY difference between floors is routing.
+function makeTasking(){
+  const t = pick(TASKING_TYPES);
+  const now = new Date();
+  const spec = {
+    id: 'TSK-' + (seq++),
+    type: t.key,
+    label: t.label,
+    desc: t.desc(),
+    sources: [pick(SOURCES)],          // one cueing source per tasking, for now
+    receivedAt: now,
+    receivedClock: clock(now),
+    bornTick: tickCount,              // for measuring time-in-system later
+    linkedCount: 1,                   // dedupe merges bump this
+  };
+  const k = { ...spec, status:'awaiting-triage' };
+  assess(k);                            // stable attributes, scored once
+  const s = { ...spec, status:'awaiting-triage' };
+  s.priority = k.priority;              // twins: identical inputs...
+  s.confidence = k.confidence;
+  const kept = insertWithDedupe(queue, k);
+  insertWithDedupe(shadowQueue, s);     // shadow runs the identical merge
+  const merged = kept !== k;
+  if (merged){
+    dedupedCount++;
+    logEvent(`${k.id} merged into ${kept.id} — same ${k.label.toLowerCase()} within window, deduped`);
+  }
+  recentArrivals.unshift({ id:k.id, label:k.label, band:k.band, merged });
+  if (recentArrivals.length > 12) recentArrivals.pop();
+  return k;
+}
+
+/* ============================================================
+   STEP 9 — dark-vessel handoff intake
+   ------------------------------------------------------------
+   The dark-vessel triage page disseminates accepted contacts here
+   as URL-encoded taskings (?inject=[...]). They arrive pre-triaged —
+   scored by the detection page, not by raw-arrival logic — so they
+   skip this floor's dedupe merge and land as their own cards, with
+   twins on both floors to keep the comparison fair. The origin tag
+   keeps the architecture visible: detection → triage → tasking.
+   ============================================================ */
+function makeInjectedTasking(p){
+  const now = new Date();
+  const spec = {
+    id: 'TSK-' + (seq++),
+    type: p.type,
+    label: p.label,
+    desc: p.desc,
+    sources: ['Dark-vessel triage'],
+    receivedAt: now,
+    receivedClock: clock(now),
+    bornTick: tickCount,
+    linkedCount: 1,
+    origin: 'dark-vessel',
+    originId: p.vesselId,
+    intel: p.intel,
+  };
+  const k = { ...spec, status:'awaiting-triage', priority:p.priority, confidence:p.confidence };
+  const s = { ...spec, status:'awaiting-triage', priority:p.priority, confidence:p.confidence };
+  queue.push(k);
+  shadowQueue.push(s);
+  recentArrivals.unshift({
+    id: k.id, label: k.label, band: 'high', merged: false,
+    dv: { vesselId: p.vesselId, name: p.name, flag: p.flagLabel,
+          score: p.score, priority: p.priority, confidence: p.confidence },
+  });
+  if (recentArrivals.length > 12) recentArrivals.pop();
+  logEvent(`Handoff received: ${k.id} from dark-vessel triage — ${p.vesselId} "${p.name}", anomaly ${p.score}/100`);
+  return k;
+}
+
+/* ============================================================
+   STEP 7 (merge) — dedupe: overlapping reports on the same
+   contact type, arriving within the window, merge into one
+   tasking instead of competing for analyst time. Both floors run
+   the identical merge so the comparison stays fair.
+   ============================================================ */
+const DEDUPE_WINDOW_TICKS = 12;
+let dedupedCount = 0;
+const recentArrivals = [];   // raw arrival strip (pre-triage)
+const seenIds = new Set();   // fresh-card animation plays once
+
+function insertWithDedupe(floor, item){
+  const dupe = floor.find(q =>
+    q.status === 'awaiting-triage' &&
+    q.type === item.type &&
+    (tickCount - q.bornTick) < DEDUPE_WINDOW_TICKS
+  );
+  if (dupe){
+    dupe.linkedCount++;
+    if (item.confidence > dupe.confidence) dupe.confidence = item.confidence;
+    return dupe;
+  }
+  floor.push(item);
+  return item;
+}
+
+// --- rendering: rescore, sort, then draw ---------------------------
+let sortMode = 'ranked';   // 'ranked' | 'arrival'
+
+function render(){
+  rescore();   // dynamic context is fresh on every render
+
+  const ranked = sortMode === 'ranked';
+  // Disseminated taskings leave the feed; their ids stay clickable in the event log.
+  const active = queue.filter(k => k.status !== 'disseminated');
+  const items = ranked
+    ? [...active].sort((a,b) => b.score - a.score || a.receivedAt - b.receivedAt)
+    : [...active].reverse();   // arrival mode: newest first, like an ops log
+
+  feedEl.innerHTML = items.map((k, i) => {
+    const working = k.status === 'in-work';
+    const pct = working ? Math.round(100 * k.workDone / k.workRequired) : 0;
+    const fresh = seenIds.has(k.id) ? '' : ' fresh';
+    seenIds.add(k.id);
+    const linked = k.linkedCount > 1 ? ` <span class="pill">🔗 ${k.linkedCount}× linked</span>` : '';
+    const origin = k.origin === 'dark-vessel' ? ` <span class="pill origin">◈ dark-vessel triage</span>` : '';
+    return `
+    <li class="task p-${k.band}${fresh}${k.origin === 'dark-vessel' ? ' origin-dv' : ''}" data-id="${k.id}">
+      <div class="row">
+        <span><span class="id">${ranked ? '#' + (i+1) + ' · ' : ''}${k.id}</span> &nbsp;<span class="type">${k.label}</span>${linked}${origin}</span>
+        <span class="pill">${working ? 'In work · ' + k.claimedBy : 'Score ' + k.score + ' · ' + bandLabel(k.band)}</span>
+      </div>
+      <div class="desc">${k.desc}</div>
+      <div class="meta">Cued by ${k.sources.join(', ')} · received ${k.receivedClock}</div>
+      ${working
+        ? `<div class="bar"><div style="width:${pct}%"></div></div>
+           <div class="score">Worked by <b>${k.claimedBy}</b> · cycle ${k.workDone}/${k.workRequired}${k.specialtyMatch ? ' · specialty match (−2 cycles)' : ''}</div>`
+        : `<div class="score">Why: priority <b>${k.priority}/5</b> · confidence <b>${k.confidence}%</b> · team load <b>${k.pressure}</b> → <b>${k.score}</b></div>`}
+    </li>`;
+  }).join('');
+
+  // Stat strip.
+  const waiting = queue.filter(k => k.status === 'awaiting-triage');
+  const done = queue.filter(k => k.status === 'disseminated');
+  document.getElementById('s-queue').textContent = waiting.length;
+  document.getElementById('s-load').textContent = teamLoad() + '%';
+  document.getElementById('s-dis').textContent = done.length;
+  document.getElementById('s-deduped').textContent = dedupedCount;
+  // Raw arrivals strip: pre-triage, newest first. Merged arrivals are marked.
+  // Handoffs carry the ◈ mark; hovering any pill shows what it is.
+  document.getElementById('arrivals').innerHTML = recentArrivals.length
+    ? recentArrivals.map(r =>
+        `<span class="arr p-${r.band || 'med'}${r.dv ? ' dv' : ''}" data-arr="${r.id}">${r.id}${r.merged ? ' ⌁' : ''}${r.dv ? ' ◈' : ''}</span>`
+      ).join('')
+    : '<span class="arr idle">waiting for arrivals…</span>';
+  if (waiting.length){
+    const ms = Date.now() - waiting[0].receivedAt.getTime();
+    document.getElementById('s-oldest').textContent =
+      pad(Math.floor(ms/60000)) + ':' + pad(Math.floor(ms/1000)%60);
+  } else {
+    document.getElementById('s-oldest').textContent = '—';
+  }
+}
+
+// --- watch-floor rendering ------------------------------------------
+const teamEl = document.getElementById('team');
+function renderTeam(){
+  teamEl.innerHTML = ANALYSTS.map(a => {
+    const busy = !!a.current;
+    const pct = busy ? Math.round(100 * a.current.workDone / a.current.workRequired) : 0;
+    return `<div class="analyst ${busy ? 'busy' : ''}">
+      <div class="aname">${a.name}</div>
+      <div class="aspec">${a.role} · ${a.specialty}</div>
+      ${busy
+        ? `<div class="atask">${a.current.id} · ${a.current.label}</div>
+           <div class="bar"><div style="width:${pct}%"></div></div>
+           <div class="apct">cycle ${a.current.workDone}/${a.current.workRequired}</div>`
+        : `<div class="atask idle">Idle — awaiting claim</div>`}
+    </div>`;
+  }).join('');
+
+  // The copilot's standing recommendation: its actual next assignment.
+  const waitK = queue.filter(k => k.status === 'awaiting-triage');
+  const plan = copilotAssign(ANALYSTS.filter(a => !a.current), waitK)[0];
+  let recoHtml;
+  if (!waitK.length){
+    recoHtml = `Queue clear — all analysts idle. The copilot has nothing to recommend, which is the goal.`;
+  } else if (!plan){
+    recoHtml = `All analysts busy — ${waitK.length} awaiting. The copilot will route as capacity frees.`;
+  } else {
+    const m = SPECIALTY_MATCH[plan.k.type] === plan.a.specialty;
+    recoHtml = `<strong>Copilot routes ${plan.k.id} → ${plan.a.name}</strong> — ${plan.k.label.toLowerCase()}, score ${plan.k.score}${m ? ', specialty match' : ''} (fit ${plan.fit}).`;
+  }
+  document.getElementById('reco').innerHTML = recoHtml;
+}
+
+// --- event log + shift dashboard --------------------------------------
+const logEl = document.getElementById('log');
+const events = [];
+function logEvent(msg){
+  events.unshift({ t: new Date(), msg });
+  if (events.length > 80) events.pop();
+  logEl.innerHTML = events.map(e => `<div><span class="lt">${clock(e.t)}</span> ${e.msg}</div>`).join('');
+}
+
+function renderDash(){
+  const done = queue.filter(k => k.status === 'disseminated');
+  const wip = ANALYSTS.filter(a => a.current).length;
+  document.getElementById('d-wip').textContent = wip;
+  document.getElementById('d-done').textContent = done.length;
+  if (done.length){
+    const avgTicks = done.reduce((s, k) => s + k.ticksInSystem, 0) / done.length;
+    document.getElementById('d-ttd').textContent = Math.round(avgTicks * MIN_PER_TICK) + ' min';
+    const matched = done.filter(k => k.specialtyMatch).length;
+    document.getElementById('d-match').textContent = Math.round(100 * matched / done.length) + '%';
+  } else {
+    document.getElementById('d-ttd').textContent = '—';
+    document.getElementById('d-match').textContent = '—';
+  }
+}
+
+// --- copilot vs. baseline: the compression metric -------------------------
+function floorStats(q){
+  const done = q.filter(k => k.status === 'disseminated');
+  return {
+    done: done.length,
+    avg: done.length ? done.reduce((s, k) => s + k.ticksInSystem, 0) / done.length * MIN_PER_TICK : null,
+    match: done.length ? 100 * done.filter(k => k.specialtyMatch).length / done.length : null,
+  };
+}
+function setCell(id, v){ document.getElementById(id).textContent = v; }
+function renderCompare(){
+  const c = floorStats(queue), b = floorStats(shadowQueue);
+  setCell('c-ttd', c.avg == null ? '—' : Math.round(c.avg) + ' min');
+  setCell('b-ttd', b.avg == null ? '—' : Math.round(b.avg) + ' min');
+  setCell('c-done', c.done);
+  setCell('b-done', b.done);
+  setCell('c-match', c.match == null ? '—' : Math.round(c.match) + '%');
+  setCell('b-match', b.match == null ? '—' : Math.round(b.match) + '%');
+  // Deltas. Negative TTD delta is good; positive done/match deltas are good.
+  const xTtd = document.getElementById('x-ttd');
+  if (c.avg != null && b.avg != null && b.avg > 0){
+    const d = Math.round(100 * (c.avg - b.avg) / b.avg);
+    xTtd.innerHTML = `<span class="${d <= 0 ? 'delta-good' : 'delta-bad'}">${d > 0 ? '+' : ''}${d}%</span>`;
+  } else xTtd.textContent = '—';
+  const xDone = document.getElementById('x-done');
+  xDone.innerHTML = (c.done || b.done)
+    ? `<span class="${c.done >= b.done ? 'delta-good' : 'delta-bad'}">${c.done - b.done > 0 ? '+' : ''}${c.done - b.done}</span>`
+    : '—';
+  const xMatch = document.getElementById('x-match');
+  if (c.match != null && b.match != null){
+    const d = Math.round(c.match - b.match);
+    xMatch.innerHTML = `<span class="${d >= 0 ? 'delta-good' : 'delta-bad'}">${d > 0 ? '+' : ''}${d} pts</span>`;
+  } else xMatch.textContent = '—';
+}
+
+// --- decision moment ----------------------------------------------------
+function openModal(id){
+  const k = queue.find(x => x.id === id);
+  if (!k) return;
+  document.getElementById('m-title').textContent = `${k.id} · ${k.label} — score ${k.score} (${bandLabel(k.band)})`;
+
+  // Fused sources: the cueing source plus one corroborating source.
+  const corroborator = pick(SOURCES.filter(s => s !== k.sources[0]));
+  const corroboratorConf = Math.max(40, k.confidence - 12 - Math.floor(Math.random() * 8));
+
+  let procBody, exploitBody, dissemBody;
+  let expDone = false, disDone = false;
+  if (k.status === 'awaiting-triage'){
+    const plan = copilotAssign(
+      ANALYSTS.filter(a => !a.current),
+      queue.filter(x => x.status === 'awaiting-triage')
+    )[0];
+    procBody = `Copilot scored ${k.score} (priority ${k.priority}/5 · confidence ${k.confidence}% · load ${k.pressure}). ` +
+      (plan ? `Current recommendation: route to ${plan.a.name} (fit ${plan.fit}).` : `All analysts busy — holding in queue.`);
+    exploitBody = `Pending — no analyst assigned yet.`;
+  } else {
+    const m = k.specialtyMatch ? 'specialty match' : 'no specialty match';
+    const fitTxt = k.routedFit == null ? m : `fit ${k.routedFit}, ${m}`;
+    const waitMin = k.claimTick == null ? '' : ` Claimed ${(k.claimTick - k.bornTick) * MIN_PER_TICK} watch-min after arrival.`;
+    procBody = `Copilot scored ${k.score} and routed → ${k.claimedBy} (${fitTxt}).${waitMin}`;
+    if (k.status === 'in-work'){
+      exploitBody = `Work in progress — ${k.claimedBy} is on cycle ${k.workDone}/${k.workRequired}.`;
+    } else {
+      expDone = true;
+      exploitBody = `${k.claimedBy}: ${EXPLOIT[k.type](k)}`;
+    }
+  }
+  const d = DISSEM[k.band];
+  if (k.status === 'disseminated'){
+    disDone = true;
+    dissemBody = `${d.product} → ${d.to}. Disseminated ${clock(k.disseminatedAt)}.`;
+  } else {
+    dissemBody = `Recommended: ${d.product} → ${d.to} (pending).`;
+  }
+
+  const stage = (name, body, done, pending = false) =>
+    `<div class="stage ${done ? 'done' : ''} ${pending ? 'pending' : ''}"><div class="sname">${name}</div><div class="sbody">${body}</div></div>`;
+
+  const taskingBody = k.origin === 'dark-vessel' && k.intel
+    ? `Handoff from dark-vessel triage (${k.originId}). ${k.desc}<br><br><b>Detection assessment:</b> ${k.intel.narrative}<br><b>Score factors:</b> ${k.intel.factors.map(f => f[0] + ' +' + f[1]).join('; ')}.<br><b>Falsifier:</b> ${k.intel.falsifier}`
+    : `Received ${k.receivedClock}, cued by ${k.sources[0]}. ${k.desc}`;
+
+  document.getElementById('m-body').innerHTML =
+    stage('TASKING', taskingBody, true) +
+    stage('COLLECTION', `Sources fused (synthetic): ${k.sources[0]} ${k.confidence}% · ${corroborator} ${corroboratorConf}%`, true) +
+    stage('PROCESSING', procBody, true) +
+    stage('EXPLOITATION', exploitBody, expDone, !expDone) +
+    stage('DISSEMINATION', dissemBody, disDone, !disDone);
+
+  document.getElementById('modal').hidden = false;
+
+  // Disseminated taskings can feed the evidence dashboard: the outcome
+  // becomes a pipeline event on the generic evidence surface.
+  const ma = document.getElementById('m-actions');
+  ma.innerHTML = k.status === 'disseminated'
+    ? `<button class="evbtn" data-ev="${k.id}">→ Evidence dashboard</button><span class="evnote">Sends this outcome to the evidence dashboard as a pipeline event.</span>`
+    : '';
+}
+function closeModal(){ document.getElementById('modal').hidden = true; document.getElementById('m-actions').innerHTML = ''; }
+
+// A dissemination becomes evidence: component, outcome, and the detail
+// the dashboard needs. The intake is generic — any current or future
+// build can feed events in the same shape via ?events=[...].
+function sendToEvidence(id){
+  const k = queue.find(x => x.id === id);
+  if (!k || k.status !== 'disseminated') return;
+  const d = DISSEM[k.band];
+  const ev = {
+    component: 'TCPED triage copilot',
+    label: `${k.id} · ${k.label}`,
+    outcome: k.score >= 70 ? 'win' : 'neutral',
+    detail: `${d.product} → ${d.to} · score ${k.score} (${bandLabel(k.band)})` +
+      (k.origin === 'dark-vessel' ? ` · ◈ via dark-vessel triage (${k.originId})` : '') +
+      (k.linkedCount > 1 ? ` · ${k.linkedCount}× deduped` : ''),
+  };
+  window.open('evidence-dashboard.html?events=' + encodeURIComponent(JSON.stringify([ev])), '_blank');
+  logEvent(`${k.id} sent → evidence dashboard`);
+}
+
+// Click a card (feed) or a disseminated id (event log) → its exploitation chain.
+feedEl.addEventListener('click', (e) => {
+  const li = e.target.closest('.task');
+  if (li && li.dataset.id) openModal(li.dataset.id);
+});
+// Disseminated ids in the event log open the decision moment too.
+logEl.addEventListener('click', (e) => {
+  const s = e.target.closest('[data-id]');
+  if (s) openModal(s.dataset.id);
+});
+document.getElementById('m-close').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+document.getElementById('modal').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ev]');
+  if (b) sendToEvidence(b.dataset.ev);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+// --- feed controls --------------------------------------------------
+document.getElementById('btn-add').addEventListener('click', () => {
+  makeTasking();   // pushes to both the live queue and the shadow queue
+  render();
+});
+
+let autoTimer = null;
+const autoBtn = document.getElementById('btn-auto');
+autoBtn.addEventListener('click', () => {
+  if (autoTimer){ clearInterval(autoTimer); autoTimer = null; autoBtn.textContent = 'Auto-feed: off'; }
+  else {
+    // A new tasking every ~8 seconds, with a little jitter so it feels operational.
+    autoTimer = setInterval(() => { makeTasking(); render(); }, 7000 + Math.random()*3000);
+    autoBtn.textContent = 'Auto-feed: on';
+  }
+});
+
+document.getElementById('btn-sort').addEventListener('click', (e) => {
+  sortMode = sortMode === 'ranked' ? 'arrival' : 'ranked';
+  e.target.textContent = 'Sort: ' + sortMode;
+  render();
+});
+
+// Arrival-strip tooltip: hovering a pill explains what that arrival is.
+// Handoffs show their dark-vessel provenance — vessel, flag, score.
+const arrTip = document.getElementById('arr-tip');
+document.getElementById('arrivals').addEventListener('mousemove', (e) => {
+  const s = e.target.closest('.arr');
+  const r = s && !s.classList.contains('idle') ? recentArrivals.find(x => x.id === s.dataset.arr) : null;
+  if (!r){ arrTip.style.display = 'none'; return; }
+  arrTip.innerHTML = r.dv
+    ? `<b>${r.id} · ${r.label}</b><br><span class="dvtag">◈ dark-vessel triage handoff</span><br>"${r.dv.name}" (${r.dv.vesselId}) — ${r.dv.flag}<br>Anomaly ${r.dv.score}/100 → priority ${r.dv.priority}/5 · confidence ${r.dv.confidence}%`
+    : `<b>${r.id} · ${r.label}</b><br>${r.merged ? 'Merged into an existing tasking (dedupe).' : 'Raw arrival — awaiting triage.'}`;
+  arrTip.style.display = 'block';
+  const w = 340;
+  arrTip.style.left = Math.min(e.clientX + 14, window.innerWidth - w) + 'px';
+  arrTip.style.top = (e.clientY + 16) + 'px';
+});
+document.getElementById('arrivals').addEventListener('mouseleave', () => { arrTip.style.display = 'none'; });
+
+// Seed the page with three taskings so it never opens empty.
+for (let i=0;i<3;i++) makeTasking();
+
+// Handoff intake: ?inject=[{...}] from the dark-vessel triage page.
+try {
+  const raw = new URLSearchParams(location.search).get('inject');
+  if (raw){
+    const incoming = JSON.parse(raw);
+    (Array.isArray(incoming) ? incoming : [incoming]).forEach(p => {
+      if (p && p.type && p.vesselId) makeInjectedTasking(p);
+    });
+  }
+} catch(err){ /* malformed handoff: ignore, page still works */ }
+render();
+renderTeam();
+renderDash();
+renderCompare();
+logEvent('Watch floor initialized — 4 analysts on shift');
+logEvent('Shadow floor running the old greedy rule in parallel — metrics only');
+
+// The simulation heartbeat: every 4 seconds, work advances and idle
+// analysts claim. tick() is the only place state changes; render()
+// just draws. (The 1-second interval below only keeps the wait clock
+// honest — it never mutates state.)
+setInterval(tick, 4000);
+
+// Keep the "oldest un-triaged" clock honest even when nothing new arrives.
+setInterval(render, 1000);
+</script>
+</body>
+</html>
