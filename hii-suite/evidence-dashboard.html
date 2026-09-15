@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base-year evidence dashboard</title>
+<style>
+  :root { --ink:#1b2129; --muted:#68727e; --faint:#9aa3ad; --accent:#166534; --line:#e2e7ec;
+           --wash:#f7f9fb; --good:#1e7e34; --warn:#b7791f; --bad:#b3261e; --teal:#0b7285; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+         color:var(--ink); background:var(--wash); margin:0; padding:0; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:36px 24px 64px; }
+  .eyebrow { font-size:0.75em; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin:0 0 14px; font-weight:600; }
+  h1 { font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:1.9em; line-height:1.2; margin:0 0 8px; letter-spacing:-0.01em; }
+  .sub { color:var(--muted); margin:0 0 6px; line-height:1.55; max-width:46em; }
+  .ver { font-size:0.78em; color:var(--faint); margin:0 0 6px; }
+  .ver a { color:var(--accent); }
+  .pattern { background:#eef7ef; border:1px solid #c8e2cc; border-left:4px solid var(--accent);
+             padding:14px 18px; margin:20px 0 26px; font-size:0.9em; line-height:1.6; color:#33404d; }
+  h2 { font-size:1.1em; font-weight:650; letter-spacing:-0.01em; margin:32px 0 6px; }
+  .psub { color:var(--muted); font-size:0.88em; margin:0 0 12px; line-height:1.55; max-width:56em; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+  .kpi { background:#fff; border:1px solid var(--line); padding:14px 16px; }
+  .kpi .v { font-family:Georgia,'Times New Roman',serif; font-size:1.9em; color:var(--ink); line-height:1.1; }
+  .kpi .v small { font-size:0.5em; font-weight:400; color:var(--muted); font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; }
+  .kpi .l { font-size:0.7em; letter-spacing:1.2px; text-transform:uppercase; color:var(--faint); margin:6px 0 8px; line-height:1.5; }
+  .kpi .d { font-size:0.78em; }
+  .kpi .d .up { color:var(--good); font-weight:700; }
+  .kpi .d .tgt { color:var(--faint); }
+  .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px; margin-top:6px; }
+  .chart { background:#fff; border:1px solid var(--line); padding:16px 18px; }
+  .chart h3 { font-size:0.92em; margin:0 0 4px; font-weight:650; }
+  .chart p { font-size:0.78em; color:var(--muted); margin:0 0 10px; line-height:1.5; }
+  .chart canvas { width:100%; height:auto; display:block; }
+  .legend { font-size:0.76em; color:var(--faint); margin-top:8px; }
+  .sw { display:inline-block; width:22px; height:3px; vertical-align:middle; margin:0 4px 0 10px; }
+  table.ready { width:100%; border-collapse:collapse; background:#fff; font-size:0.88em; }
+  table.ready th, table.ready td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); }
+  table.ready th { font-size:0.72em; letter-spacing:1.2px; color:var(--faint); text-transform:uppercase; font-weight:600; }
+  .pill { font-size:0.72em; font-weight:600; border-radius:999px; padding:3px 12px; white-space:nowrap; }
+  .pill.met { background:#e6f4ea; color:var(--good); border:1px solid var(--good); }
+  .pill.watch { background:#fef7e0; color:var(--warn); border:1px solid var(--warn); }
+  .pill.loss { background:#fdecea; color:var(--bad); border:1px solid var(--bad); }
+  #live-feed { background:#fff; border:1px solid var(--line); }
+  .pipe-row { display:flex; gap:12px; align-items:baseline; padding:11px 16px; border-bottom:1px solid var(--line); font-size:0.86em; flex-wrap:wrap; line-height:1.5; }
+  .pipe-row:last-child { border-bottom:none; }
+  .pipe-comp { font-size:0.72em; font-weight:700; letter-spacing:1px; color:var(--accent); text-transform:uppercase; white-space:nowrap; }
+  .pipe-label { font-weight:700; white-space:nowrap; }
+  .pipe-detail { color:var(--muted); flex:1; min-width:200px; }
+  .pipe-empty { padding:18px; font-size:0.88em; color:var(--muted); line-height:1.55; }
+  .pipe-empty a { color:var(--accent); }
+  #scoreboard-wrap { margin-top:18px; }
+  #scoreboard-wrap h3 { font-size:0.92em; margin:0 0 8px; font-weight:650; }
+  #scoreboard .wn { color:var(--good); font-weight:700; }
+  #scoreboard .ls { color:var(--bad); font-weight:700; }
+  details.how { margin-top:24px; background:#fff; border:1px solid var(--line); }
+  details.how summary { cursor:pointer; padding:14px 18px; font-weight:600; font-size:0.9em; color:var(--accent); }
+  details.how .body { padding:0 18px 18px; font-size:0.88em; line-height:1.65; color:#33404d; }
+  details.how .body b { color:var(--accent); }
+  .foot { margin-top:34px; font-size:0.78em; color:var(--faint); border-top:1px solid var(--line); padding-top:14px; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Chapter 3 · Display</div>
+  <h1>Base-year evidence dashboard</h1>
+  <p class="sub">The year-one option decision, in evidence — not activity. Base year months 1–12.</p>
+  <p class="ver"><a href="index.html">← Morning build reviews</a> · Working prototype · September 10, 2026</p>
+
+  <div class="pattern">
+    <b>Synthetic throughout.</b> Every metric, baseline, and target on this page is fabricated for the demo. It shows the <i>shape</i> of an option-readiness package — what a field team would have to prove by Q2 2027 — not real program performance.
+  </div>
+
+  <h2>Live pipeline feed</h2>
+  <p class="psub">Outcomes fed in from the working builds — the generic evidence surface. Any current or future component sends events here; the board keeps score.</p>
+  <div id="live-feed"></div>
+  <div id="scoreboard-wrap" style="display:none">
+    <h3>Wins / losses by component</h3>
+    <table class="ready" id="scoreboard"></table>
+  </div>
+
+  <h2>Key indicators</h2>
+  <div class="kpis" id="kpis"></div>
+
+  <h2>Trends</h2>
+  <div class="charts">
+    <div class="chart">
+      <h3>TCPED cycle time — median tasking to dissemination</h3>
+      <p>Minutes, per month. The compression the triage copilot is built to produce.</p>
+      <canvas id="ch-cycle" width="640" height="300"></canvas>
+      <div class="legend"><span class="sw" style="background:#b3261e"></span>baseline (pre-AI)<span class="sw" style="background:#0b3d66"></span>actual<span class="sw" style="background:#1e7e34"></span>target ≤ 15 min</div>
+    </div>
+    <div class="chart">
+      <h3>Detections vs interdictions</h3>
+      <p>Per month. Detections come from the dark-vessel flag stream; conversion is the mission outcome.</p>
+      <canvas id="ch-det" width="640" height="300"></canvas>
+      <div class="legend"><span class="sw" style="background:#0b7285"></span>detections<span class="sw" style="background:#1e7e34"></span>interdictions</div>
+    </div>
+  </div>
+
+  <h2>Option-readiness roll-up</h2>
+  <table class="ready" id="ready">
+    <tr><th>Criterion</th><th>Target</th><th>Actual (M12)</th><th>Status</th></tr>
+  </table>
+
+  <details class="how">
+    <summary>How the metrics are computed</summary>
+    <div class="body">
+      <b>Cycle time</b> — median minutes from tasking receipt to disseminated product, across all taskings closed in the month. Baseline (47 min) is the pre-AI watch-floor average.<br>
+      <b>Tracks fused/day</b> — unique tracks with ≥2 fused sources per 24h.<br>
+      <b>Analyst hours saved</b> — (baseline minutes per triage − actual) × taskings triaged, per week.<br>
+      <b>Detection→interdiction conversion</b> — interdictions attributed to a flagged detection ÷ total detections, per month.<br>
+      <b>Partner contributors</b> — partner nations sharing track data under agreement, counted monthly.<br>
+      <b>False-positive rate</b> — dark-vessel flags dismissed as false positive ÷ total flags, per month. Falls as the triage loop's dismissals retrain the flag thresholds — the loop improving the model, not just the queue.<br><br>
+      All figures are synthetic. Baselines are judgment calls, stated here instead of buried.
+    </div>
+  </details>
+  <details class="how">
+    <summary>How this connects to the other builds</summary>
+    <div class="body">
+      This dashboard is the third panel of one story — and the generic surface underneath it. The <a href="dark-vessel.html" style="color:var(--accent)">dark-vessel triage</a> board produces the detections and the false-positive trend — every dismissal with a reason is training data. The <a href="tcped-copilot.html" style="color:var(--accent)">TCPED copilot</a> produces the cycle-time compression; its shadow floor (new routing vs the old greedy rule) is the same comparison this dashboard's baseline-vs-actual chart makes at program scale. Detect → triage → prove it worked.<br><br>
+      The live pipeline feed above is the general version of that thread: any component feeds outcome events here via <code>evidence-dashboard.html?events=[...]</code>, each shaped as <code>{component, label, outcome: "win"|"loss"|"neutral", detail}</code>. The board aggregates wins and losses per component — so the same surface that scores today's dark-vessel → triage pipeline scores whatever gets built next. One area of improvement is just the first tenant.
+    </div>
+  </details>
+
+  <div class="foot">
+    Synthetic demonstration only — not real HII/SOUTHCOM performance data. Built September 10, 2026.
+  </div>
+</div>
+
+<script>
+// ---- synthetic base-year data (months 1–12) ----
+const M = ['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'];
+const cycleActual = [47,44,41,38,34,30,26,22,19,16,13,11];
+const CYCLE_BASE = 47, CYCLE_TGT = 15;
+const detections  = [42,55,61,78,88,104,119,131,148,162,178,195];
+const interdict   = [3,4,4,6,7,9,11,13,15,18,23,27];
+
+const KPIS = [
+  { v:'11', u:'min', l:'Median tasking-to-dissemination cycle', d:'47 min baseline', dir:'down' },
+  { v:'121', u:'/day', l:'Tracks fused per day', d:'38/day baseline', dir:'up' },
+  { v:'96', u:'hrs/wk', l:'Analyst hours saved', d:'0 at baseline', dir:'up' },
+  { v:'14', u:'%', l:'Detection → interdiction conversion', d:'6% baseline', dir:'up' },
+  { v:'11', u:'', l:'Partner nations contributing data', d:'3 at baseline', dir:'up' },
+  { v:'12', u:'%', l:'Dark-vessel false-positive rate', d:'31% baseline', dir:'down' },
+];
+document.getElementById('kpis').innerHTML = KPIS.map(k => `
+  <div class="kpi"><div class="v">${k.v}<small>${k.u ? ' '+k.u : ''}</small></div>
+  <div class="l">${k.l}</div>
+  <div class="d"><span class="up">${k.dir === 'up' ? '▲' : '▼'} improving</span> · <span class="tgt">${k.d}</span></div></div>`).join('');
+
+const READY = [
+  ['TCPED cycle time ≤ 15 min', '≤ 15 min', '11 min', 'met'],
+  ['Analyst capacity headroom ≥ 20%', '≥ 20%', '34%', 'met'],
+  ['Partner data contributors ≥ 8', '≥ 8 nations', '11 nations', 'met'],
+  ['Dark-vessel false-positive rate ≤ 15%', '≤ 15%', '12%', 'met'],
+  ['Detection→interdiction conversion ≥ 12%', '≥ 12%', '14%', 'met'],
+  ['Transit-zone coverage (5 zones)', '5 zones', '5 zones', 'met'],
+  ['Data-sharing agreements renewed for option year', 'all current', '2 of 11 pending', 'watch'],
+];
+document.getElementById('ready').innerHTML =
+  '<tr><th>Criterion</th><th>Target</th><th>Actual (M12)</th><th>Status</th></tr>' +
+  READY.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>
+    <td><span class="pill ${r[3]}">${r[3] === 'met' ? 'Met' : 'Watch'}</span></td></tr>`).join('');
+
+// ---- canvas charts (guarded: no-ops where canvas is unavailable) ----
+function ctx2d(id){
+  try {
+    const c = document.getElementById(id);
+    const x = c.getContext('2d');
+    return x ? [c, x] : null;
+  } catch(e){ return null; }
+}
+function drawCycle(){
+  const got = ctx2d('ch-cycle'); if (!got) return;
+  const [c, x] = got, W = c.width, H = c.height, P = 44, maxY = 60;
+  const X = i => P + i * (W - P - 16) / (M.length - 1);
+  const Y = v => H - P - (v / maxY) * (H - P - 20);
+  x.clearRect(0, 0, W, H);
+  x.font = '20px sans-serif'; x.fillStyle = '#5f6368';
+  for (let g = 0; g <= 60; g += 15){
+    x.strokeStyle = '#eef1f4'; x.beginPath(); x.moveTo(P, Y(g)); x.lineTo(W - 16, Y(g)); x.stroke();
+    x.fillText(g + '', 8, Y(g) + 7);
+  }
+  M.forEach((m, i) => { if (i % 2 === 0) x.fillText(m, X(i) - 10, H - 14); });
+  const line = (data, color, dash) => {
+    x.strokeStyle = color; x.lineWidth = 4; x.setLineDash(dash || []);
+    x.beginPath(); data.forEach((v, i) => i ? x.lineTo(X(i), Y(v)) : x.moveTo(X(i), Y(v))); x.stroke();
+    x.setLineDash([]);
+  };
+  line(cycleActual.map(() => CYCLE_BASE), '#b3261e', [8, 6]);
+  line(cycleActual.map(() => CYCLE_TGT), '#1e7e34', [8, 6]);
+  line(cycleActual, '#0b3d66');
+  x.fillStyle = '#0b3d66';
+  cycleActual.forEach((v, i) => { x.beginPath(); x.arc(X(i), Y(v), 6, 0, 7); x.fill(); });
+}
+function drawDet(){
+  const got = ctx2d('ch-det'); if (!got) return;
+  const [c, x] = got, W = c.width, H = c.height, P = 44, maxV = 200;
+  const Y = v => H - P - (v / maxV) * (H - P - 20);
+  const slot = (W - P - 16) / M.length, bw = slot * 0.28;
+  x.clearRect(0, 0, W, H);
+  x.font = '20px sans-serif'; x.fillStyle = '#5f6368';
+  for (let g = 0; g <= 200; g += 50){
+    x.strokeStyle = '#eef1f4'; x.beginPath(); x.moveTo(P, Y(g)); x.lineTo(W - 16, Y(g)); x.stroke();
+    x.fillText(g + '', 8, Y(g) + 7);
+  }
+  M.forEach((m, i) => {
+    const cx = P + i * slot + slot / 2;
+    x.fillStyle = '#0b7285';
+    x.fillRect(cx - bw - 3, Y(detections[i]), bw, H - P - Y(detections[i]));
+    x.fillStyle = '#1e7e34';
+    x.fillRect(cx + 3, Y(interdict[i]), bw, H - P - Y(interdict[i]));
+    if (i % 2 === 0){ x.fillStyle = '#5f6368'; x.fillText(m, cx - 10, H - 14); }
+  });
+}
+drawCycle();
+drawDet();
+
+// ---- live pipeline intake: ?events=[{component,label,outcome,detail}] ----
+// Generic evidence surface: any current or future build feeds outcome
+// events here; the board aggregates wins/losses per component.
+let pipeEvents = [];
+try {
+  const raw = new URLSearchParams(location.search).get('events');
+  if (raw) pipeEvents = JSON.parse(raw).filter(e => e && e.component && e.label);
+} catch(e){ /* malformed: feed stays empty, page still works */ }
+(function renderPipe(){
+  const feed = document.getElementById('live-feed');
+  const pillFor = o => o === 'win' ? 'met' : o === 'loss' ? 'loss' : 'watch';
+  const wordFor = o => o === 'win' ? 'Win' : o === 'loss' ? 'Loss' : 'Neutral';
+  feed.innerHTML = pipeEvents.length
+    ? pipeEvents.map(e => `
+      <div class="pipe-row">
+        <span class="pipe-comp">${e.component}</span>
+        <span class="pipe-label">${e.label}</span>
+        <span class="pipe-detail">${e.detail || ''}</span>
+        <span class="pill ${pillFor(e.outcome)}">${wordFor(e.outcome)}</span>
+      </div>`).join('')
+    : `<div class="pipe-empty">No pipeline events yet. Disseminate a tasking in the <a href="tcped-copilot.html">TCPED copilot</a> and send it here — this is where every component's wins and losses land.</div>`;
+  const by = {};
+  pipeEvents.forEach(e => {
+    by[e.component] = by[e.component] || { win:0, loss:0, neutral:0 };
+    if (by[e.component][e.outcome] !== undefined) by[e.component][e.outcome]++;
+  });
+  const names = Object.keys(by);
+  document.getElementById('scoreboard-wrap').style.display = names.length ? '' : 'none';
+  document.getElementById('scoreboard').innerHTML =
+    '<tr><th>Component</th><th>Wins</th><th>Losses</th><th>Neutral</th></tr>' +
+    names.map(n => `<tr><td>${n}</td><td class="wn">${by[n].win}</td><td class="ls">${by[n].loss}</td><td>${by[n].neutral}</td></tr>`).join('');
+})();
+</script>
+</body>
+</html>
