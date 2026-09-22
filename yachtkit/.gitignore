@@ -1,0 +1,6 @@
+# Local-only runtime data. Never commit these.
+emails.jsonl
+first_kit.json
+server.log
+__pycache__/
+*.pyc

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: yachtkit
+    runtime: docker
+    plan: free
+    envVars:
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: YACHTKIT_BIND
+        value: 0.0.0.0

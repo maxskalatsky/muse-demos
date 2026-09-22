@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YachtKit: free listing copy for yacht brokers</title>
+<meta name="description" content="Paste a spec sheet, get a listing description and three social posts in about a minute. Free for yacht brokers. No marketplace subscription.">
+<style>
+  :root { --ink:#1a2b3c; --muted:#5b6b7c; --line:#dfe7ee; --accent:#0e6e8c; --bg:#f7fafc; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { touch-action:manipulation; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); background:var(--bg); margin:0; line-height:1.55; font-size:16px; }
+  .wrap { max-width:560px; margin:0 auto; padding:20px 16px 56px; }
+  header { text-align:center; margin-bottom:18px; }
+  header h1 { font-size:30px; margin:0 0 6px; letter-spacing:-0.5px; }
+  header h1 span { color:var(--accent); }
+  header p { color:var(--muted); margin:0; font-size:16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:14px; }
+  label { display:block; font-weight:600; margin:0 0 6px; font-size:15px; }
+  .hint { font-size:13px; color:var(--muted); margin:0 0 8px; }
+  .privacy { font-size:13px; color:var(--muted); margin:12px 0 0; padding-top:12px; border-top:1px solid var(--line); }
+  input[type=text], input[type=email], textarea { width:100%; border:1px solid var(--line);
+      border-radius:10px; padding:13px 12px; font-size:16px; font-family:inherit; background:#fff; }
+  textarea { min-height:170px; resize:vertical; }
+  input:focus, textarea:focus { outline:2px solid var(--accent); outline-offset:-1px; border-color:var(--accent); }
+  details { margin-top:12px; }
+  details summary { font-size:14px; color:var(--muted); cursor:pointer; padding:8px 0; }
+  .btn { display:block; width:100%; background:var(--accent); color:#fff; border:0; border-radius:10px;
+         padding:15px 20px; font-size:17px; font-weight:700; cursor:pointer; margin-top:14px;
+         min-height:52px; }
+  .btn:hover { background:#0b5a73; }
+  .btn:disabled { opacity:.55; cursor:wait; }
+  .btn.secondary { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+  .err { color:#b3261e; font-size:14px; margin-top:10px; display:none; }
+  .sec { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:12px; }
+  .sec h2 { font-size:18px; margin:0 0 10px; padding-right:76px; }
+  .sechead { position:relative; }
+  .sec pre { white-space:pre-wrap; font-family:inherit; font-size:15px; margin:0; }
+  .copy { position:absolute; top:0; right:0; font-size:13px; border:1px solid var(--line);
+          background:#fff; border-radius:8px; padding:9px 14px; cursor:pointer; color:var(--muted);
+          min-height:40px; }
+  .copy:hover { color:var(--ink); border-color:var(--ink); }
+  .post { border-left:3px solid var(--accent); padding:10px 12px; margin:0 0 10px; background:var(--bg); border-radius:0 8px 8px 0; font-size:15px; }
+  .spinner { display:none; text-align:center; padding:48px 16px; color:var(--muted); }
+  .spinner.on { display:block; }
+  .note { border-color:#e8c547; }
+  footer { text-align:center; color:var(--muted); font-size:13px; margin-top:32px; padding:0 16px; }
+  .hidden { display:none; }
+  @media (min-width:640px) {
+    .wrap { padding:32px 20px 64px; }
+    header h1 { font-size:34px; }
+    .btn { width:auto; min-width:240px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Yacht<span>Kit</span></h1>
+  <p>Spec sheet to listing package in 5 minutes. Free for yacht brokers. Built in the yachting capital of the world.</p>
+</header>
+
+<div class="card" id="step1">
+  <label for="specs">Paste the spec sheet</label>
+  <p class="hint">Year, make, model, dimensions, engines and hours, equipment, location, asking price. The more detail, the better the copy. Works with YachtWorld, YachtR, or your own listings.</p>
+  <textarea id="specs" placeholder="2021 42ft center console, twin 400hp outboards, 320 hours, ..."></textarea>
+  <p class="hint" style="margin-top:6px"><a href="#" id="sample" style="color:var(--accent)">Try it with a sample listing</a></p>
+  <details>
+    <summary>Or try a listing URL instead</summary>
+    <div style="height:8px"></div>
+    <input type="text" id="url" placeholder="https://www.yachtworld.com/yacht/..." autocomplete="off" inputmode="url">
+    <p class="hint" style="margin-top:8px">URL reading often fails on listing sites. Pasted specs always work.</p>
+  </details>
+  <p class="privacy">Your specs are used only to generate your kit. We keep basic usage logs (IP address, and email if you share one) to prevent abuse. We never sell your data.</p>
+  <div class="err" id="err1"></div>
+  <button class="btn" id="generate">Generate my free kit</button>
+</div>
+
+<div class="card hidden" id="emailGate">
+  <label for="email">Work email</label>
+  <p class="hint">Your first kit was free. Enter your email for unlimited kits. No account, no spam.</p>
+  <input type="email" id="email" placeholder="you@brokerage.com" autocomplete="email" inputmode="email">
+  <div class="err" id="err2"></div>
+  <button class="btn" id="generateWithEmail">Continue</button>
+</div>
+
+<div class="spinner" id="spinner">
+  <p>Writing your kit. Usually 30 to 60 seconds.<br>Keep this tab open.</p>
+</div>
+
+<div class="kit hidden" id="kit"></div>
+
+<footer>
+  YachtKit is a free tool for yacht brokers. No marketplace subscription.
+</footer>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function showErr(id,msg){ const e=$(id); e.textContent=msg; e.style.display="block"; }
+function hideErr(id){ $(id).style.display="none"; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+let pendingSpecs = "", pendingUrl = "";
+
+const SAMPLE = "2022 Boston Whaler 420 Outrage, 42ft center console. Triple Mercury 400hp V10 outboards, 310 hours. Joystick piloting, Seakeeper 3 gyro stabilizer, Garmin electronics suite, teak decking throughout. Enclosed helm with air conditioning, summer kitchen, cabin with berth and head. Asking $789,000. Located Fort Lauderdale, FL. Freshwater flushed after every use, dealer serviced, warranty through 2027.";
+$("sample").onclick = e => { e.preventDefault(); $("specs").value = SAMPLE; $("specs").focus(); };
+
+async function generate(email){
+  hideErr("err1"); hideErr("err2");
+  $("step1").classList.add("hidden"); $("emailGate").classList.add("hidden");
+  $("spinner").classList.add("on"); window.scrollTo({top:0});
+  try {
+    const r = await fetch("/api/generate", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ url:pendingUrl, specs:pendingSpecs, email:email||"" })
+    });
+    const data = await r.json();
+    if (r.status === 402 || data.error === "email_required") {
+      $("spinner").classList.remove("on");
+      $("emailGate").classList.remove("hidden"); window.scrollTo({top:0});
+      return;
+    }
+    if (!r.ok) throw new Error(data.error || "request failed");
+    renderKit(data);
+  } catch(e) {
+    $("spinner").classList.remove("on");
+    $("step1").classList.remove("hidden"); window.scrollTo({top:0});
+    showErr("err1","Something went wrong ("+e.message+"). Please try again.");
+  }
+}
+
+$("generate").onclick = () => {
+  const specs = $("specs").value.trim(), url = $("url").value.trim();
+  if (specs.length < 40 && !url) { showErr("err1","Paste at least a few lines of spec text."); return; }
+  pendingSpecs = specs; pendingUrl = url;
+  generate("");
+};
+$("generateWithEmail").onclick = () => {
+  const email = $("email").value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showErr("err2","Please enter a valid email address."); return; }
+  generate(email);
+};
+
+function sec(title, inner){
+  const safe = title.replace(/\W+/g,"-");
+  return '<div class="sec"><div class="sechead"><h2>'+title+'</h2><button class="copy" data-t="'+safe+'">Copy</button></div><div id="c-'+safe+'">'+inner+'</div></div>';
+}
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (t.classList && t.classList.contains("copy")) {
+    const el = document.getElementById("c-" + t.dataset.t);
+    if (el) navigator.clipboard.writeText(el.innerText).then(()=>{ t.textContent="Copied"; setTimeout(()=>t.textContent="Copy",1500); });
+  }
+});
+
+function renderKit(k){
+  $("spinner").classList.remove("on");
+  const posts = (k.social_posts||[]).map(p=>'<div class="post">'+esc(p)+'</div>').join("");
+  let html = "";
+  if (k.url_read_ok === false && pendingUrl)
+    html += '<div class="card note"><p class="hint" style="margin:0">Note: we could not read that URL, so the kit was built from your pasted text.</p></div>';
+  html += sec("Listing description", "<pre>"+esc(k.description)+"</pre>");
+  html += sec("Social posts", posts);
+  html += '<div class="card"><label for="proEmail">Want this for every listing?</label>'
+    + '<p class="hint">YachtKit Pro is coming: unlimited kits, your firm\u2019s voice, and a monthly report you can forward to sellers. Leave your email and we will notify you.</p>'
+    + '<input type="email" id="proEmail" placeholder="you@brokerage.com" autocomplete="email" inputmode="email">'
+    + '<div class="err" id="err3"></div>'
+    + '<button class="btn" id="proBtn">Notify me</button></div>';
+  html += '<button class="btn secondary" id="again">Generate another kit</button>';
+  const kit = $("kit"); kit.innerHTML = html; kit.classList.remove("hidden");
+  $("again").onclick = () => {
+    kit.classList.add("hidden"); kit.innerHTML = "";
+    $("specs").value = ""; $("url").value = "";
+    $("step1").classList.remove("hidden"); window.scrollTo({top:0, behavior:"smooth"});
+  };
+  $("proBtn").onclick = async () => {
+    hideErr("err3");
+    const email = $("proEmail").value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showErr("err3","Please enter a valid email address."); return; }
+    try {
+      const r = await fetch("/api/interest", { method:"POST",
+        headers:{"Content-Type":"application/json"}, body: JSON.stringify({email}) });
+      if (!r.ok) throw new Error("request failed");
+      $("proBtn").textContent = "You are on the list"; $("proBtn").disabled = true;
+    } catch(e) { showErr("err3","Something went wrong. Please try again."); }
+  };
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+</script>
+</body>
+</html>
