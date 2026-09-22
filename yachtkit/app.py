@@ -136,7 +136,8 @@ def call_model(specs: str) -> dict:
             "https://api.together.xyz/v1/chat/completions",
             data=json.dumps(payload).encode(),
             headers={"Authorization": f"Bearer {api_key}",
-                     "Content-Type": "application/json"},
+                     "Content-Type": "application/json",
+                     "User-Agent": "YachtKit/1.0"},
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=180) as r:
