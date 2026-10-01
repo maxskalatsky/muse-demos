@@ -111,6 +111,21 @@
   @media (max-width: 820px) { .dept-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .dept-grid { grid-template-columns: 1fr; } }
 
+  /* Menu */
+  .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px 40px; }
+  .menu-dept h3 {
+    font-size: 20px; color: var(--green-dark); margin-bottom: 10px;
+    border-bottom: 2px solid var(--terra); padding-bottom: 8px;
+  }
+  .menu-dept ul { list-style: none; }
+  .menu-dept li {
+    padding: 8px 0; border-bottom: 1px dotted #d8cdb4;
+    font-size: 15.5px; color: #40392f;
+  }
+  .menu-note { margin-top: 36px; color: var(--muted); font-size: 15px; font-style: italic; }
+  @media (max-width: 820px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .menu-grid { grid-template-columns: 1fr; } }
+
   /* Cafe */
   .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
   .cafe-grid img { border-radius: 10px; box-shadow: 0 12px 32px rgba(46,70,52,0.18); }
@@ -148,6 +163,7 @@
     <div class="nav-links">
       <a href="#about">About</a>
       <a href="#departments">Departments</a>
+      <a href="#menu">Menu</a>
       <a href="#cafe">Caf&eacute;</a>
       <a href="#visit">Visit Us</a>
       <a class="btn" href="tel:+15616831911">(561) 683-1911</a>
@@ -232,6 +248,98 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section id="menu">
+  <div class="wrap">
+    <div class="kicker">Market Menu</div>
+    <h2 class="section-title">What&rsquo;s on the shelves</h2>
+    <p class="section-sub">A taste of what we carry every day, across every department.</p>
+    <div class="menu-grid">
+      <div class="menu-dept">
+        <h3>Deli &amp; Smoked Fish</h3>
+        <ul>
+          <li>Smoked salmon &amp; trout</li>
+          <li>Deli meats, sliced to order</li>
+          <li>Marinated fish &amp; seafood</li>
+          <li>Cured meats &amp; p&acirc;t&eacute;s</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Bakery &amp; Pastries</h3>
+        <ul>
+          <li>Fresh rye &amp; dark breads</li>
+          <li>Croissants &amp; strudels</li>
+          <li>Cakes &amp; tortes</li>
+          <li>Sweet breakfast pastries</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Sausages</h3>
+        <ul>
+          <li>Smoked sausages</li>
+          <li>Cured salamis</li>
+          <li>Fresh European sausages</li>
+          <li>Dried &amp; hard sausages</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Cheeses</h3>
+        <ul>
+          <li>Hard aged cheeses</li>
+          <li>Soft &amp; brined cheeses</li>
+          <li>Smoked cheeses</li>
+          <li>Spreads &amp; curds</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Pantry &amp; Pickles</h3>
+        <ul>
+          <li>Pickled vegetables</li>
+          <li>Preserves &amp; jams</li>
+          <li>Grains, flours &amp; kasha</li>
+          <li>Imported condiments &amp; sauces</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Sweets</h3>
+        <ul>
+          <li>Polish chocolates &amp; candies</li>
+          <li>Cheesecake ice cream bars</li>
+          <li>Turkish delight &amp; halva</li>
+          <li>Wafers &amp; biscuits</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Turkish &amp; Kosher</h3>
+        <ul>
+          <li>Turkish pantry staples</li>
+          <li>Turkish coffee &amp; teas</li>
+          <li>Kosher-certified groceries</li>
+          <li>Olives, oils &amp; spices</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Caf&eacute; Corner</h3>
+        <ul>
+          <li>European-style coffee</li>
+          <li>Fresh pastries &amp; cakes</li>
+          <li>Deli bites &amp; sandwiches</li>
+          <li>Cold drinks &amp; kvass</li>
+        </ul>
+      </div>
+      <div class="menu-dept">
+        <h3>Beverages</h3>
+        <ul>
+          <li>Imported sodas &amp; juices</li>
+          <li>Mineral waters</li>
+          <li>Compotes &amp; mors</li>
+          <li>European beers</li>
+        </ul>
+      </div>
+    </div>
+    <p class="menu-note">Our selection changes with every shipment from Europe &mdash; call <a href="tel:+15616831911">(561) 683-1911</a> if you&rsquo;re hunting for something specific.</p>
   </div>
 </section>
 
