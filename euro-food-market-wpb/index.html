@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euro Food Market | European Grocery in West Palm Beach, FL</title>
+<meta name="description" content="Euro Food Market in West Palm Beach, FL — authentic European and Middle Eastern groceries, deli, smoked fish, bakery, Turkish and Kosher foods. 4603 Okeechobee Blvd #120.">
+<style>
+  :root {
+    --cream: #faf6ee;
+    --cream-dark: #f1e9d8;
+    --green: #2e4634;
+    --green-dark: #223526;
+    --terra: #c0743a;
+    --terra-dark: #a05f2c;
+    --ink: #2b2620;
+    --muted: #6f655a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; line-height: 1.25; }
+  img { display: block; max-width: 100%; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(34, 53, 38, 0.97);
+    color: #fff;
+    backdrop-filter: blur(4px);
+  }
+  .nav {
+    max-width: 1100px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .brand { font-family: Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: 0.3px; }
+  .brand span { color: var(--terra); }
+  .nav-links { display: flex; gap: 22px; align-items: center; }
+  .nav-links a { color: #e9e2d3; text-decoration: none; font-size: 14.5px; }
+  .nav-links a:hover { color: #fff; }
+  .btn {
+    display: inline-block; background: var(--terra); color: #fff !important;
+    padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px;
+    border: none; cursor: pointer; transition: background 0.15s;
+  }
+  .btn:hover { background: var(--terra-dark); }
+  .btn-outline {
+    background: transparent; border: 2px solid #fff; color: #fff !important;
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.12); }
+  @media (max-width: 720px) { .nav-links a:not(.btn) { display: none; } }
+
+  /* Hero */
+  .hero {
+    position: relative; min-height: 78vh;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    color: #fff; overflow: hidden;
+  }
+  .hero img.bg {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(20,30,22,0.55), rgba(20,30,22,0.68));
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 800px; padding: 80px 24px; }
+  .hero-inner h1 { font-size: clamp(38px, 6vw, 62px); margin-bottom: 16px; text-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+  .hero-inner p.lede { font-size: clamp(17px, 2.4vw, 21px); color: #f0e9d8; margin-bottom: 10px; }
+  .hero-meta { font-size: 15px; color: #ddd3bd; margin-bottom: 30px; }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* Sections */
+  section { padding: 72px 24px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .kicker {
+    text-transform: uppercase; letter-spacing: 2px; font-size: 12.5px; font-weight: 700;
+    color: var(--terra); margin-bottom: 12px;
+  }
+  h2.section-title { font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; color: var(--green-dark); }
+  .section-sub { color: var(--muted); font-size: 17px; max-width: 640px; margin-bottom: 36px; }
+
+  /* About */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .about-grid img { border-radius: 10px; box-shadow: 0 12px 32px rgba(46,70,52,0.18); }
+  .about-grid p { margin-bottom: 16px; color: #40392f; }
+  .country-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .country-tags span {
+    background: var(--cream-dark); border: 1px solid #ddd0b6; border-radius: 20px;
+    padding: 4px 14px; font-size: 13px; color: var(--green-dark);
+  }
+  @media (max-width: 820px) { .about-grid { grid-template-columns: 1fr; } }
+
+  /* Departments */
+  .dept-section { background: var(--green-dark); color: #efe8d8; }
+  .dept-section h2.section-title { color: #fff; }
+  .dept-section .section-sub { color: #c9bfa8; }
+  .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .dept-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; overflow: hidden;
+  }
+  .dept-card img { width: 100%; height: 190px; object-fit: cover; }
+  .dept-card .body { padding: 20px; }
+  .dept-card h3 { font-size: 19px; margin-bottom: 8px; color: #fff; }
+  .dept-card p { font-size: 14.5px; color: #cfc4ab; }
+  @media (max-width: 820px) { .dept-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .dept-grid { grid-template-columns: 1fr; } }
+
+  /* Cafe */
+  .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .cafe-grid img { border-radius: 10px; box-shadow: 0 12px 32px rgba(46,70,52,0.18); }
+  .cafe-grid p { margin-bottom: 16px; color: #40392f; }
+  @media (max-width: 820px) { .cafe-grid { grid-template-columns: 1fr; } .cafe-grid img { order: -1; } }
+
+  /* Visit */
+  .visit-section { background: var(--cream-dark); }
+  .visit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .hours-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 20px rgba(46,70,52,0.10); }
+  .hours-table th, .hours-table td { padding: 13px 20px; text-align: left; font-size: 15px; }
+  .hours-table th { background: var(--green); color: #fff; font-family: Georgia, serif; }
+  .hours-table tr:nth-child(even) td { background: #faf6ee; }
+  .contact-block { font-size: 16.5px; }
+  .contact-block p { margin-bottom: 14px; color: #40392f; }
+  .contact-block strong { color: var(--green-dark); }
+  .contact-block a { color: var(--terra-dark); }
+  .visit-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .visit-cta .btn-outline { border-color: var(--green-dark); color: var(--green-dark) !important; }
+  .visit-cta .btn-outline:hover { background: rgba(46,70,52,0.08); }
+  @media (max-width: 820px) { .visit-grid { grid-template-columns: 1fr; } }
+
+  footer {
+    background: var(--green-dark); color: #b7ab90; text-align: center;
+    padding: 36px 24px; font-size: 14px;
+  }
+  footer .brand { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="brand">Euro <span>Food</span> Market</div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#departments">Departments</a>
+      <a href="#cafe">Caf&eacute;</a>
+      <a href="#visit">Visit Us</a>
+      <a class="btn" href="tel:+15616831911">(561) 683-1911</a>
+    </div>
+  </nav>
+</header>
+
+<div class="hero">
+  <img class="bg" src="images/hero.jpg" alt="Inside Euro Food Market, shelves of European groceries">
+  <div class="hero-inner">
+    <h1>A Taste of Europe in West Palm Beach</h1>
+    <p class="lede">Authentic European &amp; Middle Eastern groceries, deli, bakery, and caf&eacute; &mdash; all under one roof.</p>
+    <p class="hero-meta">4603 Okeechobee Blvd #120, West Palm Beach, FL &nbsp;&middot;&nbsp; Open today 9 AM &ndash; 8 PM</p>
+    <div class="hero-cta">
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Euro+Market+4603+Okeechobee+Blvd+%23120+West+Palm+Beach+FL+33417" target="_blank" rel="noopener">Get Directions</a>
+      <a class="btn btn-outline" href="#departments">Explore the Market</a>
+    </div>
+  </div>
+</div>
+
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <div class="kicker">Our Story</div>
+        <h2 class="section-title">The flavors of home, right here in Florida</h2>
+        <p>Euro Food Market is West Palm Beach&rsquo;s neighborhood source for genuine European and Middle Eastern foods &mdash; the ingredients, snacks, and specialties that are hard to find anywhere else.</p>
+        <p>Our shelves are stocked with products from across Europe and beyond, including a wide Turkish and Kosher selection. Whether you grew up with these flavors or are discovering them for the first time, you&rsquo;ll find something worth taking home.</p>
+        <div class="country-tags">
+          <span>Turkey</span><span>Ukraine</span><span>Poland</span><span>Germany</span>
+          <span>Romania</span><span>Bulgaria</span><span>Georgia</span><span>Serbia</span>
+          <span>Russia</span><span>France</span><span>&amp; more</span>
+        </div>
+      </div>
+      <img src="images/deli.jpg" alt="European deli counter with smoked fish, sausages and cured meats">
+    </div>
+  </div>
+</section>
+
+<section id="departments" class="dept-section">
+  <div class="wrap">
+    <div class="kicker">Departments</div>
+    <h2 class="section-title">Everything the old country taught you to love</h2>
+    <p class="section-sub">Six departments, one promise: real imported flavor, kept fresh and well-stocked.</p>
+    <div class="dept-grid">
+      <div class="dept-card">
+        <img src="images/deli.jpg" alt="Deli and smoked fish counter">
+        <div class="body">
+          <h3>Deli &amp; Smoked Fish</h3>
+          <p>Cured meats, smoked fish, and marinated specialties sliced to order.</p>
+        </div>
+      </div>
+      <div class="dept-card">
+        <img src="images/bakery.jpg" alt="European bakery with breads and pastries">
+        <div class="body">
+          <h3>Bakery &amp; Pastries</h3>
+          <p>Fresh rye breads, strudels, cakes, and pastries baked in the European tradition.</p>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="body">
+          <h3>Sausages</h3>
+          <p>An authentic selection of European sausages &mdash; smoked, cured, and fresh.</p>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="body">
+          <h3>Cheeses</h3>
+          <p>Imported cheeses from across the continent, from everyday to extraordinary.</p>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="body">
+          <h3>Pantry &amp; Pickles</h3>
+          <p>Pickled vegetables, preserves, grains, and the staples of a European kitchen.</p>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="body">
+          <h3>Turkish &amp; Kosher</h3>
+          <p>A dedicated selection of Turkish groceries and Kosher-certified products.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cafe">
+  <div class="wrap">
+    <div class="cafe-grid">
+      <img src="images/cafe.jpg" alt="Caf&eacute; corner with coffee and pastry">
+      <div>
+        <div class="kicker">Caf&eacute; Corner</div>
+        <h2 class="section-title">Stay for a coffee</h2>
+        <p>Our small cafeteria area is made for slowing down: a proper cup of coffee, a fresh pastry or a bite from the deli, and a few quiet minutes.</p>
+        <p>Come for the groceries, stay for the atmosphere. It&rsquo;s the closest thing to a European corner caf&eacute; on Okeechobee Boulevard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="visit" class="visit-section">
+  <div class="wrap">
+    <div class="kicker">Visit Us</div>
+    <h2 class="section-title">Come say hello</h2>
+    <p class="section-sub">We&rsquo;re easy to find and easy to love. Stop in any day of the week.</p>
+    <div class="visit-grid">
+      <table class="hours-table">
+        <tr><th>Day</th><th>Hours</th></tr>
+        <tr><td>Monday &ndash; Saturday</td><td>9:00 AM &ndash; 8:00 PM</td></tr>
+        <tr><td>Sunday</td><td>10:00 AM &ndash; 6:00 PM</td></tr>
+      </table>
+      <div class="contact-block">
+        <p><strong>Address</strong><br>4603 Okeechobee Blvd #120<br>West Palm Beach, FL 33417</p>
+        <p><strong>Phone</strong><br><a href="tel:+15616831911">(561) 683-1911</a></p>
+        <p><strong>Email</strong><br><a href="mailto:euromarketwpb@gmail.com">euromarketwpb@gmail.com</a></p>
+        <div class="visit-cta">
+          <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Euro+Market+4603+Okeechobee+Blvd+%23120+West+Palm+Beach+FL+33417" target="_blank" rel="noopener">Get Directions</a>
+          <a class="btn btn-outline" href="tel:+15616831911">Call the Store</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">Euro <span>Food</span> Market</div>
+  <p>4603 Okeechobee Blvd #120, West Palm Beach, FL 33417 &nbsp;&middot;&nbsp; (561) 683-1911</p>
+  <p style="margin-top:8px; font-size:12.5px;">European &amp; Middle Eastern groceries &middot; Deli &middot; Bakery &middot; Turkish &amp; Kosher</p>
+</footer>
+
+</body>
+</html>
