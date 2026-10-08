@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home Dashboard - Jupiter, FL</title>
+<title>326 San Remo Drive - Home Dashboard</title>
 <style>
   :root {
     --paper: #faf8f3;
@@ -25,15 +25,11 @@
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
-  .hero {
-    background: var(--ink);
-    color: #f4f1e8;
-    padding: 44px 24px 36px;
-  }
+  .hero { background: var(--ink); color: #f4f1e8; padding: 44px 24px 36px; }
   .hero .wrap, .wrap { max-width: 1120px; margin: 0 auto; }
   .hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -1px; }
   .hero h1 span { color: #9fd3ae; }
-  .hero p { color: #b9c4bb; margin-top: 8px; font-size: 15px; max-width: 640px; }
+  .hero p { color: #b9c4bb; margin-top: 8px; font-size: 15px; max-width: 660px; }
   .hero .stats { display: flex; gap: 28px; margin-top: 22px; flex-wrap: wrap; }
   .hero .stat b { display: block; font-size: 26px; letter-spacing: -0.5px; }
   .hero .stat span { font-size: 12px; color: #9aa7a0; text-transform: uppercase; letter-spacing: 1px; }
@@ -41,12 +37,8 @@
   h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 38px 0 14px; }
   h2:first-child { margin-top: 0; }
 
-  /* Attention strip */
   .attention { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-  .att {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 14px 16px 14px 18px; position: relative; overflow: hidden;
-  }
+  .att { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 14px 18px; position: relative; overflow: hidden; }
   .att::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
   .att.alert::before { background: var(--red); }
   .att.warn::before { background: var(--amber); }
@@ -54,84 +46,62 @@
   .att h3 { font-size: 15px; margin-bottom: 2px; }
   .att p { font-size: 13px; color: var(--ink2); }
 
-  /* Equipment cards */
-  .cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
-  .card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-    overflow: hidden; display: flex; flex-direction: column;
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(23,33,28,.10); }
-  .card .photo { height: 190px; background: #dde3dd center/cover; }
-  .card .photo.none { display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; background: #eef0ea; }
-  .card .body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
-  .card .kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
-  .card h3 { font-size: 17px; margin: 2px 0 4px; letter-spacing: -0.2px; }
-  .card .make { font-size: 13px; color: var(--ink2); }
-  .life { margin: 12px 0 4px; }
-  .life .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-  .life .bar { height: 7px; background: #ece7d9; border-radius: 99px; overflow: hidden; }
-  .life .bar i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
-  .life .bar i.warn { background: var(--amber); }
-  .life .bar i.alert { background: var(--red); }
-  .card .facts { font-size: 13px; color: var(--ink2); margin-top: 8px; }
-  .card .facts b { color: var(--ink); font-weight: 600; }
-  .card .note { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
-  .card .foot { margin-top: auto; padding-top: 12px; }
-  .pill { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 12px; }
+  /* House map */
+  .house-wrap { display: grid; grid-template-columns: 1.65fr 1fr; gap: 16px; align-items: start; }
+  .map-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .map-card svg { width: 100%; height: auto; display: block; }
+  .map-note { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+  .zone { cursor: pointer; }
+  .zone .zb { transition: filter .15s ease; }
+  .zone:hover .zb, .zone.active .zb { filter: brightness(0.93); stroke: var(--green); stroke-width: 3; }
+  .zone text { pointer-events: none; font-family: inherit; }
+  .detail { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-height: 320px; }
+  .detail h3 { font-size: 17px; }
+  .detail .dhint { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+  .ditem { display: flex; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .ditem img { width: 54px; height: 54px; object-fit: cover; border-radius: 9px; flex-shrink: 0; background: #eef0ea; }
+  .ditem .dn { font-size: 13.5px; font-weight: 700; }
+  .ditem .dm { font-size: 12px; color: var(--muted); }
+  .ditem .dnote { font-size: 12px; color: var(--ink2); margin-top: 2px; line-height: 1.4; }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-top: 6px; }
   .pill.ok { background: #e2f2e7; color: var(--green); }
   .pill.warn { background: #fbeed7; color: var(--amber); }
   .pill.alert { background: #f9e2df; color: var(--red); }
   .pill.info { background: #e3ebfb; color: var(--blue); }
 
-  /* Replacement runway */
+  .whole { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); margin-top: 14px; }
+  .wrow { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; gap: 12px; align-items: center; }
+  .wrow img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #eef0ea; }
+  .wrow .wn { font-size: 13.5px; font-weight: 700; }
+  .wrow .wm { font-size: 12px; color: var(--muted); }
+  .wrow .pill { margin-top: 4px; }
+
+  /* Compact runway */
   .runway-sub { font-size: 13.5px; color: var(--muted); margin: -8px 0 14px; }
-  .runway { display: grid; gap: 10px; }
-  .rrow {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px 16px; display: grid; grid-template-columns: 190px 1fr 170px; gap: 14px; align-items: center;
-  }
-  .rrow .rname { font-size: 14px; font-weight: 600; }
-  .rrow .rname span { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
-  .rrow .rbar { height: 10px; background: #ece7d9; border-radius: 99px; overflow: hidden; }
-  .rrow .rbar i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
-  .rrow .rbar i.warn { background: var(--amber); }
-  .rrow .rbar i.alert { background: var(--red); }
-  .rrow .rwhen { text-align: right; font-size: 13px; }
-  .rrow .rwhen b { display: block; font-size: 14px; }
-  .rrow .rwhen span { color: var(--muted); font-size: 12px; }
+  .rw { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 8px; }
+  .rwrow { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .rwrow .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .rwrow .rn { font-weight: 600; }
+  .rwrow .rc { margin-left: auto; color: var(--muted); white-space: nowrap; font-size: 12.5px; }
 
   /* Year strip */
   .ystrip-wrap { overflow-x: auto; padding-bottom: 8px; }
   .ystrip { display: flex; gap: 10px; min-width: min-content; }
-  .ycol {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px; width: 168px; flex-shrink: 0;
-  }
+  .ycol { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; width: 168px; flex-shrink: 0; }
   .ycol.now { border: 2px solid var(--green); }
   .ycol h4 { font-size: 13px; margin-bottom: 8px; }
-  .ycol .chip {
-    display: block; font-size: 12px; background: #f4f1e6; border: 1px solid var(--line);
-    border-radius: 8px; padding: 5px 8px; margin-bottom: 6px; color: var(--ink2); line-height: 1.35;
-  }
+  .ycol .chip { display: block; font-size: 12px; background: #f4f1e6; border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; margin-bottom: 6px; color: var(--ink2); line-height: 1.35; }
   .ycol .none { font-size: 12px; color: var(--muted); font-style: italic; }
-  @media (max-width: 640px) {
-    .rrow { grid-template-columns: 1fr; gap: 6px; }
-    .rrow .rwhen { text-align: left; }
-  }
 
   /* Log */
   .log { display: grid; gap: 8px; }
-  .log .row {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-    padding: 9px 16px; font-size: 13.5px; display: flex; gap: 12px;
-  }
+  .log .row { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; font-size: 13.5px; display: flex; gap: 12px; }
   .log date { color: var(--muted); font-weight: 700; white-space: nowrap; font-size: 12.5px; padding-top: 2px; }
 
   footer { margin-top: 48px; color: var(--muted); font-size: 12.5px; text-align: center; }
-  @media (max-width: 640px) {
+  @media (max-width: 860px) {
+    .house-wrap { grid-template-columns: 1fr; }
     .hero h1 { font-size: 27px; }
-    .cards, .attention { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -139,11 +109,11 @@
 
 <div class="hero">
   <div class="wrap">
-    <h1>The house, <span>at a glance</span></h1>
-    <p>Jupiter, FL. Built ~2004. One house with fully separate systems per side (AC, water, electric), split across the kitchen wall, which is why every major system is doubled. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn). Two AC units, two water heaters, five kitchen appliances.</p>
+    <h1>326 San Remo Drive, <span>Jupiter</span></h1>
+    <p>Built ~2004. One house with fully separate systems per side (AC, water, electric), split across the kitchen wall. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn).</p>
     <div class="stats">
-      <div class="stat"><b id="stOpen">6</b><span>Open items</span></div>
-      <div class="stat"><b>19</b><span>Equipment tracked</span></div>
+      <div class="stat"><b id="stOpen">5</b><span>Open items</span></div>
+      <div class="stat"><b id="stItems">21</b><span>Items tracked</span></div>
       <div class="stat"><b id="stDone">15</b><span>Jobs logged</span></div>
       <div class="stat"><b>Oct 8</b><span>Last session</span></div>
     </div>
@@ -154,12 +124,57 @@
   <h2>Needs attention</h2>
   <div class="attention" id="dueNow"></div>
 
-  <h2>Equipment</h2>
-  <div class="cards" id="equipment"></div>
+  <h2>The house</h2>
+  <div class="house-wrap">
+    <div>
+      <div class="map-card">
+        <svg viewBox="0 0 1000 620" role="img" aria-label="Schematic house plan">
+          <g class="zone" data-zone="exterior">
+            <rect class="zb" x="0" y="0" width="1000" height="620" rx="24" fill="#edf1e8"/>
+            <text x="28" y="40" font-size="20" fill="#8a978e" font-weight="600">Exterior</text>
+            <text x="28" y="62" font-size="13" fill="#8a978e">roof, paint, gutters</text>
+          </g>
+          <rect x="70" y="50" width="860" height="520" rx="14" fill="#ffffff" stroke="#d8d2c2" stroke-width="2"/>
+          <g class="zone" data-zone="primary">
+            <rect class="zb" x="90" y="70" width="390" height="270" rx="10" fill="#f2f5ef" stroke="#d8d2c2" stroke-width="2"/>
+            <text x="110" y="108" font-size="19" font-weight="700" fill="#17211c">Primary side</text>
+            <text x="110" y="132" font-size="13" fill="#8a978e">bedrooms and baths</text>
+            <text x="110" y="310" font-size="13" fill="#8a978e" class="count">2 items</text>
+          </g>
+          <g class="zone" data-zone="main">
+            <rect class="zb" x="520" y="70" width="390" height="270" rx="10" fill="#f2f5ef" stroke="#d8d2c2" stroke-width="2"/>
+            <text x="540" y="108" font-size="19" font-weight="700" fill="#17211c">Main side</text>
+            <text x="540" y="132" font-size="13" fill="#8a978e">living areas</text>
+            <text x="540" y="310" font-size="13" fill="#8a978e" class="count">2 items</text>
+          </g>
+          <line x1="500" y1="70" x2="500" y2="340" stroke="#b3372f" stroke-width="2.5" stroke-dasharray="8 6"/>
+          <text x="500" y="360" font-size="12" fill="#b3372f" text-anchor="middle" font-style="italic">the split</text>
+          <g class="zone" data-zone="kitchen">
+            <rect class="zb" x="90" y="378" width="820" height="84" rx="10" fill="#faf3e3" stroke="#d8d2c2" stroke-width="2"/>
+            <text x="110" y="412" font-size="19" font-weight="700" fill="#17211c">Kitchen</text>
+            <text x="110" y="436" font-size="13" fill="#8a978e">five appliances, disposal, valves · 5 items</text>
+          </g>
+          <g class="zone" data-zone="laundry">
+            <rect class="zb" x="90" y="482" width="390" height="88" rx="10" fill="#eef3f8" stroke="#d8d2c2" stroke-width="2"/>
+            <text x="110" y="516" font-size="19" font-weight="700" fill="#17211c">Laundry</text>
+            <text x="110" y="540" font-size="13" fill="#8a978e">washer, dryer, valves · 2 items</text>
+          </g>
+          <g class="zone" data-zone="garage">
+            <rect class="zb" x="520" y="482" width="390" height="88" rx="10" fill="#f0f0f0" stroke="#d8d2c2" stroke-width="2"/>
+            <text x="540" y="516" font-size="19" font-weight="700" fill="#17211c">Garage</text>
+            <text x="540" y="540" font-size="13" fill="#8a978e">panel, freezer, shutters, tools · 6 items</text>
+          </g>
+        </svg>
+        <p class="map-note">Schematic, not to scale. Hover or tap a zone to see its equipment.</p>
+      </div>
+      <div class="whole" id="whole"></div>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
 
   <h2>Replacement runway</h2>
   <p class="runway-sub">Ballpark years and costs, so the big tickets never surprise you. Sorted by urgency.</p>
-  <div class="runway" id="runway"></div>
+  <div class="rw" id="runway"></div>
 
   <h2>The year ahead</h2>
   <div class="ystrip-wrap"><div class="ystrip" id="ystrip"></div></div>
@@ -171,110 +186,125 @@
 </div></div>
 
 <script>
-// life: [ageYears, expectedYears] - bar shows age/expected
-const equipment = [
-  { tag: "HVAC", name: "AC, primary", make: "Carrier air handler", photo: "img/ac-primary.jpg",
-    life: [12, 15], last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
-    note: "Coils replaced with new. No accessible drain cleanout, flush from outside yearly. Thermostat 77F.",
-    status: "ok", statusText: "New coils" },
-  { tag: "HVAC", name: "AC, master bedroom", make: "Air handler", photo: "img/ac-master.jpg",
-    life: [12, 15], last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
+const zones = {
+  primary:  { label: "Primary side", hint: "Bedrooms and baths, west of the kitchen wall" },
+  main:     { label: "Main side", hint: "Living areas, east of the kitchen wall" },
+  kitchen:  { label: "Kitchen", hint: "The split itself" },
+  laundry:  { label: "Laundry", hint: "" },
+  garage:   { label: "Garage", hint: "" },
+  exterior: { label: "Exterior", hint: "What the weather touches" },
+};
+
+const items = [
+  { zone: "primary", name: "AC, master bedroom", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
+    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
     note: "Coils replaced with new. Pan rust is from an old fixed leak.",
     status: "ok", statusText: "New coils" },
-  { tag: "Water", name: "Water heater, primary bath", make: "Rheem PROE38 S2 RH95, 38 gal", photo: "img/water-heater-primary.jpg",
-    life: [5.5, 10], last: "Never flushed", next: "Flush a few gallons",
+  { zone: "primary", name: "Water heater, primary bath", make: "Rheem PROE38 S2 RH95, 38 gal, ~5.5 yrs", photo: "img/water-heater-primary.jpg",
+    last: "Never flushed", next: "Flush a few gallons",
     note: "Mfg 04/2021. Wider drum unit. Installed by Admiral Plumbing.",
     status: "warn", statusText: "Due for flush" },
-  { tag: "Water", name: "Water heater, main house", make: "Rheem Professional Classic", photo: "img/water-heater.jpg",
-    life: [5.5, 10], last: "Never flushed", next: "Flush a few gallons",
+  { zone: "main", name: "AC, primary", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
+    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
+    note: "Coils replaced with new. No accessible drain cleanout, flush from outside yearly.",
+    status: "ok", statusText: "New coils" },
+  { zone: "main", name: "Water heater, main house", make: "Rheem Professional Classic, ~5.5 yrs", photo: "img/water-heater.jpg",
+    last: "Never flushed", next: "Flush a few gallons",
     note: "Installed same time as the other unit. Expansion tank on top.",
     status: "warn", statusText: "Due for flush" },
-  { tag: "Kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS", photo: "img/fridge.jpg",
-    life: [10.5, 15], last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027",
-    note: "Mfg Mar 2016. All kitchen appliances installed 2016.",
-    status: "ok", statusText: "Healthy" },
-  { tag: "Kitchen", name: "Range + microwave", make: "GE Profile electric / over-range", photo: "img/range.jpg",
-    life: [10.5, 15], last: "", next: "",
-    note: "Glass top range. Installed 2016.",
+  { zone: "kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS, ~10.5 yrs", photo: "img/fridge.jpg",
+    last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027",
+    note: "Mfg Mar 2016.", status: "ok", statusText: "Healthy" },
+  { zone: "kitchen", name: "Range + microwave", make: "GE Profile, ~10.5 yrs", photo: "img/range.jpg",
+    last: "", next: "", note: "Glass top range. Installed 2016.",
     status: "ok", statusText: "No issues" },
-  { tag: "Kitchen", name: "Dishwasher", make: "GE Profile", photo: "img/dishwasher.jpg",
-    life: [10.5, 12], last: "Filter cleaned Oct 8, 2026. Drain parts + pipes new.", next: "Filter clean Oct 2027",
+  { zone: "kitchen", name: "Dishwasher", make: "GE Profile, ~10.5 yrs", photo: "img/dishwasher.jpg",
+    last: "Filter cleaned Oct 8, 2026. Drain parts + pipes new.", next: "Filter clean Oct 2027",
     note: "Used ~1x/week. Display flagged low rinse aid Oct 2026.",
     status: "ok", statusText: "Healthy" },
-  { tag: "Kitchen", name: "Wine cooler", make: "Magic Chef dual-zone", photo: "img/wine-cooler.jpg",
-    life: [10.5, 12], last: "", next: "",
-    note: "Both zones at 49F.",
+  { zone: "kitchen", name: "Wine cooler", make: "Magic Chef dual-zone, ~10.5 yrs", photo: "img/wine-cooler.jpg",
+    last: "", next: "", note: "Both zones at 49F.",
     status: "ok", statusText: "No issues" },
-  { tag: "Kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600", photo: "img/disposal.jpg",
-    life: [0, 10], last: "Cleaned with ice Oct 8, 2026", next: "",
-    note: "New unit, clean install under the new faucet.",
+  { zone: "kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600, new", photo: "img/disposal.jpg",
+    last: "Cleaned with ice Oct 8, 2026", next: "",
+    note: "New unit under the new faucet.",
     status: "ok", statusText: "New" },
-  { tag: "Laundry", name: "Washer", make: "Samsung WA50R5200AW", photo: "img/washer.jpg",
-    life: [4.5, 10], last: "Self-clean Oct 8, 2026", next: "Self-clean ~Dec 2026",
+  { zone: "laundry", name: "Washer", make: "Samsung WA50R5200AW, ~4.5 yrs", photo: "img/washer.jpg",
+    last: "Self-clean Oct 8, 2026", next: "Self-clean ~Dec 2026",
     note: "Mfg Jan 2022. Used 2-3x/week. Braided steel supply hoses.",
     status: "ok", statusText: "Healthy" },
-  { tag: "Laundry", name: "Dryer", make: "Samsung MoistureSensor", photo: "img/dryer.jpg",
-    life: [12, 13], last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
-    note: "Not replaced since the 2014 purchase, possibly original. Running well after the first vent clean in 12 years.",
+  { zone: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12+ yrs", photo: "img/dryer.jpg",
+    last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
+    note: "Not replaced since the 2014 purchase. Running well after the first vent clean in 12 years.",
     status: "ok", statusText: "Running well" },
-  { tag: "HVAC", name: "Thermostat", make: "Basic programmable (South Florida Air Solutions)", photo: "img/thermostat.jpg",
-    life: null, last: "", next: "",
-    note: "Set to 77F. Non-smart, does the job. One per zone: primary and master bedroom.",
-    status: "ok", statusText: "No issues" },
-  { tag: "Garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
-    life: null, last: "", next: "Defrost yearly",
-    note: "Gift from neighbors ~10 years ago. Works great. Frost buildup visible on the lid seal. Defrost due April 2027.",
-    status: "ok", statusText: "Works great" },
-  { tag: "Garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0", photo: "img/garage.jpg",
-    life: [10, 15], last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube",
-    note: "Chain drive. Replaced ~2016.",
-    status: "ok", statusText: "Healthy" },
-  { tag: "Structure", name: "Roof", make: "Clay tile", photo: null,
-    life: [22, 30], last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots",
-    note: "No cracked tiles. Underlayment only shows as interior leaks.",
-    status: "ok", statusText: "Tiles fine" },
-  { tag: "Safety", name: "Fire extinguishers (2)", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
-    life: null, last: "Photographed Oct 8, 2026", next: "Check gauge yearly",
-    note: "Garage by the opener plus one in the kitchen, both Kidde ABC. Garage gauge confirmed green Oct 8, 2026; kitchen gauge reads green in the photo. Pre-2017 units, came with the house, so check the model against the 2017 Kidde plastic-handle recall when convenient.",
-    status: "info", statusText: "Check gauge" },
-  { tag: "Safety", name: "Smoke detectors, 10", make: "Hardwired + battery backup", photo: "img/smoke.jpg",
-    life: [15, 10], last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
-    note: "Never replaced. Past the 10-year sensor life. One brand: Kidde or First Alert.",
-    status: "alert", statusText: "Replace all 10" },
-  { tag: "Electrical", name: "Electrical panel", make: "Square D (main + subpanel)", photo: "img/panel.jpg",
-    life: [22, 40], last: "Photographed Oct 8, 2026", next: "",
+  { zone: "garage", name: "Electrical panel", make: "Square D main + subpanel, 22 yrs", photo: "img/panel.jpg",
+    last: "Photographed Oct 8, 2026", next: "",
     note: "Builder stock from the Abacoa development. Not Federal Pacific / Zinsco. Circuits labeled.",
     status: "ok", statusText: "Good brand" },
-  { tag: "Network", name: "Internet + cable wiring", make: "Netgear Nighthawk modem", photo: null,
-    life: null, last: "", next: "",
-    note: "Cable wiring next to the electrical panel. Service through Hotwire, paid via the HOA, no separate bill. Modem is end of life but fine: the line maxes out at 650 Mbps, so no new modem or router needed.",
+  { zone: "garage", name: "Internet + cable", make: "Netgear Nighthawk modem", photo: null,
+    last: "", next: "",
+    note: "Wiring next to the panel. Hotwire via the HOA, no separate bill. Modem EOL but fine at 650 Mbps.",
     status: "ok", statusText: "No issues" },
-  { tag: "Plumbing", name: "Main water shut-off", make: "Near kitchen sink", photo: "img/kitchen-valves.jpg",
-    life: null, last: "", next: "Exercise yearly",
-    note: "Where the water line enters. Kitchen sink angle stops, dishwasher valves (BrassCraft quarter-turn), half-bath and master-bath sink/toilet valves photographed Oct 2026. Washer valves are older multi-turn gate valves, the seizing risk. Kitchen + laundry faucets both new.",
-    status: "warn", statusText: "Exercise valves" },
-  { tag: "Exterior", name: "Hurricane shutters", make: "Accordion panels, full set", photo: "img/shutters.jpg",
-    life: null, last: "Verified Oct 8, 2026", next: "Season through Nov",
-    note: "Stacked in the garage corner by the door. Wingnut adapter lives on top of the Craftsman 104-pc tool set.",
+  { zone: "garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0, ~10 yrs", photo: "img/garage.jpg",
+    last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube",
+    note: "Chain drive. Replaced ~2016.",
+    status: "ok", statusText: "Healthy" },
+  { zone: "garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
+    last: "", next: "Defrost Apr 2027",
+    note: "Gift from neighbors ~10 years ago. Works great.",
+    status: "ok", statusText: "Works great" },
+  { zone: "garage", name: "Fire extinguishers (2)", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
+    last: "Gauges green Oct 8, 2026", next: "Check gauge yearly",
+    note: "Garage by the opener plus one in the kitchen. Pre-2017, came with the house.",
+    status: "ok", statusText: "Gauges green" },
+  { zone: "garage", name: "Hurricane shutters", make: "Accordion panels, full set", photo: "img/shutters.jpg",
+    last: "Verified Oct 8, 2026", next: "Season through Nov",
+    note: "Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.",
     status: "ok", statusText: "Ready" },
-  { tag: "Exterior", name: "Paint + caulk", make: "HOA 5-year cycle", photo: null,
-    life: null, last: "Full repaint Oct 2026 (3rd cycle)", next: "~2031",
+  { zone: "exterior", name: "Roof", make: "Clay tile, 22 yrs", photo: null,
+    last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots",
+    note: "No cracked tiles. Underlayment only shows as interior leaks.",
+    status: "ok", statusText: "Tiles fine" },
+  { zone: "exterior", name: "Paint + caulk", make: "HOA 5-year cycle", photo: null,
+    last: "Full repaint Oct 2026 (3rd cycle)", next: "~2031",
     note: "Pressure washing rides with the paint cycle.",
     status: "ok", statusText: "Done to 2031" },
+];
+
+const wholeHouse = [
+  { name: "Smoke detectors (10)", make: "Hardwired + battery backup", photo: "img/smoke.jpg",
+    next: "Replace all 10", note: "Never replaced. Past the 10-year sensor life.",
+    status: "alert", statusText: "Replace all 10" },
+  { name: "Thermostats (2)", make: "Basic programmable", photo: "img/thermostat.jpg",
+    next: "", note: "One per zone, both at 77F.",
+    status: "ok", statusText: "No issues" },
+  { name: "Water shut-off valves", make: "Main near kitchen sink", photo: "img/kitchen-valves.jpg",
+    next: "Exercise yearly", note: "Kitchen, dishwasher, washer gate valves, half-bath and master bath photographed.",
+    status: "warn", statusText: "Exercise valves" },
 ];
 
 const attention = [
   { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10-year sensor life. Hardwired with battery backup, one brand." },
   { level: "warn", title: "Flush both water heaters", detail: "Drain a few gallons from the bottom valve of each until the water runs clear." },
-  { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus each fixture valve, off and back on." },
+  { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus each fixture valve, off and back on. Washer gate valves first." },
   { level: "info", title: "Pest visit ~Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
 ];
 
-// Next actions pulled from each cataloged item, placed on their month.
-// Index 0 = October 2026 through 11 = September 2027.
+const runway = [
+  { name: "Smoke detectors", year: "Now", cost: "$300–600", level: "alert" },
+  { name: "Dryer", year: "~2027", cost: "$700–1,200", level: "warn" },
+  { name: "AC, primary + master", year: "~2029", cost: "$5,000–9,000 each", level: "warn" },
+  { name: "Roof underlayment", year: "~2029", cost: "$15,000–30,000", level: "warn" },
+  { name: "Water heaters (2)", year: "~2031", cost: "$1,200–1,800 each", level: "ok" },
+  { name: "Kitchen appliances", year: "~2031", cost: "$800–2,500 each", level: "ok" },
+  { name: "Garage door opener", year: "~2031", cost: "$300–600", level: "ok" },
+  { name: "Washer", year: "~2034", cost: "$700–1,200", level: "ok" },
+];
+
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const calEvents = [
-  ["Flush both water heaters", "Exercise shut-off valves", "Replace all 10 smoke detectors", "Pest treatment (~Oct 24): ask about termite tubes + bond"],
+  ["Flush both water heaters", "Exercise shut-off valves", "Replace all 10 smoke detectors", "Pest treatment (~Oct 24)"],
   ["AC filter check, both units"],
   ["Washer self-clean", "Pest treatment"],
   [],
@@ -287,48 +317,6 @@ const calEvents = [
   ["AC filter check", "Pest treatment"],
   ["AC filter check", "Fall: gutters, water heater flush, termite check"],
 ];
-
-// Replacement runway: the money view. Ballparks, not quotes.
-const runway = [
-  { name: "Smoke detectors (10)", sub: "Overdue, never replaced", age: 15, life: 10, year: "Now", cost: "$300–600" },
-  { name: "Dryer", sub: "Running well since vent clean", age: 12, life: 13, year: "~2027", cost: "$700–1,200" },
-  { name: "AC, primary", sub: "New coils extend the runway", age: 12, life: 15, year: "~2029", cost: "$5,000–9,000" },
-  { name: "AC, master bedroom", sub: "New coils extend the runway", age: 12, life: 15, year: "~2029", cost: "$5,000–9,000" },
-  { name: "Roof underlayment", sub: "Tiles fine; underlayment is the watch", age: 22, life: 25, year: "~2029", cost: "$15,000–30,000" },
-  { name: "Water heaters (2)", sub: "Rheem, installed 2021", age: 5.5, life: 10, year: "~2031", cost: "$1,200–1,800 each" },
-  { name: "Kitchen appliances", sub: "Fridge, range, dishwasher, microwave", age: 10.5, life: 15, year: "~2031", cost: "$800–2,500 each" },
-  { name: "Garage door opener", sub: "LiftMaster, ~2016", age: 10, life: 15, year: "~2031", cost: "$300–600" },
-  { name: "Washer", sub: "Samsung, 2022", age: 4.5, life: 12, year: "~2034", cost: "$700–1,200" },
-];
-
-const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-function renderRunway() {
-  el("runway").innerHTML = runway.map(r => {
-    const pct = Math.min(100, Math.round(r.age / r.life * 100));
-    const cls = pct >= 100 ? "alert" : pct >= 75 ? "warn" : "";
-    return `<div class="rrow">
-      <div class="rname">${r.name}<span>${r.sub}</span></div>
-      <div class="rbar"><i class="${cls}" style="width:${pct}%"></i></div>
-      <div class="rwhen"><b>${r.year}</b><span>${r.cost}</span></div>
-    </div>`;
-  }).join("");
-}
-
-function renderYearStrip() {
-  const startY = 2026, startM = 9; // October 2026
-  let html = "";
-  for (let i = 0; i < 12; i++) {
-    const first = new Date(startY, startM + i, 1);
-    const y = first.getFullYear(), m = first.getMonth();
-    const ev = calEvents[i] || [];
-    html += `<div class="ycol${i === 0 ? " now" : ""}">
-      <h4>${monthNames[m].slice(0, 3)} ${y}</h4>
-      ${ev.length ? ev.map(e => `<span class="chip">${e}</span>`).join("") : `<p class="none">Nothing</p>`}
-    </div>`;
-  }
-  el("ystrip").innerHTML = html;
-}
 
 const logEntries = [
   ["2026-10-08", "Washer self-clean run (2-3x/week use; next ~Dec 2026)"],
@@ -350,43 +338,70 @@ const logEntries = [
 
 const el = id => document.getElementById(id);
 
-renderRunway();
-renderYearStrip();
+function ditemHtml(d) {
+  return `<div class="ditem">
+    ${d.photo ? `<img src="${d.photo}" alt="">` : `<img src="" alt="" style="visibility:hidden">`}
+    <div>
+      <div class="dn">${d.name}</div>
+      <div class="dm">${d.make}</div>
+      ${d.last ? `<div class="dnote"><b>Last:</b> ${d.last}</div>` : ""}
+      ${d.next ? `<div class="dnote"><b>Next:</b> ${d.next}</div>` : ""}
+      ${d.note ? `<div class="dnote">${d.note}</div>` : ""}
+      <span class="pill ${d.status}">${d.statusText}</span>
+    </div>
+  </div>`;
+}
+
+function renderZone(key) {
+  document.querySelectorAll(".zone").forEach(z => z.classList.toggle("active", z.dataset.zone === key));
+  const z = zones[key];
+  const list = items.filter(i => i.zone === key);
+  el("detail").innerHTML = `<h3>${z.label}</h3><p class="dhint">${z.hint}${z.hint ? " · " : ""}${list.length} items tracked</p>` +
+    list.map(ditemHtml).join("");
+}
 
 el("dueNow").innerHTML = attention.map(a =>
   `<div class="att ${a.level}"><h3>${a.title}</h3><p>${a.detail}</p></div>`).join("");
 
-el("equipment").innerHTML = equipment.map(e => {
-  let lifeHtml = "";
-  if (e.life) {
-    const [age, exp] = e.life;
-    const pct = Math.min(100, Math.round(age / exp * 100));
-    const cls = pct >= 100 ? "alert" : pct >= 75 ? "warn" : "";
-    const ageTxt = age === 0 ? "New" : age % 1 ? age.toFixed(1) + " yrs" : age + " yrs";
-    lifeHtml = `<div class="life"><div class="row"><span>Age ${ageTxt}</span><span>Expected ~${exp} yrs</span></div><div class="bar"><i class="${cls}" style="width:${pct}%"></i></div></div>`;
+el("whole").innerHTML = wholeHouse.map(d => `
+  <div class="wrow">
+    ${d.photo ? `<img src="${d.photo}" alt="">` : ""}
+    <div><div class="wn">${d.name}</div><div class="wm">${d.make}${d.next ? " · Next: " + d.next : ""}</div>
+    <span class="pill ${d.status}">${d.statusText}</span></div>
+  </div>`).join("");
+
+const dotColor = { alert: "var(--red)", warn: "var(--amber)", ok: "var(--green)" };
+el("runway").innerHTML = runway.map(r => `
+  <div class="rwrow"><span class="dot" style="background:${dotColor[r.level]}"></span>
+  <span class="rn">${r.name}</span><span class="rc">${r.year} · ${r.cost}</span></div>`).join("");
+
+(function renderYearStrip() {
+  const startY = 2026, startM = 9;
+  let html = "";
+  for (let i = 0; i < 12; i++) {
+    const first = new Date(startY, startM + i, 1);
+    const y = first.getFullYear(), m = first.getMonth();
+    const ev = calEvents[i] || [];
+    html += `<div class="ycol${i === 0 ? " now" : ""}">
+      <h4>${monthNames[m].slice(0, 3)} ${y}</h4>
+      ${ev.length ? ev.map(e => `<span class="chip">${e}</span>`).join("") : `<p class="none">Nothing</p>`}
+    </div>`;
   }
-  return `<div class="card">
-    ${e.photo ? `<div class="photo" style="background-image:url('${e.photo}')"></div>` : `<div class="photo none">No photo yet</div>`}
-    <div class="body">
-      <span class="kicker">${e.tag}</span>
-      <h3>${e.name}</h3>
-      <p class="make">${e.make}</p>
-      ${lifeHtml}
-      <div class="facts">
-        ${e.last ? `<div><b>Last:</b> ${e.last}</div>` : ""}
-        ${e.next ? `<div><b>Next:</b> ${e.next}</div>` : ""}
-      </div>
-      ${e.note ? `<p class="note">${e.note}</p>` : ""}
-      <div class="foot"><span class="pill ${e.status}">${e.statusText}</span></div>
-    </div>
-  </div>`;
-}).join("");
+  el("ystrip").innerHTML = html;
+})();
 
 el("log").innerHTML = logEntries.map(([d, t]) =>
   `<div class="row"><date>${d}</date><span>${t}</span></div>`).join("");
 
 el("stOpen").textContent = attention.length;
+el("stItems").textContent = items.length + wholeHouse.length;
 el("stDone").textContent = logEntries.length;
+
+document.querySelectorAll(".zone").forEach(z => {
+  z.addEventListener("mouseenter", () => renderZone(z.dataset.zone));
+  z.addEventListener("click", () => renderZone(z.dataset.zone));
+});
+renderZone("kitchen");
 </script>
 </body>
 </html>
