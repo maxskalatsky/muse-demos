@@ -292,7 +292,6 @@ function renderCalendar() {
   }
   el("calendar").innerHTML = html;
 }
-renderCalendar();
 
 const logEntries = [
   ["2026-10-08", "Washer self-clean run (2-3x/week use; next ~Dec 2026)"],
@@ -313,6 +312,8 @@ const logEntries = [
 ];
 
 const el = id => document.getElementById(id);
+
+renderCalendar();
 
 el("dueNow").innerHTML = attention.map(a =>
   `<div class="att ${a.level}"><h3>${a.title}</h3><p>${a.detail}</p></div>`).join("");
