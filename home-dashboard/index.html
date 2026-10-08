@@ -212,10 +212,10 @@ const equipment = [
     life: [15, 10], last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
     note: "Never replaced. Past the 10-year sensor life. One brand: Kidde or First Alert.",
     status: "alert", statusText: "Replace all 10" },
-  { tag: "Electrical", name: "Electrical panel", make: "Brand TBD", photo: null,
-    life: [22, 40], last: "", next: "Note the brand",
-    note: "Original ~2004. Rule out Federal Pacific / Zinsco.",
-    status: "info", statusText: "Check brand" },
+  { tag: "Electrical", name: "Electrical panel", make: "Square D (main + subpanel)", photo: "img/panel.jpg",
+    life: [22, 40], last: "Photographed Oct 8, 2026", next: "",
+    note: "Builder stock from the Abacoa development. Not Federal Pacific / Zinsco. Circuits labeled.",
+    status: "ok", statusText: "Good brand" },
   { tag: "Plumbing", name: "Main water shut-off", make: "Near kitchen sink", photo: null,
     life: null, last: "", next: "Exercise yearly",
     note: "Where the water line enters. Kitchen + laundry faucets both new.",
@@ -236,7 +236,6 @@ const attention = [
   { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus each fixture valve, off and back on." },
   { level: "info", title: "Pest visit ~Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
-  { level: "info", title: "Note the electrical panel brand", detail: "Original ~2004. Rule out Federal Pacific / Zinsco." },
 ];
 
 const timeline = [
