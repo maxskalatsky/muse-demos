@@ -2,273 +2,305 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>326 San Remo Drive - Home Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home dashboard, Jupiter FL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #faf8f3;
-    --ink: #17211c;
-    --ink2: #43534a;
-    --muted: #8a978e;
-    --card: #ffffff;
-    --line: #e8e2d6;
-    --green: #2e7d4f;
-    --amber: #b97a1a;
-    --red: #b3372f;
-    --blue: #2f5bb3;
+    --navy: #0d2d6b; --blue: #006699; --blue-deep: #004F82; --teal: #00C99C;
+    --ok: #00a583; --warn: #b7791f; --alert: #cf3b3b; --info: #185FA5;
+    --ink: #1a1a1a; --body: #4b5563; --muted: #6b7280; --faint: #9ca3af;
+    --page: #f7f9fb; --wash: #f0f6fb; --card: #ffffff; --line: #e2eaf0; --line2: #d0dce8;
+    --shadow: 0 10px 30px rgba(0,31,64,.06); --ring: 0 0 0 3px rgba(0,102,153,.18);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }
-  .hero { background: var(--ink); color: #f4f1e8; padding: 44px 24px 36px; }
-  .hero .wrap, .wrap { max-width: 1120px; margin: 0 auto; }
-  .hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -1px; }
-  .hero h1 span { color: #9fd3ae; }
-  .hero p { color: #b9c4bb; margin-top: 8px; font-size: 15px; max-width: 660px; }
-  .hero .stats { display: flex; gap: 28px; margin-top: 22px; flex-wrap: wrap; }
-  .hero .stat b { display: block; font-size: 26px; letter-spacing: -0.5px; }
-  .hero .stat span { font-size: 12px; color: #9aa7a0; text-transform: uppercase; letter-spacing: 1px; }
-  .body { padding: 28px 24px 72px; }
-  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 38px 0 14px; }
-  h2:first-child { margin-top: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--page); color: var(--ink); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+  :focus-visible { outline: none; box-shadow: var(--ring); border-radius: 8px; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 
-  .attention { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-  .att { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 14px 18px; position: relative; overflow: hidden; }
-  .att::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
-  .att.alert::before { background: var(--red); }
-  .att.warn::before { background: var(--amber); }
-  .att.info::before { background: var(--blue); }
-  .att h3 { font-size: 15px; margin-bottom: 2px; }
-  .att p { font-size: 13px; color: var(--ink2); }
+  header { background: var(--navy); color: #fff; padding: calc(36px + env(safe-area-inset-top, 0px)) 0 32px; }
+  header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+  header .place { color: #c8e0ec; font-weight: 600; font-size: 14px; margin-top: 4px; }
+  header .about { color: #c8e0ec; font-size: 14px; max-width: 68ch; margin-top: 12px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .facts span { font-size: 13px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 4px 12px; }
+  .facts b { font-weight: 700; }
+
+  main { padding: 32px 0 64px; }
+  section { margin-top: 44px; }
+  section:first-child { margin-top: 0; }
+  .shead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  h2 { font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: -0.2px; }
+  .shead p { font-size: 13px; color: var(--muted); }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+
+  /* Do now + coming up */
+  .top { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .todo { list-style: none; }
+  .todo li { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 16px 20px; border-top: 1px solid var(--line); }
+  .todo li:first-child { border-top: 0; }
+  .todo h3 { font-size: 15px; font-weight: 700; line-height: 1.35; }
+  .todo p { font-size: 13.5px; color: var(--body); margin-top: 2px; }
+  .sev { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; padding-top: 2px; display: flex; gap: 7px; align-items: center; height: fit-content; }
+  .sev::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+  .sev.alert { color: var(--alert); } .sev.warn { color: var(--warn); } .sev.info { color: var(--info); }
+  .soon .m { padding: 12px 20px; border-top: 1px solid var(--line); }
+  .soon .m:first-child { border-top: 0; }
+  .soon h4 { font-size: 13px; font-weight: 700; color: var(--blue-deep); }
+  .soon ul { list-style: none; margin-top: 4px; }
+  .soon li { font-size: 13.5px; color: var(--body); padding: 2px 0 2px 14px; position: relative; }
+  .soon li::before { content: ""; position: absolute; left: 0; top: 10px; width: 5px; height: 5px; border-radius: 50%; background: var(--line2); }
+  .empty { font-size: 13px; color: var(--faint); margin-top: 4px; }
 
   /* House map */
-  .house-wrap { display: grid; grid-template-columns: 1.65fr 1fr; gap: 16px; align-items: start; }
-  .map-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .mapwrap { padding: 12px 12px 14px; }
   .mapscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .mapscroll svg { display: block; width: 100%; min-width: 760px; height: auto; }
-  .map-note { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
-  .room { fill: #ffffff; stroke: var(--line); stroke-width: 2; }
-  .rname { font-size: 15px; font-weight: 700; fill: var(--muted); }
-  .pin { cursor: pointer; }
+  .rname { font-size: 12.5px; font-weight: 700; fill: #5b6670; paint-order: stroke; stroke: rgba(255,255,255,.9); stroke-width: 3px; }
+  .floorname { font-size: 15px; font-weight: 800; fill: var(--navy); }
+  .pin { cursor: pointer; outline: none; }
   .pin circle.dot { stroke: #fff; stroke-width: 3; }
-  .pin circle.guess { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
-  .pin text { font-size: 12px; font-weight: 600; fill: var(--ink2); text-anchor: middle; pointer-events: none; }
-  .pin:hover circle.dot { stroke: var(--ink); }
-  .pin.active circle.dot { stroke: var(--ink); stroke-width: 4; }
-  .map-key { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: 12.5px; color: var(--muted); padding: 0 4px; }
+  .pin circle.guess { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .pin text { font-size: 12px; font-weight: 700; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
+  .pin:hover text, .pin:focus-visible text { fill: var(--blue); }
+  .pin:hover circle.dot, .pin:focus-visible circle.dot { stroke: var(--navy); }
+  .map-key { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; font-size: 12.5px; color: var(--muted); padding: 0 8px; }
   .map-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
-  .map-key i.g { background: none; border: 1.5px dashed var(--muted); width: 11px; height: 11px; vertical-align: -1px; }
+  .map-key i.g { border: 1.5px dashed var(--muted); width: 12px; height: 12px; vertical-align: -2px; }
+  .mapnote { margin-top: 8px; font-size: 12.5px; color: var(--muted); padding: 0 8px; }
 
-  .detail { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-height: 320px; }
-  .detail h3 { font-size: 18px; }
-  .detail .dhint { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
-  .dphoto { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #eef0ea; }
-  .ditem .dn { font-size: 15px; font-weight: 700; }
-  .ditem .dm { font-size: 12.5px; color: var(--muted); }
-  .ditem .dnote { font-size: 13px; color: var(--ink2); margin-top: 4px; line-height: 1.45; }
-  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-top: 8px; }
-  .pill.ok { background: #e2f2e7; color: var(--green); }
-  .pill.warn { background: #fbeed7; color: var(--amber); }
-  .pill.alert { background: #f9e2df; color: var(--red); }
-  .pill.info { background: #e3ebfb; color: var(--blue); }
+  /* Equipment list */
+  .areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+  .area { padding: 6px 0; }
+  .area h3 { font-size: 13px; font-weight: 700; color: var(--blue-deep); padding: 8px 16px 4px; }
+  .row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 16px; font-size: 13.5px; }
+  .row:hover { background: var(--wash); }
+  .row .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .row .nm { font-weight: 600; }
+  .row .st { margin-left: auto; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
 
-  /* Compact runway */
-  .runway-sub { font-size: 13.5px; color: var(--muted); margin: -8px 0 14px; }
-  .rw { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 8px; }
-  .rwrow { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
-  .rwrow .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .rwrow .rn { font-weight: 600; }
-  .rwrow .rc { margin-left: auto; color: var(--muted); white-space: nowrap; font-size: 12.5px; }
+  /* Runway */
+  .rw { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0; padding: 4px 0; }
+  .rwrow { display: grid; grid-template-columns: 10px 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 20px; border-top: 1px solid var(--line); }
+  .rwrow .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .rwrow .rn { font-weight: 700; font-size: 14px; }
+  .rwrow .ry { font-weight: 700; font-size: 13px; text-align: right; }
+  .rwrow .rc { grid-column: 2 / 4; font-size: 13px; color: var(--body); }
+  .caveat { margin-top: 10px; font-size: 13px; color: #042C53; background: #E6F1FB; border-left: 4px solid var(--info); padding: 10px 14px; border-radius: 0 8px 8px 0; }
 
-  /* Year strip */
-  .ystrip-wrap { overflow-x: auto; padding-bottom: 8px; }
-  .ystrip { display: flex; gap: 10px; min-width: min-content; }
-  .ycol { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; width: 168px; flex-shrink: 0; }
-  .ycol.now { border: 2px solid var(--green); }
-  .ycol h4 { font-size: 13px; margin-bottom: 8px; }
-  .ycol .chip { display: block; font-size: 12px; background: #f4f1e6; border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; margin-bottom: 6px; color: var(--ink2); line-height: 1.35; }
-  .ycol .none { font-size: 12px; color: var(--muted); font-style: italic; }
+  /* Year ahead */
+  .year { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .mo { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-height: 108px; }
+  .mo.now { border: 2px solid var(--blue); padding: 13px 15px; }
+  .mo h4 { font-size: 13px; font-weight: 700; color: var(--navy); display: flex; justify-content: space-between; gap: 8px; }
+  .mo h4 em { font-style: normal; font-size: 11px; color: var(--blue); }
+  .mo ul { list-style: none; margin-top: 6px; }
+  .mo li { font-size: 13px; color: var(--body); padding: 3px 0; line-height: 1.4; border-top: 1px solid #eef2f6; }
+  .mo li:first-child { border-top: 0; }
 
-  /* Log */
-  .logwrap { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  .logwrap summary { cursor: pointer; padding: 14px 18px; font-size: 14px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  /* Log (collapsed, by month) */
+  .logwrap { overflow: hidden; }
+  .logwrap summary { cursor: pointer; padding: 14px 20px; font-size: 14px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; }
   .logwrap summary::-webkit-details-marker { display: none; }
   .logwrap summary::after { content: "+"; font-size: 20px; color: var(--muted); font-weight: 400; }
   .logwrap[open] summary::after { content: "–"; }
   .logwrap summary .sub { font-weight: 400; color: var(--muted); font-size: 12.5px; }
-  .log { display: grid; gap: 14px; padding: 0 18px 18px; }
+  .log { display: grid; gap: 14px; padding: 0 20px 18px; }
   .log h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
-  .log .row { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 13.5px; }
   .log .rows { display: grid; gap: 6px; }
+  .log .lrow { background: var(--page); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 13.5px; }
 
-  footer { margin-top: 48px; color: var(--muted); font-size: 12.5px; text-align: center; }
-  @media (max-width: 860px) {
-    .house-wrap { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 27px; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 48px; }
+
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; border-radius: 999px; padding: 3px 10px; }
+  .pill.ok { background: var(--ok); } .pill.warn { background: var(--warn); } .pill.alert { background: var(--alert); } .pill.info { background: var(--info); }
+
+  dialog { border: 0; border-radius: 14px; padding: 0; width: min(540px, calc(100vw - 32px)); max-height: calc(100vh - 48px); box-shadow: 0 16px 48px rgba(0,31,64,.2); color: var(--ink); border-top: 3px solid var(--blue); margin: auto; }
+  dialog::backdrop { background: rgba(13,45,107,.35); }
+  .dl-ph { aspect-ratio: 4 / 3; background: var(--wash) center/cover no-repeat; }
+  .dl-bd { padding: 18px 22px 22px; }
+  .dl-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+  .dl-bd h3 { font-size: 20px; font-weight: 800; color: var(--navy); line-height: 1.25; margin-top: 8px; }
+  .dl-bd .mk { color: var(--body); font-size: 14px; margin-top: 2px; }
+  .dl-close { font-size: 13px; font-weight: 700; color: var(--blue); padding: 6px 10px; border-radius: 8px; flex: none; }
+  .dl-close:hover { background: var(--wash); }
+  .dl-rows { margin-top: 14px; display: grid; grid-template-columns: 70px 1fr; gap: 6px 12px; font-size: 14px; }
+  .dl-rows dt { color: var(--muted); font-weight: 600; }
+  .dl-note { margin-top: 14px; font-size: 14px; color: #042C53; background: #E6F1FB; border-left: 4px solid var(--info); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+
+  @media (max-width: 900px) {
+    .top { grid-template-columns: 1fr; }
+    .year { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    header h1 { font-size: 25px; }
+    .todo li { grid-template-columns: 1fr; gap: 4px; padding: 14px 16px; }
+    .year { grid-template-columns: 1fr; }
+    .mo { min-height: 0; }
+    .rwrow { padding: 12px 16px; }
   }
 </style>
 </head>
 <body>
 
-<div class="hero">
+<header>
   <div class="wrap">
-    <h1>326 San Remo Drive, <span>Jupiter</span></h1>
-    <p>Built ~2004. One house with fully separate systems per side (AC, water, electric), split across the kitchen wall. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn).</p>
-    <div class="stats">
-      <div class="stat"><b id="stOpen">5</b><span>Open items</span></div>
-      <div class="stat"><b id="stItems">25</b><span>Items tracked</span></div>
-      <div class="stat"><b id="stDone">15</b><span>Jobs logged</span></div>
-      <div class="stat"><b>Oct 8</b><span>Last session</span></div>
-    </div>
+    <h1>The house</h1>
+    <p class="place">Jupiter, FL. Built around 2004.</p>
+    <p class="about">One house with fully separate systems per side (AC, water, electric), split across the kitchen wall. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn).</p>
+    <div class="facts" id="facts"></div>
   </div>
-</div>
+</header>
 
-<div class="body"><div class="wrap">
-  <h2>Needs attention</h2>
-  <div class="attention" id="dueNow"></div>
+<main><div class="wrap">
 
-  <h2>The house</h2>
-  <div class="house-wrap">
-    <div class="map-card">
-      <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 640" role="img" aria-label="Floor plan with equipment pins"></svg></div>
+  <section>
+    <div class="top">
+      <div>
+        <div class="shead"><h2>Do now</h2><p id="todoCount"></p></div>
+        <ul class="todo panel" id="todo"></ul>
+      </div>
+      <div>
+        <div class="shead"><h2>Coming up</h2><p>Next three months</p></div>
+        <div class="soon panel" id="soon"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>The house</h2><p>Approximate layout. Tap any marker or item for details.</p></div>
+    <div class="panel mapwrap">
+      <div class="mapscroll"><svg id="map" role="group" aria-label="Cutaway of the house with equipment markers"></svg></div>
       <div class="map-key">
-        <span><i style="background:var(--red)"></i>Urgent</span>
-        <span><i style="background:var(--amber)"></i>Needs attention</span>
-        <span><i style="background:var(--blue)"></i>Check</span>
-        <span><i style="background:var(--green)"></i>Good</span>
+        <span><i style="background:var(--alert)"></i>Urgent</span>
+        <span><i style="background:var(--warn)"></i>Needs attention</span>
+        <span><i style="background:var(--info)"></i>Check</span>
+        <span><i style="background:var(--ok)"></i>Good</span>
         <span><i class="g"></i>Location not confirmed</span>
       </div>
-      <p class="map-note">Schematic, not to scale. Tap a pin for details.</p>
+      <p class="mapnote">Schematic, not to scale. The upstairs plate floats above the main-house side; dashed lines show where it sits.</p>
     </div>
-    <div class="detail" id="detail"></div>
-  </div>
+    <div class="areas" id="areas"></div>
+  </section>
 
-  <h2>Replacement runway</h2>
-  <p class="runway-sub">Ballpark years and costs, so the big tickets never surprise you. Sorted by urgency.</p>
-  <div class="rw" id="runway"></div>
+  <section>
+    <div class="shead"><h2>Replacement runway</h2><p>The big tickets, soonest first</p></div>
+    <div class="panel rw" id="runway"></div>
+    <p class="caveat">Years and costs are rough estimates, not quotes. Get real quotes before budgeting.</p>
+  </section>
 
-  <h2>The year ahead</h2>
-  <div class="ystrip-wrap"><div class="ystrip" id="ystrip"></div></div>
+  <section>
+    <div class="shead"><h2>The year ahead</h2></div>
+    <div class="year" id="year"></div>
+  </section>
 
-  <h2>Service log</h2>
-  <details class="logwrap">
-    <summary><span id="logCount">Service log</span><span class="sub">tap to expand</span></summary>
-    <div class="log" id="log"></div>
-  </details>
+  <section>
+    <div class="shead"><h2>Service log</h2></div>
+    <details class="logwrap panel">
+      <summary><span id="logCount">Service log</span><span class="sub">tap to expand</span></summary>
+      <div class="log" id="log"></div>
+    </details>
+  </section>
 
-  <footer>Last updated October 8, 2026. Tell Sarah when something gets done and the dates roll forward.</footer>
-</div></div>
+  <footer id="foot"></footer>
+</div></main>
+
+<dialog id="detail" aria-labelledby="dlTitle"></dialog>
 
 <script>
+const UPDATED = "2026-10-08";
+
+// area: garage, laundry, kitchen, main, upstairs, master, outside
 const items = [
-  { section: "garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0, ~10 yrs", photo: "img/garage.jpg",
-    last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube",
-    note: "Chain drive. Replaced ~2016.", status: "ok", statusText: "Healthy" },
-  { section: "garage", name: "Hurricane shutters", make: "Accordion panels, full set", photo: "img/shutters.jpg",
-    last: "Verified Oct 8, 2026", next: "Season through Nov",
-    note: "Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.", status: "ok", statusText: "Ready" },
-  { section: "garage", name: "Electrical panel", make: "Square D main + subpanel, 22 yrs", photo: "img/panel.jpg",
-    last: "Photographed Oct 8, 2026", next: "",
-    note: "Builder stock from the Abacoa development. Not Federal Pacific / Zinsco. Circuits labeled.", status: "ok", statusText: "Good brand" },
-  { section: "garage", name: "Internet + cable", make: "Netgear Nighthawk modem", photo: null,
-    last: "", next: "",
-    note: "Wiring next to the panel. Hotwire via the HOA, no separate bill. Modem EOL but fine at 650 Mbps.", status: "ok", statusText: "No issues" },
-  { section: "garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
-    last: "", next: "Defrost Apr 2027",
-    note: "Gift from neighbors ~10 years ago. Works great.", status: "ok", statusText: "Works great" },
-  { section: "garage", name: "Fire extinguisher", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
-    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly",
-    note: "By the opener. Pre-2017, came with the house.", status: "ok", statusText: "Gauge green" },
-  { section: "garage", name: "Water heater, secondary", make: "Rheem 38 gal, ~5.5 yrs", photo: "img/water-heater-garage.jpg",
-    last: "Never flushed", next: "Flush a few gallons",
-    note: "Mfg 04/2021. The wider drum unit.", status: "warn", statusText: "Due for flush" },
-  { section: "laundry", name: "Washer", make: "Samsung WA50R5200AW, ~4.5 yrs", photo: "img/washer.jpg",
-    last: "Self-clean Oct 8, 2026", next: "Self-clean ~Dec 2026",
-    note: "Mfg Jan 2022. Used 2-3x/week. Braided steel supply hoses.", status: "ok", statusText: "Healthy" },
-  { section: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12+ yrs", photo: "img/dryer.jpg",
-    last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
-    note: "Not replaced since the 2014 purchase. Running well after the first vent clean in 12 years.", status: "ok", statusText: "Running well" },
-  { section: "kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS, ~10.5 yrs", photo: "img/fridge.jpg",
-    last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027",
-    note: "Mfg Mar 2016.", status: "ok", statusText: "Healthy" },
-  { section: "kitchen", name: "Range + microwave", make: "GE Profile, ~10.5 yrs", photo: "img/range.jpg",
+  { area: "garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0, about 10 yrs", photo: "img/garage.jpg",
+    last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube", note: "Chain drive. Replaced around 2016.", status: "ok", statusText: "Healthy" },
+  { area: "garage", name: "Hurricane shutters", make: "Full set", photo: "img/shutters.jpg",
+    last: "Verified Oct 8, 2026", next: "Season through Nov", note: "Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.", status: "ok", statusText: "Ready" },
+  { area: "garage", name: "Electrical panel", make: "Square D main and subpanel, 22 yrs", photo: "img/panel.jpg",
+    last: "Photographed Oct 8, 2026", next: "", note: "Builder stock from the Abacoa development. Not Federal Pacific or Zinsco. Circuits labeled.", status: "ok", statusText: "Good brand" },
+  { area: "garage", name: "Internet and cable", make: "Netgear Nighthawk modem", photo: null,
+    last: "", next: "", note: "Wiring next to the panel. Hotwire via the HOA, no separate bill. Modem is end of life but fine at 650 Mbps.", status: "ok", statusText: "No issues" },
+  { area: "garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
+    last: "", next: "Defrost Apr 2027", note: "Gift from neighbors about 10 years ago. Works great.", status: "ok", statusText: "Works great" },
+  { area: "garage", name: "Fire extinguisher, garage", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
+    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly", note: "By the opener. Predates 2017, came with the house.", status: "ok", statusText: "Gauge green" },
+  { area: "garage", name: "Water heater, secondary", make: "Rheem 38 gal, about 5.5 yrs", photo: "img/water-heater-garage.jpg",
+    last: "Never flushed", next: "Flush a few gallons", note: "Mfg 04/2021. The wider drum unit.", status: "warn", statusText: "Due for flush" },
+  { area: "laundry", name: "Washer", make: "Samsung WA50R5200AW, about 4.5 yrs", photo: "img/washer.jpg",
+    last: "Self clean Oct 8, 2026", next: "Self clean around Dec 2026", note: "Mfg Jan 2022. Used 2 to 3 times a week. Braided steel supply hoses.", status: "ok", statusText: "Healthy" },
+  { area: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12 plus yrs", photo: "img/dryer.jpg",
+    last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027", note: "Not replaced since the 2014 purchase. Running well after the first vent clean in 12 years.", status: "ok", statusText: "Running well" },
+  { area: "kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS, about 10.5 yrs", photo: "img/fridge.jpg",
+    last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027", note: "Mfg Mar 2016.", status: "ok", statusText: "Healthy" },
+  { area: "kitchen", name: "Range and microwave", make: "GE Profile, about 10.5 yrs", photo: "img/range.jpg",
     last: "", next: "", note: "Glass top range. Installed 2016.", status: "ok", statusText: "No issues" },
-  { section: "kitchen", name: "Dishwasher", make: "GE Profile, ~10.5 yrs", photo: "img/dishwasher.jpg",
-    last: "Filter cleaned Oct 8, 2026. Drain parts + pipes new.", next: "Filter clean Oct 2027",
-    note: "Used ~1x/week. Display flagged low rinse aid Oct 2026.", status: "ok", statusText: "Healthy" },
-  { section: "kitchen", name: "Wine cooler", make: "Magic Chef dual-zone, ~10.5 yrs", photo: "img/wine-cooler.jpg",
+  { area: "kitchen", name: "Dishwasher", make: "GE Profile, about 10.5 yrs", photo: "img/dishwasher.jpg",
+    last: "Filter cleaned Oct 8, 2026. Drain parts and pipes new.", next: "Filter clean Oct 2027", note: "Used about once a week. Display flagged low rinse aid Oct 2026.", status: "ok", statusText: "Healthy" },
+  { area: "kitchen", name: "Wine cooler", make: "Magic Chef dual zone, about 10.5 yrs", photo: "img/wine-cooler.jpg",
     last: "", next: "", note: "Both zones at 49F.", status: "ok", statusText: "No issues" },
-  { section: "kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600, new", photo: "img/disposal.jpg",
-    last: "Cleaned with ice Oct 8, 2026", next: "",
-    note: "New unit under the new faucet.", status: "ok", statusText: "New" },
-  { section: "kitchen", name: "Fire extinguisher", make: "Kidde ABC dry chemical", photo: "img/extinguisher-kitchen.jpg",
-    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly",
-    note: "In the kitchen. Pre-2017, came with the house.", status: "ok", statusText: "Gauge green" },
-  { section: "kitchen", name: "Main water shut-off", make: "Near kitchen sink", photo: "img/kitchen-valves.jpg",
-    last: "", next: "Exercise yearly",
-    note: "Where the water line enters. Kitchen sink angle stops and dishwasher valves (BrassCraft quarter-turn) photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
-  { section: "mainhouse", name: "Water heater, primary", make: "Rheem, ~5.5 yrs", photo: null,
-    last: "Never flushed", next: "Flush a few gallons",
-    note: "Photo coming.", status: "warn", statusText: "Due for flush" },
-  { section: "mainhouse", name: "AC, main house", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
-    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
-    note: "Upstairs near the top of the stairwell. Coils replaced with new. No accessible drain cleanout, flush from outside yearly.", status: "ok", statusText: "New coils" },
-  { section: "mainhouse", name: "Thermostat, main house", make: "Basic programmable", photo: "img/thermostat.jpg",
-    last: "", next: "",
-    note: "Upstairs near the top of the stairwell. Set to 77F.", status: "ok", statusText: "No issues" },
-  { section: "mainhouse", name: "Smoke detectors (10)", make: "Hardwired + battery backup", photo: "img/smoke.jpg",
+  { area: "kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600, new", photo: "img/disposal.jpg",
+    last: "Cleaned with ice Oct 8, 2026", next: "", note: "New unit under the new faucet.", status: "ok", statusText: "New" },
+  { area: "kitchen", name: "Fire extinguisher, kitchen", make: "Kidde ABC dry chemical", photo: "img/extinguisher-kitchen.jpg",
+    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly", note: "In the kitchen. Predates 2017, came with the house.", status: "ok", statusText: "Gauge green" },
+  { area: "kitchen", name: "Main water shutoff", make: "Near kitchen sink", photo: "img/kitchen-valves.jpg",
+    last: "", next: "Exercise yearly", note: "Where the water line enters. Kitchen sink angle stops and dishwasher valves (BrassCraft quarter turn) photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
+  { area: "main", name: "Water heater, primary", make: "Rheem, about 5.5 yrs", photo: null,
+    last: "Never flushed", next: "Flush a few gallons", note: "Location and photo not recorded yet.", status: "warn", statusText: "Due for flush" },
+  { area: "upstairs", name: "AC, main house", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
+    last: "Filters and drain flush Oct 8, 2026", next: "Filter check Nov 2026", note: "Upstairs near the top of the stairwell. Coils replaced with new. No accessible drain cleanout, flush from outside yearly.", status: "ok", statusText: "New coils" },
+  { area: "upstairs", name: "Thermostat, main house", make: "Basic programmable", photo: "img/thermostat.jpg",
+    last: "", next: "", note: "Upstairs near the top of the stairwell. Set to 77F.", status: "ok", statusText: "No issues" },
+  { area: "main", name: "Smoke detectors (10)", make: "Hardwired with battery backup", photo: "img/smoke.jpg",
     last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
-    note: "Never replaced. Past the 10-year sensor life. 7 in main house (5 upstairs: bedrooms + hallway, 2 downstairs: front room + stairs), 2 in master side (hallway + bedroom). One brand: Kidde or First Alert.", status: "alert", statusText: "Replace all 10" },
-  { section: "masterside", name: "AC, secondary", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
-    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
-    note: "Coils replaced with new. Pan rust is from an old fixed leak.", status: "ok", statusText: "New coils" },
-  { section: "masterside", name: "Thermostat, secondary", make: "Basic programmable", photo: "img/thermostat-2.jpg",
+    note: "Never replaced, past the 10 year sensor life. Locations recorded: 5 upstairs (bedrooms and hallway), 2 downstairs (front room and stairs), 2 on the master side (hallway and bedroom). That is 9; where the 10th one is has not been recorded. One brand: Kidde or First Alert.",
+    status: "alert", statusText: "Replace all 10" },
+  { area: "master", name: "AC, secondary", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
+    last: "Filters and drain flush Oct 8, 2026", next: "Filter check Nov 2026", note: "Coils replaced with new. Pan rust is from an old fixed leak.", status: "ok", statusText: "New coils" },
+  { area: "master", name: "Thermostat, secondary", make: "Basic programmable", photo: "img/thermostat-2.jpg",
     last: "", next: "", note: "Set to 77F.", status: "ok", statusText: "No issues" },
-  { section: "masterside", name: "Bathroom valves", make: "Half-bath + master bath", photo: "img/valves-bath.jpg",
-    last: "", next: "Exercise yearly",
-    note: "Sink angle stops and toilet supply valves photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
-  { section: "outside", name: "Roof", make: "Clay tile, 22 yrs", photo: null,
-    last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots",
-    note: "No cracked tiles. Underlayment only shows as interior leaks.", status: "ok", statusText: "Tiles fine" },
-  { section: "outside", name: "Paint + caulk", make: "HOA 5-year cycle", photo: null,
-    last: "Full repaint Oct 2026 (3rd cycle)", next: "~2031",
-    note: "Pressure washing rides with the paint cycle.", status: "ok", statusText: "Done to 2031" },
+  { area: "master", name: "Bathroom valves", make: "Master bath", photo: "img/valves-bath.jpg",
+    last: "", next: "Exercise yearly", note: "Master bath sink angle stops and toilet supply valves photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
+  { area: "outside", name: "Roof", make: "Clay tile, 22 yrs", photo: null,
+    last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots", note: "No cracked tiles. Underlayment only shows as interior leaks.", status: "ok", statusText: "Tiles fine" },
+  { area: "outside", name: "Paint and caulk", make: "HOA 5 year cycle", photo: null,
+    last: "Full repaint Aug 2026 (3rd cycle)", next: "Around 2031", note: "Pressure washing rides with the paint cycle.", status: "ok", statusText: "Done to 2031" },
 ];
 
 const attention = [
-  { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10-year sensor life. Hardwired with battery backup, one brand." },
+  { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10 year sensor life. Hardwired with battery backup, one brand." },
   { level: "warn", title: "Flush both water heaters", detail: "Drain a few gallons from the bottom valve of each until the water runs clear." },
-  { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus fixture valves in each bath and the laundry. Washer gate valves first." },
-  { level: "info", title: "Pest visit ~Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
+  { level: "warn", title: "Exercise water shutoff valves", detail: "Main near the kitchen sink, plus fixture valves in each bath and the laundry. Washer gate valves first." },
+  { level: "info", title: "Pest visit around Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
 ];
 
+// Rough estimates, not quotes
 const runway = [
-  { name: "Smoke detectors", year: "Now", cost: "$300–600", level: "alert" },
-  { name: "Dryer", year: "~2027", cost: "$700–1,200", level: "warn" },
-  { name: "AC, main house + secondary", year: "~2029", cost: "$5,000–9,000 each", level: "warn" },
-  { name: "Roof underlayment", year: "~2029", cost: "$15,000–30,000", level: "warn" },
-  { name: "Water heaters (2)", year: "~2031", cost: "$1,200–1,800 each", level: "ok" },
-  { name: "Kitchen appliances", year: "~2031", cost: "$800–2,500 each", level: "ok" },
-  { name: "Garage door opener", year: "~2031", cost: "$300–600", level: "ok" },
-  { name: "Washer", year: "~2034", cost: "$700–1,200", level: "ok" },
+  { name: "Smoke detectors", year: "Now", cost: "$300 to $600", level: "alert" },
+  { name: "Dryer", year: "Around 2027", cost: "$700 to $1,200", level: "warn" },
+  { name: "AC, main house and secondary", year: "Around 2029", cost: "$5,000 to $9,000 each", level: "warn" },
+  { name: "Roof underlayment", year: "Around 2029", cost: "$15,000 to $30,000", level: "warn" },
+  { name: "Water heaters (2)", year: "Around 2031", cost: "$1,200 to $1,800 each", level: "ok" },
+  { name: "Kitchen appliances", year: "Around 2031", cost: "$800 to $2,500 each", level: "ok" },
+  { name: "Garage door opener", year: "Around 2031", cost: "$300 to $600", level: "ok" },
+  { name: "Washer", year: "Around 2034", cost: "$700 to $1,200", level: "ok" },
 ];
 
-const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+// Starts with the current month (Oct 2026)
 const calEvents = [
-  ["Flush both water heaters", "Exercise shut-off valves", "Replace all 10 smoke detectors", "Pest treatment (~Oct 24)"],
+  ["Flush both water heaters", "Exercise shutoff valves", "Replace all 10 smoke detectors", "Pest treatment (around Oct 24)"],
   ["AC filter check, both units"],
-  ["Washer self-clean", "Pest treatment"],
+  ["Washer self clean", "Pest treatment"],
   [],
   ["Pest treatment"],
-  ["Gutter cleanout", "Spring AC tune-up", "Hurricane prep check"],
+  ["Gutter cleanout", "Spring AC tune up", "Hurricane prep check"],
   ["Pest treatment", "Defrost chest freezer"],
-  ["AC filter check (monthly May-Oct)"],
+  ["AC filter check (monthly May through Oct)"],
   ["AC filter check", "Pest treatment"],
   ["AC filter check"],
   ["AC filter check", "Pest treatment"],
@@ -277,7 +309,7 @@ const calEvents = [
 
 const logMonths = [
   ["October 2026", [
-    "Washer self-clean run (used 2-3x/week; next ~Dec 2026)",
+    "Washer self clean run (used 2 to 3 times a week; next around Dec 2026)",
     "Dishwasher filter cleaned (used weekly; next Oct 2027)",
     "Smoke detectors tested, all 10 good",
     "Garbage disposal cleaned with ice",
@@ -294,144 +326,268 @@ const logMonths = [
     "Windows cleaned",
   ]],
   ["August 2026", [
-    "HOA full exterior repaint + caulk, 5-year cycle (next ~2031); pressure washing done",
+    "HOA full exterior repaint and caulk, 5 year cycle (next around 2031); pressure washing done",
   ]],
   ["April 2026", [
     "Laundry faucet replaced",
-    "Kitchen faucet replaced; Waste King disposal new; dishwasher drain parts and under-sink pipes new",
+    "Kitchen faucet replaced; Waste King disposal new; dishwasher drain parts and under sink pipes new",
   ]],
 ];
 
-// Floor plan. Pins: [itemIndex, x, y, label, guess?]
-const rooms = [
-  { name: "Garage", x: 30, w: 220 },
-  { name: "Laundry", x: 250, w: 150 },
-  { name: "Kitchen", x: 400, w: 220 },
-  { name: "Main house", x: 620, w: 300 },
-  { name: "Master side", x: 920, w: 230 },
-  { name: "Outside", x: 1150, w: 100 },
-];
-const pins = [
-  ["i0", 95, 225, "Opener"],
-  ["i1", 185, 225, "Shutters"],
-  ["i2", 95, 300, "Panel", true],
-  ["i3", 185, 300, "Internet", true],
-  ["i4", 95, 375, "Freezer"],
-  ["i5", 185, 375, "Extinguisher"],
-  ["i6", 95, 450, "Water heater"],
-  ["i7", 325, 280, "Washer"],
-  ["i8", 325, 400, "Dryer"],
-  ["i9", 465, 225, "Fridge"],
-  ["i10", 555, 225, "Range"],
-  ["i11", 465, 300, "Dishwasher"],
-  ["i12", 555, 300, "Wine"],
-  ["i13", 465, 375, "Disposal"],
-  ["i14", 555, 375, "Extinguisher"],
-  ["i15", 465, 450, "Shutoff"],
-  ["i16", 700, 280, "Water heater"],
-  ["i19", 840, 280, "Smoke alarms"],
-  ["i17", 700, 400, "AC (up)"],
-  ["i18", 840, 400, "Thermostat"],
-  ["i20", 985, 280, "AC"],
-  ["i19", 1085, 280, "Smoke alarms"],
-  ["i21", 985, 400, "Thermostat"],
-  ["i22", 1085, 400, "Valves"],
-  ["i23", 640, 105, "Roof"],
-  ["i24", 1200, 330, "Paint"],
-];
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const COLOR = { ok: "var(--ok)", warn: "var(--warn)", alert: "var(--alert)", info: "var(--info)" };
+const SEV = { alert: "Urgent", warn: "Soon", info: "Heads up" };
+const [uy, um, ud] = UPDATED.split("-").map(Number);
+const prettyUpdated = `${MONTHS[um - 1].slice(0, 3)} ${ud}, ${uy}`;
+const logCount = logMonths.reduce((n, [, r]) => n + r.length, 0);
 
-const el = id => document.getElementById(id);
+$("facts").innerHTML = [
+  `<b>${attention.length}</b> to do`, `<b>${items.length}</b> items tracked`,
+  `<b>${logCount}</b> jobs logged`, `Updated <b>${prettyUpdated}</b>`,
+].map(t => `<span>${t}</span>`).join("");
 
-function ditemHtml(d) {
-  return `<div class="ditem">
-    ${d.photo ? `<img class="dphoto" src="${d.photo}" alt="">` : ""}
-    <div class="dn">${d.name}</div>
-    <div class="dm">${d.make}</div>
-    ${d.last ? `<div class="dnote"><b>Last:</b> ${d.last}</div>` : ""}
-    ${d.next ? `<div class="dnote"><b>Next:</b> ${d.next}</div>` : ""}
-    ${d.note ? `<div class="dnote">${d.note}</div>` : ""}
-    <span class="pill ${d.status}">${d.statusText}</span>
-  </div>`;
-}
+$("todoCount").textContent = `${attention.length} open`;
+$("todo").innerHTML = attention.map(a => `<li><span class="sev ${a.level}">${SEV[a.level]}</span>
+  <div><h3>${esc(a.title)}</h3><p>${esc(a.detail)}</p></div></li>`).join("");
 
-let pinnedPin = null;
-function showPin(ref, pin) {
-  if (pin) pinnedPin = ref;
-  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.ref === (pinnedPin || ref)));
-  const d = items[+ref.slice(1)];
-  const pinNote = pinnedPin ? ` <span style="color:var(--green)">· pinned</span>` : "";
-  el("detail").innerHTML = `<h3>${d.name}${pinNote}</h3><p class="dhint">${d.make}</p>` + ditemHtml(d);
-}
+const monthLabel = i => { const d = new Date(uy, um - 1 + i, 1); return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+$("soon").innerHTML = calEvents.slice(0, 3).map((ev, i) => `<div class="m"><h4>${monthLabel(i)}</h4>
+  ${ev.length ? `<ul>${ev.map(e => `<li>${esc(e)}</li>`).join("")}</ul>` : `<p class="empty">Nothing scheduled</p>`}</div>`).join("");
 
-function renderPlan() {
-  const top = 160, bot = 500;
-  const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
-  let svg = `<defs><pattern id="tile" width="26" height="13" patternUnits="userSpaceOnUse">
-      <rect width="26" height="13" fill="#cf8f60"/><path d="M0 13 Q6.5 3 13 13 Q19.5 3 26 13" fill="none" stroke="#a86a42" stroke-width="1.6"/></pattern></defs>`;
-  svg += `<rect x="0" y="0" width="1280" height="640" rx="20" fill="#eef2e9"/>`;
-  svg += `<polygon points="10,${top} 640,42 1270,${top}" fill="url(#tile)" stroke="#a86a42" stroke-width="2"/>`;
-  rooms.forEach(r => {
-    svg += `<rect class="room" x="${r.x}" y="${top}" width="${r.w}" height="${bot - top}" rx="8"/>`;
-    svg += `<text class="rname" x="${r.x + 12}" y="${top + 26}">${r.name}</text>`;
-  });
-  svg += `<line x1="920" y1="${top}" x2="920" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
-  svg += `<text x="920" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
-  svg += `<path d="M30 530 v10 h890 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="475" y="572" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
-  svg += `<path d="M920 530 v10 h330 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="1085" y="572" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
-  pins.forEach(([ref, x, y, label, guess]) => {
-    const d = items[+ref.slice(1)];
-    svg += `<g class="pin" data-ref="${ref}" tabindex="0" role="button" aria-label="${d.name}, ${d.statusText}${guess ? ", location not confirmed" : ""}">`
-      + `<title>${d.name}: ${d.statusText}</title>`
-      + (guess ? `<circle class="guess" cx="${x}" cy="${y}" r="17"/>` : "")
-      + `<circle class="dot" cx="${x}" cy="${y}" r="10" fill="${dotColor[d.status]}"/>`
-      + `<text x="${x}" y="${y + 30}">${label}</text></g>`;
-  });
-  el("floorplan").innerHTML = svg;
-  document.querySelectorAll(".pin").forEach(p => {
-    p.addEventListener("mouseenter", () => { if (!pinnedPin) showPin(p.dataset.ref, false); });
-    p.addEventListener("click", () => showPin(p.dataset.ref, true));
-    p.addEventListener("keydown", ev => {
-      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); showPin(p.dataset.ref, true); }
-    });
-  });
-  showPin("i9", false);
-}
-
-el("dueNow").innerHTML = attention.map(a =>
-  `<div class="att ${a.level}"><h3>${a.title}</h3><p>${a.detail}</p></div>`).join("");
-
-const dotColor = { alert: "var(--red)", warn: "var(--amber)", ok: "var(--green)" };
-el("runway").innerHTML = runway.map(r => `
-  <div class="rwrow"><span class="dot" style="background:${dotColor[r.level]}"></span>
-  <span class="rn">${r.name}</span><span class="rc">${r.year} · ${r.cost}</span></div>`).join("");
-
-(function renderYearStrip() {
-  const startY = 2026, startM = 9;
-  let html = "";
-  for (let i = 0; i < 12; i++) {
-    const first = new Date(startY, startM + i, 1);
-    const y = first.getFullYear(), m = first.getMonth();
-    const ev = calEvents[i] || [];
-    html += `<div class="ycol${i === 0 ? " now" : ""}">
-      <h4>${monthNames[m].slice(0, 3)} ${y}</h4>
-      ${ev.length ? ev.map(e => `<span class="chip">${e}</span>`).join("") : `<p class="none">Nothing</p>`}
-    </div>`;
+/* ---------- house cutaway ---------- */
+(function () {
+  const S = 11, C = 0.866, OX = 430, OY = 545, UP = 44;
+  const P = (x, y, z = 0) => [(x - y) * C * S + OX, (x + y) * 0.5 * S - z * S + OY];
+  const pts = a => a.map(q => P(...q).map(n => n.toFixed(1)).join(",")).join(" ");
+  const shade = (hex, f) => {
+    const n = parseInt(hex.slice(1), 16);
+    const ch = [n >> 16, (n >> 8) & 255, n & 255].map(c => Math.max(0, Math.min(255, Math.round(f > 0 ? c + (255 - c) * f : c * (1 + f)))));
+    return "#" + ch.map(c => c.toString(16).padStart(2, "0")).join("");
+  };
+  const ST = 'stroke="rgba(13,45,107,.28)" stroke-width="0.8" stroke-linejoin="round"';
+  function box(x, y, z, w, d, h, col, extra = "", topCol) {
+    const top = [[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]];
+    const R = [[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]];
+    const L = [[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]];
+    return `<polygon points="${pts(L)}" fill="${shade(col, -0.08)}" ${ST}/><polygon points="${pts(R)}" fill="${shade(col, -0.22)}" ${ST}/><polygon points="${pts(top)}" fill="${topCol || shade(col, 0.25)}" ${ST}/>` + extra;
   }
-  el("ystrip").innerHTML = html;
+  const onR = (b, u, v) => [b[0] + b[3], b[1] + b[4] * u, b[2] + b[5] * v];
+  const onL = (b, u, v) => [b[0] + b[3] * u, b[1] + b[4], b[2] + b[5] * v];
+  const quad = (f, b, u1, v1, u2, v2, fill) => `<polygon points="${pts([f(b, u1, v1), f(b, u2, v1), f(b, u2, v2), f(b, u1, v2)])}" fill="${fill}"/>`;
+  const line = (a, b, st = "rgba(13,45,107,.35)", w = 1, dash = "") => { const [x1, y1] = P(...a), [x2, y2] = P(...b); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st}" stroke-width="${w}" ${dash ? `stroke-dasharray="${dash}"` : ""}/>`; };
+  function cyl(x, y, z, r, h, col, cap) {
+    const [cx, by] = P(x, y, z), ty = by - h * S, rx = r * S * 1.22, ry = rx * 0.5;
+    return `<path d="M${cx - rx},${ty} L${cx - rx},${by} A${rx},${ry} 0 0 0 ${cx + rx},${by} L${cx + rx},${ty} Z" fill="${col}" ${ST}/>` +
+      `<ellipse cx="${cx}" cy="${ty}" rx="${rx}" ry="${ry}" fill="${cap || shade(col, 0.2)}" ${ST}/>`;
+  }
+  // Flat rectangle on a wall plane. plane: ["y", value] or ["x", value]
+  function wallRect([ax, av], a, z, w, h, fill) {
+    const q = ax === "y" ? [[a, av, z], [a + w, av, z], [a + w, av, z + h], [a, av, z + h]] : [[av, a, z], [av, a + w, z], [av, a + w, z + h], [av, a, z + h]];
+    return `<polygon points="${pts(q)}" fill="${fill}" ${ST}/>`;
+  }
+  function disc([ax, av], a, z) {
+    const [cx, cy] = ax === "y" ? P(a, av, z) : P(av, a, z);
+    return `<ellipse cx="${cx}" cy="${cy}" rx="6.5" ry="4.5" transform="rotate(${ax === "y" ? 30 : -30} ${cx} ${cy})" fill="#fbfbfb" stroke="#9ca3af"/><circle cx="${cx}" cy="${cy}" r="1.5" fill="#cf3b3b"/>`;
+  }
+  const floor = (r, z) => `<polygon points="${pts([[r.x, r.y, z], [r.x, r.y + r.d, z], [r.x + r.w, r.y + r.d, z], [r.x, r.y + r.d, z]])}" fill="${r.f}" stroke="#c9d3dc"/>`;
+  const FL = { concrete: "#dfe2e6", tile: "#f1f3f5", wood: "#e7d7bb", carpet: "#e3e6ec" };
+  const TILE = "#c47a52";
+
+  const marks = [];
+  let parts = [];
+  const add = (k, svg) => parts.push({ k, svg });
+  function wall(x1, y1, x2, y2, z, h, col, t = 0.4) {
+    const len = Math.hypot(x2 - x1, y2 - y1), n = Math.ceil(len / 1.5);
+    for (let i = 0; i < n; i++) {
+      const a = i / n, b = (i + 1) / n;
+      const sx = x1 + (x2 - x1) * a, sy = y1 + (y2 - y1) * a, ex = x1 + (x2 - x1) * b, ey = y1 + (y2 - y1) * b;
+      const bx = Math.min(sx, ex) - (x1 === x2 ? t / 2 : 0), by = Math.min(sy, ey) - (y1 === y2 ? t / 2 : 0);
+      const bw = x1 === x2 ? t : Math.abs(ex - sx), bd = y1 === y2 ? t : Math.abs(ey - sy);
+      add(bx + bw / 2 + by + bd / 2, box(bx, by, z, bw, bd, h, col));
+    }
+  }
+  const flush = () => { const s = parts.sort((a, b) => a.k - b.k).map(p => p.svg).join(""); parts = []; return s; };
+  const grille = b => { let g = ""; for (let v = 0.55; v < 0.95; v += 0.08) g += line(onR(b, 0.15, v), onR(b, 0.85, v), "rgba(13,45,107,.3)"); return g; };
+  const textAt = (x, y, z, t, cls = "rname", anchor = "middle") => { const [tx, ty] = P(x, y, z); return `<text class="${cls}" x="${tx}" y="${ty}" text-anchor="${anchor}">${t}</text>`; };
+
+  /* Ground floor */
+  const ground = [
+    { n: "Garage", x: 0, y: 0, w: 14, d: 22, f: FL.concrete },
+    { n: "Laundry", x: 0, y: 22, w: 14, d: 14, f: FL.tile },
+    { n: "Front room", x: 14, y: 0, w: 14, d: 24, f: FL.wood },
+    { n: "Stairs", x: 14, y: 24, w: 14, d: 12, f: FL.wood },
+    { n: "Kitchen", x: 28, y: 0, w: 10, d: 36, f: FL.tile },
+    { n: "Master bedroom", x: 38, y: 0, w: 22, d: 20, f: FL.wood },
+    { n: "Baths", x: 38, y: 20, w: 22, d: 16, f: FL.tile },
+  ];
+  let g = ground.map(r => floor(r, 0)).join("");
+  g += box(-0.5, -0.5, 0, 61, 0.5, 9, "#eef2f6", "", TILE) + box(-0.5, 0, 0, 0.5, 36.5, 9, "#f6f8fa", "", TILE);
+  g += wallRect(["y", 0.05], 2, 0, 10, 7, "#e4e8ec");
+  for (let z = 1.75; z < 7; z += 1.75) g += line([2, 0.06, z], [12, 0.06, z], "rgba(13,45,107,.22)");
+  g += line([7, 0.06, 7.9], [7, 4.4, 7.9], "#9aa3ad", 2);
+  g += wallRect(["x", 0.05], 13.5, 3.4, 2.6, 3.8, "#c3cad1") + wallRect(["x", 0.05], 17, 4.2, 1.3, 1.1, "#3d434a");
+  g += wallRect(["y", 0.05], 44, 4.6, 0.7, 0.9, "#ffffff");
+  [[["y", 0.05], 21], [["y", 0.05], 55]].forEach(([pl, a]) => g += disc(pl, a, 8.2));
+
+  wall(14, 0, 14, 36, 0, 3, "#f3f5f7"); wall(0, 22, 14, 22, 0, 3, "#f3f5f7");
+  wall(14, 24, 28, 24, 0, 3, "#f3f5f7"); wall(38, 20, 60, 20, 0, 3, "#f3f5f7");
+  wall(38, 0, 38, 36, 0, 4.5, "#0d2d6b", 0.9);
+  let b;
+  // garage
+  b = [0.6, 3, 0, 2.4, 4.2, 2.8]; add(4.8, box(...b, "#f4f5f6", line(onR(b, 0, 0.82), onR(b, 1, 0.82)))); marks.push({ i: 4, a: [1.8, 5.1, 2.8], l: "Freezer" });
+  add(10, cyl(1.4, 10.5, 0, 0.4, 1.9, "#cf3b3b", "#2b2b2b")); marks.push({ i: 5, a: [1.4, 10.5, 1.9], l: "Extinguisher", dx: -14, dy: -2 });
+  add(13, box(6.2, 3.8, 7.5, 1.6, 1.2, 0.6, "#5b636b")); marks.push({ i: 0, a: [7, 4.4, 8.1], l: "Opener" });
+  for (let k = 0; k < 4; k++) add(26 + k, box(10.4 + k * 0.4, 14, 0, 0.2, 3.8, 6, "#c9d1d8")); marks.push({ i: 1, a: [11.2, 15.9, 6], l: "Shutters", dx: 14 });
+  add(26, cyl(4.6, 19.4, 0, 1.05, 4.6, "#efeee8", "#bfc5cb")); marks.push({ i: 6, a: [4.6, 19.4, 4.6], l: "Water heater", dx: 30, dy: 8 });
+  marks.push({ i: 2, a: [0, 14.8, 7.2], l: "Panel", guess: true });
+  marks.push({ i: 3, a: [0, 17.6, 5.3], l: "Internet", guess: true, dx: -30, dy: 10 });
+  // laundry
+  [[7, 24.2, "Washer", 18], [8, 27.4, "Dryer", -6]].forEach(([i, yy, l, dx]) => {
+    const bb = [0.6, yy, 0, 2.6, 2.7, 3.2]; const [cx, cy] = P(...onR(bb, 0.5, 0.48));
+    add(0.6 + yy + 2.6, box(...bb, "#f7f8f9", `<ellipse cx="${cx}" cy="${cy}" rx="10" ry="12" transform="rotate(-30 ${cx} ${cy})" fill="#cbd5df" stroke="#8a97a5" stroke-width="1.5"/>`));
+    marks.push({ i, a: [1.9, yy + 1.35, 3.2], l, dx });
+  });
+  add(45, cyl(11.4, 33.2, 0, 1.05, 4.6, "#efeee8", "#bfc5cb")); marks.push({ i: 16, a: [11.4, 33.2, 4.6], l: "Water heater", guess: true, dx: 6 });
+  // front room
+  add(30, box(17, 14, 0, 7, 3, 1.4, "#9fb3c4") + box(17, 17, 0, 7, 0.9, 2.6, "#8fa4b6"));
+  marks.push({ i: 19, a: [21, 0, 8.2], l: "Smoke, 2 down", dy: -4 });
+  // stairs, rising toward the back of the house
+  for (let k = 0; k < 9; k++) add(26 + 34 - k * 0.1, box(16 + k * 1.1, 27, 0, 1.1, 6, (k + 1) * 0.85, "#d9c6a5"));
+  // kitchen
+  b = [28.6, 0.3, 0, 3, 2.6, 6];
+  add(31, box(...b, "#b9c1c9", line(onL(b, 0.5, 0.05), onL(b, 0.5, 0.95)) + line(onL(b, 0, 0.62), onL(b, 0.5, 0.62), "rgba(13,45,107,.25)")));
+  marks.push({ i: 9, a: [30.1, 1.6, 6], l: "Fridge", dy: -10 });
+  b = [31.9, 0.3, 0, 3, 2.4, 3];
+  add(33.8, box(...b, "#e3e7eb", `<polygon points="${pts([[32.5, 0.8, 3.01], [34.3, 0.8, 3.01], [34.3, 2.2, 3.01], [32.5, 2.2, 3.01]])}" fill="#8f99a3"/>`, "#5f6b77"));
+  marks.push({ i: 13, a: [33.4, 1.5, 3], l: "Disposal", dx: -34, dy: -8 });
+  marks.push({ i: 15, a: [33.4, 1.5, 3], l: "Shutoff", dx: 26, dy: -26 });
+  b = [35, 0.3, 0, 2.3, 2.4, 3];
+  add(36.5, box(...b, "#b9c1c9", line(onL(b, 0.1, 0.8), onL(b, 0.9, 0.8), "rgba(13,45,107,.4)", 1.5), "#5f6b77"));
+  marks.push({ i: 11, a: [36.15, 1.5, 3], l: "Dishwasher", below: true, dx: 10, dy: 36 });
+  b = [28.5, 7.6, 0, 2.4, 2.7, 3];
+  add(39.6, box(...b, "#4a5058", `<polygon points="${pts([[28.5, 7.6, 3.01], [30.9, 7.6, 3.01], [30.9, 10.3, 3.01], [28.5, 10.3, 3.01]])}" fill="#1f2328"/>`, "#1f2328")
+    + box(28.5, 7.6, 4.8, 2, 2.7, 1.4, "#5a6068", quad(onR, [28.5, 7.6, 4.8, 2, 2.7, 1.4], 0.1, 0.2, 0.7, 0.8, "#2a2f35")));
+  marks.push({ i: 10, a: [29.5, 8.95, 6.2], l: "Range" });
+  b = [28.5, 11, 0, 2.2, 2.2, 3];
+  add(41, box(...b, "#3d434a", quad(onR, b, 0.12, 0.12, 0.88, 0.88, "#2e4f73"))); marks.push({ i: 12, a: [29.6, 12.1, 3], l: "Wine" });
+  add(42, cyl(37, 5.5, 0, 0.35, 1.8, "#cf3b3b", "#2b2b2b")); marks.push({ i: 14, a: [37, 5.5, 1.8], l: "Extinguisher", below: true, dx: -30, dy: 40 });
+  // master side
+  b = [39.6, 1, 0, 2.2, 2.2, 5.5]; add(42, box(...b, "#cdd3d9", grille(b))); marks.push({ i: 20, a: [40.7, 2.1, 5.5], l: "AC handler" });
+  marks.push({ i: 21, a: [44.35, 0, 5.5], l: "Thermostat", dx: 20 });
+  add(56, box(47, 2, 0, 7, 8.5, 1.6, "#d8dee4") + box(47.3, 2.2, 1.6, 6.4, 1.6, 0.5, "#ffffff") + box(47.3, 4.2, 1.6, 6.4, 6, 0.3, "#c8e0ec"));
+  marks.push({ i: 19, a: [55, 0, 8.2], l: "Smoke, 2 master", dy: -4 });
+  add(84, box(51.5, 29.5, 0, 7.5, 4.6, 1.9, "#f7f8f9", `<polygon points="${pts([[52.2, 30.1, 1.91], [58.3, 30.1, 1.91], [58.3, 33.5, 1.91], [52.2, 33.5, 1.91]])}" fill="#d6e6f2"/>`));
+  b = [39, 25, 0, 2.2, 5, 2.8]; add(66, box(...b, "#ffffff", quad(onR, b, 0.15, 0.55, 0.85, 0.9, "#e8eef3")));
+  marks.push({ i: 22, a: [40.1, 27.5, 2.8], l: "Valves" });
+  g += flush();
+  // low front walls
+  g += box(-0.5, 36, 0, 61, 0.5, 2.2, "#efe5d3") + box(60, -0.5, 0, 0.5, 36.5, 2.2, "#efe5d3");
+  ground.forEach(r => g += textAt(r.x + r.w / 2, r.y + r.d / 2 + (r.n === "Stairs" ? 4.5 : 0), 0, r.n));
+  marks.push({ i: 24, a: [6, 36.5, 1.1], l: "Exterior paint", below: true, dy: 30 });
+  g += textAt(19, 41, 0, "Main house side", "floorname");
+  g += textAt(63.5, 18, 0, "Master side", "floorname", "start");
+  g += textAt(38.4, 39.5, 0, "Kitchen wall, systems split here", "rname");
+
+  /* Upstairs, lifted above the main house side */
+  const Z = UP;
+  const upper = [
+    { n: "Bedroom", x: 14, y: 0, w: 12, d: 18, f: FL.carpet },
+    { n: "Bedroom", x: 26, y: 0, w: 12, d: 18, f: FL.carpet },
+    { n: "Hallway and stairs", x: 14, y: 18, w: 12, d: 18, f: FL.wood },
+    { n: "Bedroom", x: 26, y: 18, w: 12, d: 18, f: FL.carpet },
+  ];
+  let u = "";
+  // guide lines from upper plate down to the ground floor
+  [[14, 0], [38, 0], [14, 36], [38, 36]].forEach(([x, y]) => u += line([x, y, 9], [x, y, Z], "rgba(13,45,107,.25)", 1, "4 4"));
+  u += box(13.5, -0.5, Z - 0.6, 25, 37, 0.6, "#e9edf1");
+  u += upper.map(r => floor(r, Z)).join("");
+  u += box(13.5, -0.5, Z, 25, 0.5, 8, "#eef2f6", "", TILE) + box(13.5, 0, Z, 0.5, 36.5, 8, "#f6f8fa", "", TILE);
+  // stair opening
+  u += `<polygon points="${pts([[16, 27, Z + 0.01], [25, 27, Z + 0.01], [25, 33, Z + 0.01], [16, 33, Z + 0.01]])}" fill="#8b7a5e"/>`;
+  for (let k = 1; k < 8; k++) u += line([16 + k * 1.1, 27, Z + 0.02], [16 + k * 1.1, 33, Z + 0.02], "rgba(255,255,255,.35)");
+  u += wallRect(["x", 14.05], 21, Z + 4.4, 0.7, 0.9, "#ffffff");
+  [[["y", 0.05], 20], [["y", 0.05], 26], [["y", 0.05], 32], [["x", 14.05], 9], [["x", 14.05], 25]].forEach(([pl, a]) => u += disc(pl, a, Z + 7.2));
+  wall(14, 18, 38, 18, Z, 3, "#f3f5f7"); wall(26, 0, 26, 36, Z, 3, "#f3f5f7");
+  b = [14.8, 19.2, Z, 2.2, 2.2, 5.5]; add(36, box(...b, "#cdd3d9", grille(b)));
+  add(70, box(28, 4, Z, 6, 8, 1.6, "#d8dee4") + box(28.2, 4.2, Z + 1.6, 5.6, 1.6, 0.5, "#ffffff"));
+  add(80, box(29, 23, Z, 6, 8, 1.6, "#d8dee4") + box(29.2, 23.2, Z + 1.6, 5.6, 1.6, 0.5, "#ffffff"));
+  u += flush();
+  u += box(13.5, 36, Z, 25.5, 0.5, 1.6, "#efe5d3") + box(38, -0.5, Z, 0.5, 36.5, 1.6, "#efe5d3");
+  upper.forEach(r => u += textAt(r.x + r.w / 2, r.y + r.d / 2 + (r.n.startsWith("Hall") ? 6 : 0), Z, r.n));
+  u += textAt(14, 40, Z, "Upstairs", "floorname", "end");
+  marks.push({ i: 17, a: [15.9, 20.3, Z + 5.5], l: "AC handler" });
+  marks.push({ i: 18, a: [14, 21.35, Z + 4.9], l: "Thermostat", dx: -34, dy: 12 });
+  marks.push({ i: 19, a: [26, 0, Z + 7.2], l: "Smoke, 5 up", dy: -4 });
+  marks.push({ i: 23, a: [20, -0.5, Z + 8.2], l: "Roof tile", dx: -70, dy: 4 });
+
+  let svg = g + u;
+  marks.forEach(m => {
+    const e = items[m.i], [ax, ay] = P(...m.a);
+    const mx = ax + (m.dx || 0), my = m.below ? ay + (m.dy || 30) : ay - 30 + (m.dy || 0);
+    const ly = m.below ? my + 24 : my - 15;
+    svg += `<g class="pin" data-i="${m.i}" tabindex="0" role="button" aria-label="${esc(e.name)}, ${esc(e.statusText)}${m.guess ? ", location not confirmed" : ""}">
+      <title>${esc(e.name)}: ${esc(e.statusText)}</title>
+      <line x1="${ax}" y1="${ay}" x2="${mx}" y2="${my}" stroke="rgba(13,45,107,.45)" stroke-width="1.2"/>
+      <circle cx="${ax}" cy="${ay}" r="2.2" fill="var(--navy)"/>
+      ${m.guess ? `<circle class="guess" cx="${mx}" cy="${my}" r="14"/>` : ""}
+      <circle class="dot" cx="${mx}" cy="${my}" r="9" fill="${COLOR[e.status]}"/>
+      <text x="${mx}" y="${ly}">${m.l}</text></g>`;
+  });
+  const map = $("map");
+  map.setAttribute("viewBox", "0 0 1010 1110");
+  map.innerHTML = svg;
+  map.addEventListener("keydown", ev => {
+    const p = ev.target.closest(".pin");
+    if (p && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); openDetail(+p.dataset.i); }
+  });
 })();
 
-const logCount = logMonths.reduce((n, [, rows]) => n + rows.length, 0);
-el("log").innerHTML = logMonths.map(([month, rows]) =>
-  `<div><h4>${month}</h4><div class="rows">${rows.map(t => `<div class="row">${t}</div>`).join("")}</div></div>`).join("");
+/* ---------- equipment by area ---------- */
+const AREAS = [["garage", "Garage"], ["laundry", "Laundry"], ["kitchen", "Kitchen"], ["main", "Main house"], ["upstairs", "Upstairs"], ["master", "Master side"], ["outside", "Outside"]];
+const RANK = { alert: 0, warn: 1, info: 2, ok: 3 };
+$("areas").innerHTML = AREAS.map(([k, label]) => {
+  const list = items.map((e, i) => ({ e, i })).filter(r => r.e.area === k).sort((a, b) => RANK[a.e.status] - RANK[b.e.status]);
+  return `<div class="panel area"><h3>${label}</h3>${list.map(({ e, i }) => `
+    <button class="row" data-i="${i}"><span class="dot" style="background:${COLOR[e.status]}"></span>
+    <span class="nm">${esc(e.name)}</span><span class="st">${esc(e.statusText)}</span></button>`).join("")}</div>`;
+}).join("");
 
-el("stOpen").textContent = attention.length;
-el("stItems").textContent = items.length;
-el("stDone").textContent = logCount;
-document.querySelector("#logCount").textContent = `Service log · ${logCount} jobs`;
+/* ---------- detail ---------- */
+const dlg = $("detail");
+function openDetail(i) {
+  const e = items[i];
+  const rows = [["Last", e.last], ["Next", e.next]].filter(r => r[1]);
+  dlg.innerHTML = `
+    ${e.photo ? `<div class="dl-ph" style="background-image:url('${e.photo}')" role="img" aria-label="Photo of ${esc(e.name)}"></div>` : ""}
+    <div class="dl-bd">
+      <div class="dl-top">
+        <div><span class="pill ${e.status}">${esc(e.statusText)}</span>
+        <h3 id="dlTitle">${esc(e.name)}</h3><p class="mk">${esc(e.make)}</p></div>
+        <button class="dl-close" autofocus>Close</button>
+      </div>
+      ${rows.length ? `<dl class="dl-rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
+      ${e.note ? `<p class="dl-note">${esc(e.note)}</p>` : ""}
+    </div>`;
+  dlg.querySelector(".dl-close").onclick = () => dlg.close();
+  dlg.showModal();
+}
+document.addEventListener("click", ev => { const t = ev.target.closest(".pin, .row"); if (t) openDetail(+t.dataset.i); });
+dlg.addEventListener("click", ev => { if (ev.target === dlg) dlg.close(); });
 
-renderPlan();
+/* ---------- runway, year, log ---------- */
+$("runway").innerHTML = runway.map(r => `<div class="rwrow"><span class="dot" style="background:${COLOR[r.level]}"></span>
+  <span class="rn">${esc(r.name)}</span><span class="ry">${esc(r.year)}</span><span class="rc">${esc(r.cost)}</span></div>`).join("");
+
+$("year").innerHTML = calEvents.map((ev, i) => `<div class="mo${i === 0 ? " now" : ""}"><h4>${monthLabel(i)}${i === 0 ? "<em>This month</em>" : ""}</h4>
+  ${ev.length ? `<ul>${ev.map(e => `<li>${esc(e)}</li>`).join("")}</ul>` : `<p class="empty">Nothing scheduled</p>`}</div>`).join("");
+
+$("logCount").textContent = `Service log · ${logCount} jobs`;
+$("log").innerHTML = logMonths.map(([m, rows]) => `<div><h4>${m}</h4><div class="rows">${rows.map(t => `<div class="lrow">${esc(t)}</div>`).join("")}</div></div>`).join("");
+
+$("foot").textContent = `Last updated ${prettyUpdated}. Tell Sarah when something gets done and the dates roll forward.`;
 </script>
 </body>
 </html>
