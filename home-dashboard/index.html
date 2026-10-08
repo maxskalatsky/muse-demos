@@ -38,6 +38,14 @@
   .shead p { font-size: 13px; color: var(--muted); }
   .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
 
+  /* Collapsible sections */
+  .sec > summary { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .sec > summary::-webkit-details-marker { display: none; }
+  .sec > summary .shead { margin-bottom: 0; }
+  .sec[open] > summary .shead { margin-bottom: 14px; }
+  .sec > summary h2::after { content: " +"; color: var(--faint); font-weight: 400; }
+  .sec[open] > summary h2::after { content: " –"; }
+
   /* Do now + coming up */
   .top { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .todo { list-style: none; }
@@ -160,9 +168,10 @@
 <main><div class="wrap">
 
   <section>
+    <details class="sec" open>
+    <summary><div class="shead"><h2>Do now</h2><p id="todoCount"></p></div></summary>
     <div class="top">
       <div>
-        <div class="shead"><h2>Do now</h2><p id="todoCount"></p></div>
         <ul class="todo panel" id="todo"></ul>
       </div>
       <div>
@@ -170,10 +179,12 @@
         <div class="soon panel" id="soon"></div>
       </div>
     </div>
+    </details>
   </section>
 
   <section>
-    <div class="shead"><h2>The house</h2><p>Approximate layout. Tap any marker or item for details.</p></div>
+    <details class="sec" open>
+    <summary><div class="shead"><h2>The house</h2><p>Approximate layout. Tap any marker or item for details.</p></div></summary>
     <div class="panel mapwrap">
       <div class="mapscroll"><svg id="map" role="group" aria-label="Cutaway of the house with equipment markers"></svg></div>
       <div class="map-key">
@@ -186,17 +197,22 @@
       <p class="mapnote">Schematic, not to scale. The upstairs plate floats above the main-house side; dashed lines show where it sits.</p>
     </div>
     <div class="areas" id="areas"></div>
+    </details>
   </section>
 
   <section>
-    <div class="shead"><h2>Replacement runway</h2><p>The big tickets, soonest first</p></div>
+    <details class="sec">
+    <summary><div class="shead"><h2>Replacement runway</h2><p>The big tickets, soonest first</p></div></summary>
     <div class="panel rw" id="runway"></div>
     <p class="caveat">Years and costs are rough estimates, not quotes. Get real quotes before budgeting.</p>
+    </details>
   </section>
 
   <section>
-    <div class="shead"><h2>The year ahead</h2></div>
+    <details class="sec">
+    <summary><div class="shead"><h2>The year ahead</h2><p>Tap to expand</p></div></summary>
     <div class="year" id="year"></div>
+    </details>
   </section>
 
   <section>
