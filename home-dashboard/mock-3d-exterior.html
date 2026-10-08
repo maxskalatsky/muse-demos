@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock A - Exterior 3D house</title>
+<style>
+  :root { --paper:#faf8f3; --ink:#17211c; --ink2:#43534a; --muted:#8a978e; --card:#fff; --line:#e8e2d6;
+    --green:#2e7d4f; --amber:#b97a1a; --red:#b3372f; --blue:#2f5bb3; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Avenir Next",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--paper); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1120px; margin:0 auto; padding:28px 24px 64px; }
+  h1 { font-size:24px; letter-spacing:-.5px; }
+  p.sub { color:var(--muted); font-size:14px; margin:4px 0 18px; }
+  .house-wrap { display:grid; grid-template-columns:1.65fr 1fr; gap:16px; align-items:start; }
+  .map-card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; }
+  .mapscroll { overflow-x:auto; } .mapscroll svg { display:block; width:100%; min-width:620px; height:auto; }
+  .pin { cursor:pointer; } .pin circle.dot { stroke:#fff; stroke-width:3; }
+  .pin text { font-size:13px; font-weight:700; fill:var(--ink); text-anchor:middle; pointer-events:none; paint-order:stroke; stroke:#fff; stroke-width:4px; }
+  .pin:hover circle.dot { stroke:var(--ink); } .pin.active circle.dot { stroke:var(--ink); stroke-width:4; }
+  .detail { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; min-height:320px; }
+  .detail h3 { font-size:18px; } .detail .dhint { font-size:12.5px; color:var(--muted); margin-bottom:10px; }
+  .ditem { padding:11px 0; border-top:1px solid var(--line); } .ditem:first-of-type { border-top:none; }
+  .ditem .dn { font-size:14px; font-weight:700; } .ditem .dm { font-size:12px; color:var(--muted); }
+  .ditem .dnote { font-size:12.5px; color:var(--ink2); margin-top:2px; }
+  .pill { display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:2px 10px; margin-top:6px; }
+  .pill.ok{background:#e2f2e7;color:var(--green);} .pill.warn{background:#fbeed7;color:var(--amber);}
+  .pill.alert{background:#f9e2df;color:var(--red);} .pill.info{background:#e3ebfb;color:var(--blue);}
+  @media (max-width:860px){ .house-wrap{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mock A: the house from the street</h1>
+  <p class="sub">Solid exterior with a clay tile roof. Tap a section pin to see what's tracked there.</p>
+  <div class="house-wrap">
+    <div class="map-card"><div class="mapscroll"><svg id="house" viewBox="0 0 800 620"></svg></div></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+<script>
+const items = [
+  { s:"garage", name:"Garage door opener", make:"LiftMaster P3 Security+ 2.0, ~10 yrs", next:"Yearly: sensors, reverse test, lube", note:"Chain drive. Replaced ~2016.", status:"ok", statusText:"Healthy" },
+  { s:"garage", name:"Hurricane shutters", make:"Accordion panels, full set", next:"Season through Nov", note:"Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.", status:"ok", statusText:"Ready" },
+  { s:"garage", name:"Electrical panel", make:"Square D main + subpanel, 22 yrs", next:"", note:"Not Federal Pacific / Zinsco. Circuits labeled.", status:"ok", statusText:"Good brand" },
+  { s:"garage", name:"Internet + cable", make:"Netgear Nighthawk modem", next:"", note:"Hotwire via the HOA. Modem EOL but fine at 650 Mbps.", status:"ok", statusText:"No issues" },
+  { s:"garage", name:"Chest freezer", make:"GE", next:"Defrost Apr 2027", note:"Gift from neighbors ~10 years ago.", status:"ok", statusText:"Works great" },
+  { s:"garage", name:"Fire extinguisher", make:"Kidde ABC", next:"Check gauge yearly", note:"By the opener. Gauge green.", status:"ok", statusText:"Gauge green" },
+  { s:"garage", name:"Water heater, secondary", make:"Rheem 38 gal, ~5.5 yrs", next:"Flush a few gallons", note:"Mfg 04/2021.", status:"warn", statusText:"Due for flush" },
+  { s:"laundry", name:"Washer", make:"Samsung WA50R5200AW, ~4.5 yrs", next:"Self-clean ~Dec 2026", note:"Mfg Jan 2022. Braided steel hoses.", status:"ok", statusText:"Healthy" },
+  { s:"laundry", name:"Dryer", make:"Samsung MoistureSensor, 12+ yrs", next:"Vent clean Oct 2027", note:"Running well after the first vent clean in 12 years.", status:"ok", statusText:"Running well" },
+  { s:"kitchen", name:"Refrigerator", make:"GE Profile, ~10.5 yrs", next:"Coil clean Oct 2027", note:"Mfg Mar 2016.", status:"ok", statusText:"Healthy" },
+  { s:"kitchen", name:"Range + microwave", make:"GE Profile, ~10.5 yrs", next:"", note:"Glass top range.", status:"ok", statusText:"No issues" },
+  { s:"kitchen", name:"Dishwasher", make:"GE Profile, ~10.5 yrs", next:"Filter clean Oct 2027", note:"Drain parts and pipes new.", status:"ok", statusText:"Healthy" },
+  { s:"kitchen", name:"Wine cooler", make:"Magic Chef dual-zone", next:"", note:"Both zones at 49F.", status:"ok", statusText:"No issues" },
+  { s:"kitchen", name:"Garbage disposal", make:"Waste King Gourmet 2600, new", next:"", note:"New unit.", status:"ok", statusText:"New" },
+  { s:"kitchen", name:"Fire extinguisher", make:"Kidde ABC", next:"Check gauge yearly", note:"Gauge green.", status:"ok", statusText:"Gauge green" },
+  { s:"kitchen", name:"Main water shut-off", make:"Near kitchen sink", next:"Exercise yearly", note:"Kitchen + dishwasher valves photographed.", status:"warn", statusText:"Exercise valves" },
+  { s:"mainhouse", name:"Water heater, primary", make:"Rheem, ~5.5 yrs", next:"Flush a few gallons", note:"Photo coming.", status:"warn", statusText:"Due for flush" },
+  { s:"mainhouse", name:"AC, main house", make:"Carrier air handler, 12 yrs", next:"Filter check Nov 2026", note:"Upstairs near the top of the stairwell. Coils new.", status:"ok", statusText:"New coils" },
+  { s:"mainhouse", name:"Thermostat, main house", make:"Basic programmable", next:"", note:"Upstairs near the top of the stairwell. 77F.", status:"ok", statusText:"No issues" },
+  { s:"mainhouse", name:"Smoke detectors (10)", make:"Hardwired + battery backup", next:"Replace all 10", note:"7 in main house (5 upstairs, 2 downstairs), 2 in master side.", status:"alert", statusText:"Replace all 10" },
+  { s:"masterside", name:"AC, secondary", make:"Air handler, 12 yrs", next:"Filter check Nov 2026", note:"Coils new.", status:"ok", statusText:"New coils" },
+  { s:"masterside", name:"Thermostat, secondary", make:"Basic programmable", next:"", note:"77F.", status:"ok", statusText:"No issues" },
+  { s:"masterside", name:"Bathroom valves", make:"Half-bath + master bath", next:"Exercise yearly", note:"Valves photographed Oct 2026.", status:"warn", statusText:"Exercise valves" },
+  { s:"outside", name:"Roof", make:"Clay tile, 22 yrs", next:"Watch ceilings for water spots", note:"Tiles fine Oct 2026.", status:"ok", statusText:"Tiles fine" },
+  { s:"outside", name:"Paint + caulk", make:"HOA 5-year cycle", next:"~2031", note:"Repainted Oct 2026.", status:"ok", statusText:"Done to 2031" },
+];
+const sections = [
+  { key:"garage", label:"Garage", n:7 }, { key:"laundry", label:"Laundry", n:2 },
+  { key:"kitchen", label:"Kitchen", n:7 }, { key:"mainhouse", label:"Main house", n:4 },
+  { key:"masterside", label:"Master side", n:3 }, { key:"outside", label:"Outside", n:2 },
+];
+const el = id => document.getElementById(id);
+let pinned = null;
+function showSection(key, pin) {
+  if (pin) pinned = key;
+  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.s === (pinned || key)));
+  const sec = sections.find(s => s.key === key);
+  const list = items.filter(i => i.s === key);
+  el("detail").innerHTML = `<h3>${sec.label}${pinned ? ' <span style="color:var(--green)">· pinned</span>' : ""}</h3>`
+    + `<p class="dhint">${list.length} items tracked</p>`
+    + list.map(d => `<div class="ditem"><div class="dn">${d.name}</div><div class="dm">${d.make}</div>`
+      + (d.next ? `<div class="dnote"><b>Next:</b> ${d.next}</div>` : "")
+      + (d.note ? `<div class="dnote">${d.note}</div>` : "")
+      + `<span class="pill ${d.status}">${d.statusText}</span></div>`).join("");
+}
+(function () {
+  const S = 15, CX = 0.866, OX = 400, OY = 400;
+  const P = (x, y, z) => [((x - y) * CX * S + OX).toFixed(1), (((x + y) * 0.5 * S - (z || 0) * S + OY)).toFixed(1)];
+  const pts = a => a.map(q => P(q[0], q[1], q[2] || 0).join(",")).join(" ");
+  const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16);
+    const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.max(0, Math.min(255, Math.round(f > 0 ? v + (255 - v) * f : v * (1 + f)))));
+    return "#" + c.map(v => v.toString(16).padStart(2, "0")).join(""); };
+  const ST = 'stroke="rgba(23,33,28,.2)" stroke-width="1.2" stroke-linejoin="round"';
+  const box = (x, y, z, w, d, h, col, topCol) =>
+    `<polygon points="${pts([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]])}" fill="${shade(col, -0.1)}" ${ST}/>`
+    + `<polygon points="${pts([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]])}" fill="${shade(col, -0.24)}" ${ST}/>`
+    + `<polygon points="${pts([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]])}" fill="${topCol || shade(col, 0.3)}" ${ST}/>`;
+  const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
+  const worst = key => { const l = items.filter(i => i.s === key).map(i => i.status);
+    return l.includes("alert") ? "alert" : l.includes("warn") ? "warn" : "ok"; };
+  let svg = `<ellipse cx="400" cy="545" rx="330" ry="46" fill="#e4e9df"/>`;
+  // House body: x 0..30, y 0..18, walls h 10
+  const W = "#f3ede0", T = "#c47a52";
+  svg += box(0, 0, 0, 30, 18, 10, W);
+  // Pitched roof: ridge along x at y=9, height 16
+  const r1 = [[0, 0, 10], [30, 0, 10], [30, 9, 16], [0, 9, 16]];
+  const r2 = [[0, 9, 16], [30, 9, 16], [30, 18, 10], [0, 18, 10]];
+  svg += `<polygon points="${pts(r1)}" fill="${shade(T, 0.12)}" ${ST}/><polygon points="${pts(r2)}" fill="${shade(T, -0.12)}" ${ST}/>`;
+  // Garage door + windows + front door on the y=18 face
+  const face = (x1, x2, z1, z2, fill, extra) =>
+    `<polygon points="${pts([[x1, 18, z1], [x2, 18, z1], [x2, 18, z2], [x1, 18, z2]])}" fill="${fill}" ${ST} ${extra || ""}/>`;
+  svg += face(2, 9, 0, 7, "#e0d8c6");
+  for (let z = 1.75; z < 7; z += 1.75) { const [a, b] = P(2, 18, z), [c, d] = P(9, 18, z);
+    svg += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="rgba(23,33,28,.25)" stroke-width="1"/>`; }
+  svg += face(12, 15, 0, 6, "#7a8a99") + face(18, 21, 2, 7, "#7a8a99") + face(24, 27, 2, 7, "#7a8a99");
+  // Section pins with leader lines to house faces
+  const pins = [
+    ["garage", 5.5, 18, 5, 5.5, 150], ["laundry", 12, 18, 4, 12, 150],
+    ["kitchen", 17, 18, 4, 17, 150], ["mainhouse", 23, 18, 4, 23, 150],
+    ["masterside", 28, 14, 6, 33, 120], ["outside", 15, 9, 17, 15, 40],
+  ];
+  pins.forEach(([key, x, y, z, lx, ly]) => {
+    const [ax, ay] = P(x, y, z);
+    const st = worst(key);
+    svg += `<g class="pin" data-s="${key}" tabindex="0" role="button" aria-label="${key}">`
+      + `<line x1="${ax}" y1="${ay}" x2="${lx}" y2="${ly}" stroke="rgba(23,33,28,.4)" stroke-width="1.2"/>`
+      + `<circle cx="${ax}" cy="${ay}" r="2.5" fill="var(--ink)"/>`
+      + `<circle class="dot" cx="${lx}" cy="${ly}" r="11" fill="${dotColor[st]}"/>`
+      + `<text x="${lx}" y="${ly - 19}">${sections.find(s => s.key === key).label}</text></g>`;
+  });
+  el("house").innerHTML = svg;
+  document.querySelectorAll(".pin").forEach(p => {
+    p.addEventListener("mouseenter", () => { if (!pinned) showSection(p.dataset.s, false); });
+    p.addEventListener("click", () => showSection(p.dataset.s, true));
+  });
+  showSection("kitchen", false);
+})();
+</script>
+</body>
+</html>

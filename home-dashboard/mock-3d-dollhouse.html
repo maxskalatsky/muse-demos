@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock B - Dollhouse cutaway</title>
+<style>
+  :root { --paper:#faf8f3; --ink:#17211c; --ink2:#43534a; --muted:#8a978e; --card:#fff; --line:#e8e2d6;
+    --green:#2e7d4f; --amber:#b97a1a; --red:#b3372f; --blue:#2f5bb3; --navy:#0d2d6b; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Avenir Next",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--paper); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1120px; margin:0 auto; padding:28px 24px 64px; }
+  h1 { font-size:24px; letter-spacing:-.5px; }
+  p.sub { color:var(--muted); font-size:14px; margin:4px 0 18px; max-width:70ch; }
+  .house-wrap { display:grid; grid-template-columns:1.65fr 1fr; gap:16px; align-items:start; }
+  .map-card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; }
+  .mapscroll { overflow-x:auto; } .mapscroll svg { display:block; width:100%; min-width:640px; height:auto; }
+  .pin { cursor:pointer; } .pin circle.dot { stroke:#fff; stroke-width:3; }
+  .pin text { font-size:12.5px; font-weight:700; fill:var(--ink); text-anchor:middle; pointer-events:none; paint-order:stroke; stroke:#fff; stroke-width:4px; }
+  .pin:hover circle.dot { stroke:var(--ink); } .pin.active circle.dot { stroke:var(--ink); stroke-width:4; }
+  .rname { font-size:14px; font-weight:700; fill:var(--muted); }
+  .detail { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; min-height:320px; }
+  .detail h3 { font-size:18px; } .detail .dhint { font-size:12.5px; color:var(--muted); margin-bottom:10px; }
+  .dphoto { width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:12px; margin-bottom:12px; background:#eef0ea; }
+  .ditem .dn { font-size:15px; font-weight:700; } .ditem .dm { font-size:12.5px; color:var(--muted); }
+  .ditem .dnote { font-size:13px; color:var(--ink2); margin-top:4px; }
+  .pill { display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:2px 10px; margin-top:8px; }
+  .pill.ok{background:#e2f2e7;color:var(--green);} .pill.warn{background:#fbeed7;color:var(--amber);}
+  .pill.alert{background:#f9e2df;color:var(--red);} .pill.info{background:#e3ebfb;color:var(--blue);}
+  @media (max-width:860px){ .house-wrap{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mock B: dollhouse cutaway</h1>
+  <p class="sub">Front view, two floors. This is the only mock that shows the upstairs honestly: the main-house AC and thermostat live at the top of the stairwell, and 5 of the 7 smoke alarms are up there. Schematic, not to scale.</p>
+  <div class="house-wrap">
+    <div class="map-card"><div class="mapscroll"><svg id="doll" viewBox="0 0 900 720"></svg></div></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+<script>
+const items = {
+  wh2: { name:"Water heater, secondary", make:"Rheem 38 gal, ~5.5 yrs", photo:"img/water-heater-garage.jpg", next:"Flush a few gallons", note:"Mfg 04/2021. In the garage.", status:"warn", statusText:"Due for flush" },
+  wh1: { name:"Water heater, primary", make:"Rheem, ~5.5 yrs", photo:null, next:"Flush a few gallons", note:"Photo coming.", status:"warn", statusText:"Due for flush" },
+  ac1: { name:"AC, main house", make:"Carrier air handler, 12 yrs", photo:"img/ac-primary.jpg", next:"Filter check Nov 2026", note:"Upstairs near the top of the stairwell. Coils new.", status:"ok", statusText:"New coils" },
+  ac2: { name:"AC, secondary", make:"Air handler, 12 yrs", photo:"img/ac-master.jpg", next:"Filter check Nov 2026", note:"Coils new.", status:"ok", statusText:"New coils" },
+  th1: { name:"Thermostat, main house", make:"Basic programmable", photo:"img/thermostat.jpg", next:"", note:"Upstairs near the top of the stairwell. 77F.", status:"ok", statusText:"No issues" },
+  th2: { name:"Thermostat, secondary", make:"Basic programmable", photo:"img/thermostat-2.jpg", next:"", note:"77F.", status:"ok", statusText:"No issues" },
+  smoke: { name:"Smoke detectors (10)", make:"Hardwired + battery backup", photo:"img/smoke.jpg", next:"Replace all 10", note:"5 upstairs (bedrooms + hallway), 2 downstairs (front room + stairs), 2 master side (hallway + bedroom).", status:"alert", statusText:"Replace all 10" },
+  washer: { name:"Washer", make:"Samsung, ~4.5 yrs", photo:"img/washer.jpg", next:"Self-clean ~Dec 2026", note:"Braided steel hoses.", status:"ok", statusText:"Healthy" },
+  dryer: { name:"Dryer", make:"Samsung, 12+ yrs", photo:"img/dryer.jpg", next:"Vent clean Oct 2027", note:"Running well after the first vent clean in 12 years.", status:"ok", statusText:"Running well" },
+  kitchen: { name:"Kitchen (7 items)", make:"5 appliances + extinguisher + shut-off", photo:"img/fridge.jpg", next:"Dishwasher filter Oct 2027", note:"Fridge, range, dishwasher, wine cooler, disposal, extinguisher, main shut-off.", status:"ok", statusText:"Healthy" },
+  garage: { name:"Garage (5 items)", make:"Opener, shutters, panel, freezer, internet", photo:"img/garage.jpg", next:"Yearly opener check", note:"Panel is Square D. Internet via Hotwire/HOA.", status:"ok", statusText:"No issues" },
+  roof: { name:"Roof", make:"Clay tile, 22 yrs", photo:null, next:"Watch ceilings for water spots", note:"Tiles fine Oct 2026.", status:"ok", statusText:"Tiles fine" },
+};
+const el = id => document.getElementById(id);
+let pinned = null;
+function show(key, pin) {
+  if (pin) pinned = key;
+  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.k === (pinned || key)));
+  const d = items[key];
+  el("detail").innerHTML = `<h3>${d.name}${pinned ? ' <span style="color:var(--green)">· pinned</span>' : ""}</h3>`
+    + `<p class="dhint">${d.make}</p>`
+    + (d.photo ? `<img class="dphoto" src="${d.photo}" alt="">` : "")
+    + (d.next ? `<div class="ditem"><div class="dnote"><b>Next:</b> ${d.next}</div></div>` : "")
+    + (d.note ? `<div class="ditem"><div class="dnote">${d.note}</div></div>` : "")
+    + `<span class="pill ${d.status}">${d.statusText}</span>`;
+}
+(function () {
+  const dot = { ok:"var(--green)", warn:"var(--amber)", alert:"var(--red)", info:"var(--blue)" };
+  const W = 900, gx = 60, gw = 780;
+  const upTop = 150, midY = 400, botY = 640;
+  let s = `<rect x="0" y="0" width="900" height="720" rx="20" fill="#eef2e9"/>`;
+  // Roof: clay tile triangle
+  s += `<polygon points="40,${upTop} 450,40 860,${upTop}" fill="#c47a52" stroke="#a86a42" stroke-width="2"/>`;
+  s += `<polygon points="40,${upTop} 450,40 860,${upTop} 860,${upTop + 14} 450,${40 + 14} 40,${upTop + 14}" fill="#a86a42" opacity=".45"/>`;
+  // House body
+  s += `<rect x="${gx}" y="${upTop}" width="${gw}" height="${botY - upTop}" fill="#f7f3ea" stroke="#d8d2c2" stroke-width="2"/>`;
+  // Floor divider
+  s += `<line x1="${gx}" y1="${midY}" x2="${gx + gw}" y2="${midY}" stroke="#d8d2c2" stroke-width="6"/>`;
+  // Upstairs rooms: hallway + bedrooms
+  const upRooms = [["Bedroom", 60, 200], ["Bedroom", 260, 180], ["Hallway", 440, 120], ["Master bedroom", 560, 280]];
+  upRooms.forEach(([n, x, w]) => {
+    s += `<line x1="${x}" y1="${upTop}" x2="${x}" y2="${midY}" stroke="#d8d2c2" stroke-width="2"/>`;
+    s += `<text class="rname" x="${x + 10}" y="${upTop + 24}">${n}</text>`;
+  });
+  s += `<text class="rname" x="850" y="${upTop + 24}" text-anchor="end"> </text>`;
+  // Downstairs rooms
+  const dnRooms = [["Garage", 60, 180], ["Laundry", 240, 110], ["Kitchen", 350, 180], ["Living", 530, 310]];
+  dnRooms.forEach(([n, x, w]) => {
+    s += `<line x1="${x}" y1="${midY}" x2="${x}" y2="${botY}" stroke="#d8d2c2" stroke-width="2"/>`;
+    s += `<text class="rname" x="${x + 10}" y="${midY + 24}">${n}</text>`;
+  });
+  // Stairs between living and hallway
+  let stairs = "";
+  for (let i = 0; i < 6; i++) stairs += `<rect x="${600 + i * 14}" y="${midY - 12 - i * 14}" width="14" height="14" fill="#d8d2c2"/>`;
+  s += stairs;
+  // Floor labels
+  s += `<text x="${gx}" y="${upTop - 12}" font-size="13" font-weight="700" fill="var(--muted)">UPSTAIRS</text>`;
+  s += `<text x="${gx}" y="${midY - 12}" font-size="13" font-weight="700" fill="var(--muted)">DOWNSTAIRS</text>`;
+  // Pins: [key, x, y, label]
+  const pins = [
+    ["roof", 450, 92, "Roof"],
+    ["ac1", 500, 210, "AC (main)"],
+    ["th1", 560, 210, "Thermostat"],
+    ["smoke", 380, 210, "Smoke ×5"],
+    ["ac2", 700, 210, "AC (master)"],
+    ["th2", 760, 210, "Thermostat"],
+    ["smoke", 640, 300, "Smoke ×2"],
+    ["garage", 150, 480, "Garage"],
+    ["washer", 270, 470, "Washer"],
+    ["dryer", 320, 540, "Dryer"],
+    ["wh2", 200, 580, "Water heater"],
+    ["kitchen", 440, 500, "Kitchen"],
+    ["wh1", 600, 560, "Water heater"],
+    ["smoke", 700, 480, "Smoke ×2"],
+  ];
+  const seen = {};
+  pins.forEach(([key, x, y, label]) => {
+    const d = items[key], k = key + (seen[key] = (seen[key] || 0) + 1);
+    s += `<g class="pin" data-k="${key}" tabindex="0" role="button" aria-label="${d.name}">`
+      + `<title>${d.name}: ${d.statusText}</title>`
+      + `<circle class="dot" cx="${x}" cy="${y}" r="11" fill="${dot[d.status]}"/>`
+      + `<text x="${x}" y="${y - 19}">${label}</text></g>`;
+  });
+  el("doll").innerHTML = s;
+  document.querySelectorAll(".pin").forEach(p => {
+    p.addEventListener("mouseenter", () => { if (!pinned) show(p.dataset.k, false); });
+    p.addEventListener("click", () => show(p.dataset.k, true));
+  });
+  show("kitchen", false);
+})();
+</script>
+</body>
+</html>
