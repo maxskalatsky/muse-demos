@@ -95,9 +95,16 @@
   .ycol .none { font-size: 12px; color: var(--muted); font-style: italic; }
 
   /* Log */
-  .log { display: grid; gap: 8px; }
-  .log .row { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; font-size: 13.5px; display: flex; gap: 12px; }
-  .log date { color: var(--muted); font-weight: 700; white-space: nowrap; font-size: 12.5px; padding-top: 2px; }
+  .logwrap { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .logwrap summary { cursor: pointer; padding: 14px 18px; font-size: 14px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .logwrap summary::-webkit-details-marker { display: none; }
+  .logwrap summary::after { content: "+"; font-size: 20px; color: var(--muted); font-weight: 400; }
+  .logwrap[open] summary::after { content: "–"; }
+  .logwrap summary .sub { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+  .log { display: grid; gap: 14px; padding: 0 18px 18px; }
+  .log h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+  .log .row { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 13.5px; }
+  .log .rows { display: grid; gap: 6px; }
 
   footer { margin-top: 48px; color: var(--muted); font-size: 12.5px; text-align: center; }
   @media (max-width: 860px) {
@@ -149,7 +156,10 @@
   <div class="ystrip-wrap"><div class="ystrip" id="ystrip"></div></div>
 
   <h2>Service log</h2>
-  <div class="log" id="log"></div>
+  <details class="logwrap">
+    <summary><span id="logCount">Service log</span><span class="sub">tap to expand</span></summary>
+    <div class="log" id="log"></div>
+  </details>
 
   <footer>Last updated October 8, 2026. Tell Sarah when something gets done and the dates roll forward.</footer>
 </div></div>
@@ -265,22 +275,31 @@ const calEvents = [
   ["AC filter check", "Fall: gutters, water heater flush, termite check"],
 ];
 
-const logEntries = [
-  ["2026-10-08", "Washer self-clean run (2-3x/week use; next ~Dec 2026)"],
-  ["2026-10-08", "Dishwasher filter cleaned (1x/week use; next Oct 2027)"],
-  ["2026-10-08", "Kitchen faucet replaced; Waste King disposal new; dishwasher drain parts and under-sink pipes new"],
-  ["2026-10-08", "Laundry faucet replaced"],
-  ["2026-10-08", "Smoke detectors tested, all 10 good"],
-  ["2026-10-08", "Garbage disposal cleaned with ice"],
-  ["2026-10-08", "Fridge coils vacuumed (GE Profile, Mar 2016)"],
-  ["2026-10-08", "Dryer vent duct fully cleaned (next Oct 2027)"],
-  ["2026-10-08", "AC drain lines flushed with shop vac, both units (next Oct 2027)"],
-  ["2026-10-08", "AC filters replaced, both units"],
-  ["2026-10-08", "Hurricane shutters verified, full set in garage"],
-  ["2026-10", "HOA full exterior repaint + caulk, 5-year cycle (next ~2031); pressure washing done"],
-  ["2026-10-04", "Gutters cleaned, branches cut at clogging area (next spring 2027)"],
-  ["2026-10-04", "Roof walked, clay tiles fine"],
-  ["2026-10-08", "Washer supply hoses confirmed braided stainless steel"],
+const logMonths = [
+  ["October 2026", [
+    "Washer self-clean run (used 2-3x/week; next ~Dec 2026)",
+    "Dishwasher filter cleaned (used weekly; next Oct 2027)",
+    "Smoke detectors tested, all 10 good",
+    "Garbage disposal cleaned with ice",
+    "Fridge coils vacuumed (GE Profile, Mar 2016)",
+    "Dryer vent duct fully cleaned (next Oct 2027)",
+    "AC filters replaced, both units",
+    "Hurricane shutters verified, full set in garage",
+    "Roof walked, clay tiles fine",
+    "Washer supply hoses confirmed braided stainless steel",
+  ]],
+  ["September 2026", [
+    "AC drain lines flushed with shop vac, both units (next Sep 2027)",
+    "Gutters cleaned, branches cut at clogging area (next spring 2027)",
+    "Windows cleaned",
+  ]],
+  ["August 2026", [
+    "HOA full exterior repaint + caulk, 5-year cycle (next ~2031); pressure washing done",
+  ]],
+  ["April 2026", [
+    "Laundry faucet replaced",
+    "Kitchen faucet replaced; Waste King disposal new; dishwasher drain parts and under-sink pipes new",
+  ]],
 ];
 
 // Floor plan. Pins: [itemIndex, x, y, label, guess?]
@@ -409,12 +428,14 @@ el("runway").innerHTML = runway.map(r => `
   el("ystrip").innerHTML = html;
 })();
 
-el("log").innerHTML = logEntries.map(([d, t]) =>
-  `<div class="row"><date>${d}</date><span>${t}</span></div>`).join("");
+const logCount = logMonths.reduce((n, [, rows]) => n + rows.length, 0);
+el("log").innerHTML = logMonths.map(([month, rows]) =>
+  `<div><h4>${month}</h4><div class="rows">${rows.map(t => `<div class="row">${t}</div>`).join("")}</div></div>`).join("");
 
 el("stOpen").textContent = attention.length;
 el("stItems").textContent = items.length;
-el("stDone").textContent = logEntries.length;
+el("stDone").textContent = logCount;
+document.querySelector("#logCount").textContent = `Service log · ${logCount} jobs`;
 
 renderPlan();
 </script>
