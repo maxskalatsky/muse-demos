@@ -84,20 +84,23 @@
   .pill.alert { background: #f9e2df; color: var(--red); }
   .pill.info { background: #e3ebfb; color: var(--blue); }
 
-  /* Timeline */
-  .timeline { position: relative; padding-left: 26px; }
-  .timeline::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
-  .tmonth { position: relative; padding: 0 0 22px; }
-  .tmonth::before {
-    content: ""; position: absolute; left: -24px; top: 5px; width: 12px; height: 12px;
-    border-radius: 50%; background: var(--paper); border: 3px solid var(--muted);
+  /* Calendar */
+  .cals { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .mcal {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 14px 12px;
   }
-  .tmonth.now::before { border-color: var(--green); background: var(--green); }
-  .tmonth h4 { font-size: 15px; }
-  .tmonth h4 span { color: var(--muted); font-weight: 400; font-size: 13px; }
-  .tmonth ul { list-style: none; margin-top: 4px; }
-  .tmonth li { font-size: 13.5px; color: var(--ink2); padding: 2px 0; }
-  .tmonth li.done { color: var(--muted); text-decoration: line-through; }
+  .mcal.now { border: 2px solid var(--green); }
+  .mcal h4 { font-size: 14px; margin-bottom: 8px; }
+  .mcal .dow, .mcal .days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+  .mcal .dow span { font-size: 10px; font-weight: 700; color: var(--muted); padding: 2px 0; }
+  .mcal .d { font-size: 11.5px; padding: 3px 0; color: var(--ink2); border-radius: 6px; }
+  .mcal .d.empty { visibility: hidden; }
+  .mcal .d.today { background: var(--green); color: #fff; font-weight: 700; }
+  .mcal ul { list-style: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .mcal li { font-size: 12.5px; color: var(--ink2); padding: 3px 0 3px 14px; position: relative; }
+  .mcal li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+  .mcal .none { font-size: 12.5px; color: var(--muted); font-style: italic; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
 
   /* Log */
   .log { display: grid; gap: 8px; }
@@ -137,7 +140,7 @@
   <div class="cards" id="equipment"></div>
 
   <h2>Next 12 months</h2>
-  <div class="timeline" id="timeline"></div>
+  <div class="cals" id="calendar"></div>
 
   <h2>Service log</h2>
   <div class="log" id="log"></div>
@@ -246,20 +249,50 @@ const attention = [
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
 ];
 
-const timeline = [
-  ["October 2026", "now", ["Pest treatment (~Oct 24): ask about termite tubes + bond", "Water heater flush, both units", "Exercise shut-off valves", "Replace 10 smoke detectors", "Note panel brand"]],
-  ["November 2026", "", ["AC filter check, both units"]],
-  ["December 2026", "", ["Washer self-clean", "Pest treatment"]],
-  ["January 2027", "", []],
-  ["February 2027", "", ["Pest treatment"]],
-  ["March 2027", "", ["Gutter cleanout", "Spring AC tune-up", "Hurricane prep check"]],
-  ["April 2027", "", ["Pest treatment", "Defrost chest freezer"]],
-  ["May 2027", "", ["AC filter check (monthly through Oct)"]],
-  ["June 2027", "", ["AC filter check", "Pest treatment"]],
-  ["July 2027", "", ["AC filter check"]],
-  ["August 2027", "", ["AC filter check", "Pest treatment"]],
-  ["September 2027", "", ["AC filter check", "Fall: gutters, water heater flush, termite check"]],
+// Next actions pulled from each cataloged item, placed on their month.
+// Index 0 = October 2026 through 11 = September 2027.
+const calEvents = [
+  ["Flush both water heaters", "Exercise shut-off valves", "Replace all 10 smoke detectors", "Pest treatment (~Oct 24): ask about termite tubes + bond"],
+  ["AC filter check, both units"],
+  ["Washer self-clean", "Pest treatment"],
+  [],
+  ["Pest treatment"],
+  ["Gutter cleanout", "Spring AC tune-up", "Hurricane prep check"],
+  ["Pest treatment", "Defrost chest freezer"],
+  ["AC filter check (monthly May-Oct)"],
+  ["AC filter check", "Pest treatment"],
+  ["AC filter check"],
+  ["AC filter check", "Pest treatment"],
+  ["AC filter check", "Fall: gutters, water heater flush, termite check"],
 ];
+
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function renderCalendar() {
+  const startY = 2026, startM = 9; // October 2026
+  let html = "";
+  for (let i = 0; i < 12; i++) {
+    const first = new Date(startY, startM + i, 1);
+    const y = first.getFullYear(), m = first.getMonth();
+    const lead = new Date(y, m, 1).getDay();
+    const days = new Date(y, m + 1, 0).getDate();
+    let cells = "";
+    for (let k = 0; k < lead; k++) cells += `<span class="d empty"></span>`;
+    for (let day = 1; day <= days; day++) {
+      const isToday = (y === 2026 && m === 9 && day === 8);
+      cells += `<span class="d${isToday ? " today" : ""}">${day}</span>`;
+    }
+    const ev = calEvents[i] || [];
+    html += `<div class="mcal${i === 0 ? " now" : ""}">
+      <h4>${monthNames[m]} ${y}</h4>
+      <div class="dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+      <div class="days">${cells}</div>
+      ${ev.length ? `<ul>${ev.map(e => `<li>${e}</li>`).join("")}</ul>` : `<p class="none">Nothing scheduled</p>`}
+    </div>`;
+  }
+  el("calendar").innerHTML = html;
+}
+renderCalendar();
 
 const logEntries = [
   ["2026-10-08", "Washer self-clean run (2-3x/week use; next ~Dec 2026)"],
@@ -309,11 +342,6 @@ el("equipment").innerHTML = equipment.map(e => {
     </div>
   </div>`;
 }).join("");
-
-el("timeline").innerHTML = timeline.map(([label, cls, items]) => `
-  <div class="tmonth ${cls}"><h4>${label}</h4>
-    ${items.length ? `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>` : `<p style="font-size:13px;color:var(--muted);font-style:italic">Nothing scheduled</p>`}
-  </div>`).join("");
 
 el("log").innerHTML = logEntries.map(([d, t]) =>
   `<div class="row"><date>${d}</date><span>${t}</span></div>`).join("");
