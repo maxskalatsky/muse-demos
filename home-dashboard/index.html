@@ -352,11 +352,15 @@ function ditemHtml(d) {
   </div>`;
 }
 
-function renderZone(key) {
-  document.querySelectorAll(".zone").forEach(z => z.classList.toggle("active", z.dataset.zone === key));
+let pinnedZone = null;
+
+function renderZone(key, pin) {
+  if (pin) pinnedZone = key;
+  document.querySelectorAll(".zone").forEach(z => z.classList.toggle("active", z.dataset.zone === (pinnedZone || key)));
   const z = zones[key];
   const list = items.filter(i => i.zone === key);
-  el("detail").innerHTML = `<h3>${z.label}</h3><p class="dhint">${z.hint}${z.hint ? " · " : ""}${list.length} items tracked</p>` +
+  const pinNote = pinnedZone ? ` <span style="color:var(--green)">· pinned</span>` : "";
+  el("detail").innerHTML = `<h3>${z.label}${pinNote}</h3><p class="dhint">${z.hint}${z.hint ? " · " : ""}${list.length} items tracked</p>` +
     list.map(ditemHtml).join("");
 }
 
@@ -398,10 +402,10 @@ el("stItems").textContent = items.length + wholeHouse.length;
 el("stDone").textContent = logEntries.length;
 
 document.querySelectorAll(".zone").forEach(z => {
-  z.addEventListener("mouseenter", () => renderZone(z.dataset.zone));
-  z.addEventListener("click", () => renderZone(z.dataset.zone));
+  z.addEventListener("mouseenter", () => { if (!pinnedZone) renderZone(z.dataset.zone, false); });
+  z.addEventListener("click", () => renderZone(z.dataset.zone, true));
 });
-renderZone("kitchen");
+renderZone("kitchen", false);
 </script>
 </body>
 </html>
