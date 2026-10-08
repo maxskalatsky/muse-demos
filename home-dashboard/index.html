@@ -59,29 +59,23 @@
   .pin circle.guess { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
   .pin text { font-size: 12px; font-weight: 600; fill: var(--ink2); text-anchor: middle; pointer-events: none; }
   .pin:hover circle.dot { stroke: var(--ink); }
+  .pin.active circle.dot { stroke: var(--ink); stroke-width: 4; }
   .map-key { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: 12.5px; color: var(--muted); padding: 0 4px; }
   .map-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
   .map-key i.g { background: none; border: 1.5px dashed var(--muted); width: 11px; height: 11px; vertical-align: -1px; }
+
   .detail { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-height: 320px; }
-  .detail h3 { font-size: 17px; }
-  .detail .dhint { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
-  .ditem { display: flex; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
-  .ditem img { width: 54px; height: 54px; object-fit: cover; border-radius: 9px; flex-shrink: 0; background: #eef0ea; }
-  .ditem .dn { font-size: 13.5px; font-weight: 700; }
-  .ditem .dm { font-size: 12px; color: var(--muted); }
-  .ditem .dnote { font-size: 12px; color: var(--ink2); margin-top: 2px; line-height: 1.4; }
-  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-top: 6px; }
+  .detail h3 { font-size: 18px; }
+  .detail .dhint { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+  .dphoto { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #eef0ea; }
+  .ditem .dn { font-size: 15px; font-weight: 700; }
+  .ditem .dm { font-size: 12.5px; color: var(--muted); }
+  .ditem .dnote { font-size: 13px; color: var(--ink2); margin-top: 4px; line-height: 1.45; }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-top: 8px; }
   .pill.ok { background: #e2f2e7; color: var(--green); }
   .pill.warn { background: #fbeed7; color: var(--amber); }
   .pill.alert { background: #f9e2df; color: var(--red); }
   .pill.info { background: #e3ebfb; color: var(--blue); }
-
-  .whole { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); margin-top: 14px; }
-  .wrow { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; gap: 12px; align-items: center; }
-  .wrow img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #eef0ea; }
-  .wrow .wn { font-size: 13.5px; font-weight: 700; }
-  .wrow .wm { font-size: 12px; color: var(--muted); }
-  .wrow .pill { margin-top: 4px; }
 
   /* Compact runway */
   .runway-sub { font-size: 13.5px; color: var(--muted); margin: -8px 0 14px; }
@@ -120,7 +114,7 @@
     <p>Built ~2004. One house with fully separate systems per side (AC, water, electric), split across the kitchen wall. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn).</p>
     <div class="stats">
       <div class="stat"><b id="stOpen">5</b><span>Open items</span></div>
-      <div class="stat"><b id="stItems">21</b><span>Items tracked</span></div>
+      <div class="stat"><b id="stItems">25</b><span>Items tracked</span></div>
       <div class="stat"><b id="stDone">15</b><span>Jobs logged</span></div>
       <div class="stat"><b>Oct 8</b><span>Last session</span></div>
     </div>
@@ -133,18 +127,16 @@
 
   <h2>The house</h2>
   <div class="house-wrap">
-    <div>
-      <div class="map-card">
-        <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 600" role="img" aria-label="Floor plan with equipment pins"></svg></div>
-        <div class="map-key">
-          <span><i style="background:var(--red)"></i>Urgent</span>
-          <span><i style="background:var(--amber)"></i>Needs attention</span>
-          <span><i style="background:var(--blue)"></i>Check</span>
-          <span><i style="background:var(--green)"></i>Good</span>
-          <span><i class="g"></i>Location not confirmed</span>
-        </div>
-        <p class="map-note">Schematic, not to scale. Tap a pin for details.</p>
+    <div class="map-card">
+      <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 600" role="img" aria-label="Floor plan with equipment pins"></svg></div>
+      <div class="map-key">
+        <span><i style="background:var(--red)"></i>Urgent</span>
+        <span><i style="background:var(--amber)"></i>Needs attention</span>
+        <span><i style="background:var(--blue)"></i>Check</span>
+        <span><i style="background:var(--green)"></i>Good</span>
+        <span><i class="g"></i>Location not confirmed</span>
       </div>
+      <p class="map-note">Schematic, not to scale. Tap a pin for details.</p>
     </div>
     <div class="detail" id="detail"></div>
   </div>
@@ -163,187 +155,85 @@
 </div></div>
 
 <script>
-// Floor plan. Rooms left to right; the kitchen wall splits main side from master side.
-// Pins: [ref, x, y, label, guess?]  ref "i12" = items[12], "w0" = wholeHouse[0]
-const rooms = [
-  { name: "Garage", x: 30, w: 210 },
-  { name: "Laundry", x: 240, w: 120 },
-  { name: "Living", x: 360, w: 280 },
-  { name: "Kitchen", x: 640, w: 200 },
-  { name: "Master bedroom", x: 850, w: 230 },
-  { name: "Primary bath", x: 1080, w: 170 },
-];
-const pins = [
-  ["i13", 95, 235, "Opener"],
-  ["i16", 175, 235, "Shutters"],
-  ["i11", 95, 310, "Panel", true],
-  ["i12", 175, 310, "Internet", true],
-  ["i14", 95, 385, "Freezer"],
-  ["i15", 175, 385, "Extinguisher"],
-  ["i3", 95, 450, "Water heater", true],
-  ["i1", 175, 450, "Water heater", true],
-  ["i9", 300, 310, "Washer"],
-  ["i10", 300, 410, "Dryer"],
-  ["i2", 450, 340, "AC handler", true],
-  ["w1", 560, 340, "Thermostat", true],
-  ["w0", 505, 235, "Smoke"],
-  ["w0", 680, 255, "Smoke"],
-  ["i15", 745, 255, "Extinguisher"],
-  ["i4", 810, 255, "Fridge"],
-  ["i5", 680, 345, "Range"],
-  ["i6", 745, 345, "Dishwasher"],
-  ["i7", 810, 345, "Wine"],
-  ["i8", 680, 435, "Disposal"],
-  ["w2", 745, 435, "Shutoff"],
-  ["i0", 920, 340, "AC handler", true],
-  ["w1", 1000, 340, "Thermostat", true],
-  ["w0", 960, 235, "Smoke"],
-  ["w0", 1165, 330, "Smoke"],
-  ["i17", 640, 105, "Roof"],
-  ["i18", 1262, 400, "Paint"],
-];
-
-function resolveRef(ref) {
-  return ref[0] === "i" ? items[+ref.slice(1)] : wholeHouse[+ref.slice(1)];
-}
-
-let pinnedPin = null;
-function showPin(ref, pin) {
-  if (pin) pinnedPin = ref;
-  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.ref === (pinnedPin || ref)));
-  const d = resolveRef(ref);
-  const pinNote = pinnedPin ? ` <span style="color:var(--green)">· pinned</span>` : "";
-  el("detail").innerHTML = `<h3>${d.name}${pinNote}</h3><p class="dhint">${d.make}</p>` + ditemHtml(d);
-}
-
-function renderPlan() {
-  const top = 170, bot = 470;
-  const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
-  let svg = `<defs><pattern id="tile" width="26" height="13" patternUnits="userSpaceOnUse">
-      <rect width="26" height="13" fill="#cf8f60"/><path d="M0 13 Q6.5 3 13 13 Q19.5 3 26 13" fill="none" stroke="#a86a42" stroke-width="1.6"/></pattern></defs>`;
-  svg += `<rect x="0" y="0" width="1280" height="600" rx="20" fill="#eef2e9"/>`;
-  svg += `<polygon points="10,${top} 640,42 1270,${top}" fill="url(#tile)" stroke="#a86a42" stroke-width="2"/>`;
-  rooms.forEach(r => {
-    svg += `<rect class="room" x="${r.x}" y="${top}" width="${r.w}" height="${bot - top}" rx="8"/>`;
-    svg += `<text class="rname" x="${r.x + 12}" y="${top + 26}">${r.name}</text>`;
-  });
-  svg += `<line x1="845" y1="${top}" x2="845" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
-  svg += `<text x="845" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
-  svg += `<path d="M30 500 v10 h810 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="435" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
-  svg += `<path d="M850 500 v10 h400 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="1050" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
-  pins.forEach(([ref, x, y, label, guess]) => {
-    const d = resolveRef(ref);
-    svg += `<g class="pin" data-ref="${ref}" tabindex="0" role="button" aria-label="${d.name}, ${d.statusText}${guess ? ", location not confirmed" : ""}">`
-      + `<title>${d.name}: ${d.statusText}</title>`
-      + (guess ? `<circle class="guess" cx="${x}" cy="${y}" r="17"/>` : "")
-      + `<circle class="dot" cx="${x}" cy="${y}" r="10" fill="${dotColor[d.status]}"/>`
-      + `<text x="${x}" y="${y + 30}">${label}</text></g>`;
-  });
-  el("floorplan").innerHTML = svg;
-  document.querySelectorAll(".pin").forEach(p => {
-    p.addEventListener("mouseenter", () => { if (!pinnedPin) showPin(p.dataset.ref, false); });
-    p.addEventListener("click", () => showPin(p.dataset.ref, true));
-    p.addEventListener("keydown", ev => {
-      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); showPin(p.dataset.ref, true); }
-    });
-  });
-  showPin("i4", false);
-}
-
 const items = [
-  { zone: "primary", name: "AC, master bedroom", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
-    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
-    note: "Coils replaced with new. Pan rust is from an old fixed leak.",
-    status: "ok", statusText: "New coils" },
-  { zone: "primary", name: "Water heater, primary bath", make: "Rheem PROE38 S2 RH95, 38 gal, ~5.5 yrs", photo: "img/water-heater-primary.jpg",
+  { section: "garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0, ~10 yrs", photo: "img/garage.jpg",
+    last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube",
+    note: "Chain drive. Replaced ~2016.", status: "ok", statusText: "Healthy" },
+  { section: "garage", name: "Hurricane shutters", make: "Accordion panels, full set", photo: "img/shutters.jpg",
+    last: "Verified Oct 8, 2026", next: "Season through Nov",
+    note: "Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.", status: "ok", statusText: "Ready" },
+  { section: "garage", name: "Electrical panel", make: "Square D main + subpanel, 22 yrs", photo: "img/panel.jpg",
+    last: "Photographed Oct 8, 2026", next: "",
+    note: "Builder stock from the Abacoa development. Not Federal Pacific / Zinsco. Circuits labeled.", status: "ok", statusText: "Good brand" },
+  { section: "garage", name: "Internet + cable", make: "Netgear Nighthawk modem", photo: null,
+    last: "", next: "",
+    note: "Wiring next to the panel. Hotwire via the HOA, no separate bill. Modem EOL but fine at 650 Mbps.", status: "ok", statusText: "No issues" },
+  { section: "garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
+    last: "", next: "Defrost Apr 2027",
+    note: "Gift from neighbors ~10 years ago. Works great.", status: "ok", statusText: "Works great" },
+  { section: "garage", name: "Fire extinguisher", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
+    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly",
+    note: "By the opener. Pre-2017, came with the house.", status: "ok", statusText: "Gauge green" },
+  { section: "garage", name: "Water heater, secondary", make: "Rheem 38 gal, ~5.5 yrs", photo: "img/water-heater-garage.jpg",
     last: "Never flushed", next: "Flush a few gallons",
-    note: "Mfg 04/2021. Wider drum unit. Installed by Admiral Plumbing.",
-    status: "warn", statusText: "Due for flush" },
-  { zone: "main", name: "AC, primary", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
-    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
-    note: "Coils replaced with new. No accessible drain cleanout, flush from outside yearly.",
-    status: "ok", statusText: "New coils" },
-  { zone: "main", name: "Water heater, main house", make: "Rheem Professional Classic, ~5.5 yrs", photo: "img/water-heater.jpg",
-    last: "Never flushed", next: "Flush a few gallons",
-    note: "Installed same time as the other unit. Expansion tank on top.",
-    status: "warn", statusText: "Due for flush" },
-  { zone: "kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS, ~10.5 yrs", photo: "img/fridge.jpg",
+    note: "Mfg 04/2021. The wider drum unit.", status: "warn", statusText: "Due for flush" },
+  { section: "laundry", name: "Washer", make: "Samsung WA50R5200AW, ~4.5 yrs", photo: "img/washer.jpg",
+    last: "Self-clean Oct 8, 2026", next: "Self-clean ~Dec 2026",
+    note: "Mfg Jan 2022. Used 2-3x/week. Braided steel supply hoses.", status: "ok", statusText: "Healthy" },
+  { section: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12+ yrs", photo: "img/dryer.jpg",
+    last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
+    note: "Not replaced since the 2014 purchase. Running well after the first vent clean in 12 years.", status: "ok", statusText: "Running well" },
+  { section: "kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS, ~10.5 yrs", photo: "img/fridge.jpg",
     last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027",
     note: "Mfg Mar 2016.", status: "ok", statusText: "Healthy" },
-  { zone: "kitchen", name: "Range + microwave", make: "GE Profile, ~10.5 yrs", photo: "img/range.jpg",
-    last: "", next: "", note: "Glass top range. Installed 2016.",
-    status: "ok", statusText: "No issues" },
-  { zone: "kitchen", name: "Dishwasher", make: "GE Profile, ~10.5 yrs", photo: "img/dishwasher.jpg",
+  { section: "kitchen", name: "Range + microwave", make: "GE Profile, ~10.5 yrs", photo: "img/range.jpg",
+    last: "", next: "", note: "Glass top range. Installed 2016.", status: "ok", statusText: "No issues" },
+  { section: "kitchen", name: "Dishwasher", make: "GE Profile, ~10.5 yrs", photo: "img/dishwasher.jpg",
     last: "Filter cleaned Oct 8, 2026. Drain parts + pipes new.", next: "Filter clean Oct 2027",
-    note: "Used ~1x/week. Display flagged low rinse aid Oct 2026.",
-    status: "ok", statusText: "Healthy" },
-  { zone: "kitchen", name: "Wine cooler", make: "Magic Chef dual-zone, ~10.5 yrs", photo: "img/wine-cooler.jpg",
-    last: "", next: "", note: "Both zones at 49F.",
-    status: "ok", statusText: "No issues" },
-  { zone: "kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600, new", photo: "img/disposal.jpg",
+    note: "Used ~1x/week. Display flagged low rinse aid Oct 2026.", status: "ok", statusText: "Healthy" },
+  { section: "kitchen", name: "Wine cooler", make: "Magic Chef dual-zone, ~10.5 yrs", photo: "img/wine-cooler.jpg",
+    last: "", next: "", note: "Both zones at 49F.", status: "ok", statusText: "No issues" },
+  { section: "kitchen", name: "Garbage disposal", make: "Waste King Gourmet 2600, new", photo: "img/disposal.jpg",
     last: "Cleaned with ice Oct 8, 2026", next: "",
-    note: "New unit under the new faucet.",
-    status: "ok", statusText: "New" },
-  { zone: "laundry", name: "Washer", make: "Samsung WA50R5200AW, ~4.5 yrs", photo: "img/washer.jpg",
-    last: "Self-clean Oct 8, 2026", next: "Self-clean ~Dec 2026",
-    note: "Mfg Jan 2022. Used 2-3x/week. Braided steel supply hoses.",
-    status: "ok", statusText: "Healthy" },
-  { zone: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12+ yrs", photo: "img/dryer.jpg",
-    last: "Vent duct cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
-    note: "Not replaced since the 2014 purchase. Running well after the first vent clean in 12 years.",
-    status: "ok", statusText: "Running well" },
-  { zone: "garage", name: "Electrical panel", make: "Square D main + subpanel, 22 yrs", photo: "img/panel.jpg",
-    last: "Photographed Oct 8, 2026", next: "",
-    note: "Builder stock from the Abacoa development. Not Federal Pacific / Zinsco. Circuits labeled.",
-    status: "ok", statusText: "Good brand" },
-  { zone: "garage", name: "Internet + cable", make: "Netgear Nighthawk modem", photo: null,
+    note: "New unit under the new faucet.", status: "ok", statusText: "New" },
+  { section: "kitchen", name: "Fire extinguisher", make: "Kidde ABC dry chemical", photo: "img/extinguisher-kitchen.jpg",
+    last: "Gauge green Oct 8, 2026", next: "Check gauge yearly",
+    note: "In the kitchen. Pre-2017, came with the house.", status: "ok", statusText: "Gauge green" },
+  { section: "kitchen", name: "Main water shut-off", make: "Near kitchen sink", photo: "img/kitchen-valves.jpg",
+    last: "", next: "Exercise yearly",
+    note: "Where the water line enters. Kitchen sink angle stops and dishwasher valves (BrassCraft quarter-turn) photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
+  { section: "mainhouse", name: "Water heater, primary", make: "Rheem, ~5.5 yrs", photo: null,
+    last: "Never flushed", next: "Flush a few gallons",
+    note: "Photo coming.", status: "warn", statusText: "Due for flush" },
+  { section: "mainhouse", name: "AC, main house", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
+    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
+    note: "Upstairs near the top of the stairwell. Coils replaced with new. No accessible drain cleanout, flush from outside yearly.", status: "ok", statusText: "New coils" },
+  { section: "mainhouse", name: "Thermostat, main house", make: "Basic programmable", photo: "img/thermostat.jpg",
     last: "", next: "",
-    note: "Wiring next to the panel. Hotwire via the HOA, no separate bill. Modem EOL but fine at 650 Mbps.",
-    status: "ok", statusText: "No issues" },
-  { zone: "garage", name: "Garage door opener", make: "LiftMaster P3 Security+ 2.0, ~10 yrs", photo: "img/garage.jpg",
-    last: "Rollers replaced (new)", next: "Yearly: sensors, reverse test, lube",
-    note: "Chain drive. Replaced ~2016.",
-    status: "ok", statusText: "Healthy" },
-  { zone: "garage", name: "Chest freezer", make: "GE", photo: "img/freezer.jpg",
-    last: "", next: "Defrost Apr 2027",
-    note: "Gift from neighbors ~10 years ago. Works great.",
-    status: "ok", statusText: "Works great" },
-  { zone: "garage", name: "Fire extinguishers (2)", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
-    last: "Gauges green Oct 8, 2026", next: "Check gauge yearly",
-    note: "Garage by the opener plus one in the kitchen. Pre-2017, came with the house.",
-    status: "ok", statusText: "Gauges green" },
-  { zone: "garage", name: "Hurricane shutters", make: "Accordion panels, full set", photo: "img/shutters.jpg",
-    last: "Verified Oct 8, 2026", next: "Season through Nov",
-    note: "Stacked in the garage corner. Wingnut adapter on the Craftsman tool set.",
-    status: "ok", statusText: "Ready" },
-  { zone: "exterior", name: "Roof", make: "Clay tile, 22 yrs", photo: null,
+    note: "Upstairs near the top of the stairwell. Set to 77F.", status: "ok", statusText: "No issues" },
+  { section: "mainhouse", name: "Smoke detectors (10)", make: "Hardwired + battery backup", photo: "img/smoke.jpg",
+    last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
+    note: "Never replaced. Past the 10-year sensor life. 7 in main house (5 upstairs: bedrooms + hallway, 2 downstairs: front room + stairs), 2 in master side (hallway + bedroom). One brand: Kidde or First Alert.", status: "alert", statusText: "Replace all 10" },
+  { section: "masterside", name: "AC, secondary", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
+    last: "Filters + drain flush Oct 8, 2026", next: "Filter check Nov 2026",
+    note: "Coils replaced with new. Pan rust is from an old fixed leak.", status: "ok", statusText: "New coils" },
+  { section: "masterside", name: "Thermostat, secondary", make: "Basic programmable", photo: "img/thermostat-2.jpg",
+    last: "", next: "", note: "Set to 77F.", status: "ok", statusText: "No issues" },
+  { section: "masterside", name: "Bathroom valves", make: "Half-bath + master bath", photo: "img/valves-bath.jpg",
+    last: "", next: "Exercise yearly",
+    note: "Sink angle stops and toilet supply valves photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
+  { section: "outside", name: "Roof", make: "Clay tile, 22 yrs", photo: null,
     last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots",
-    note: "No cracked tiles. Underlayment only shows as interior leaks.",
-    status: "ok", statusText: "Tiles fine" },
-  { zone: "exterior", name: "Paint + caulk", make: "HOA 5-year cycle", photo: null,
+    note: "No cracked tiles. Underlayment only shows as interior leaks.", status: "ok", statusText: "Tiles fine" },
+  { section: "outside", name: "Paint + caulk", make: "HOA 5-year cycle", photo: null,
     last: "Full repaint Oct 2026 (3rd cycle)", next: "~2031",
-    note: "Pressure washing rides with the paint cycle.",
-    status: "ok", statusText: "Done to 2031" },
-];
-
-const wholeHouse = [
-  { name: "Smoke detectors (10)", make: "Hardwired + battery backup", photo: "img/smoke.jpg",
-    next: "Replace all 10", note: "Never replaced. Past the 10-year sensor life.",
-    status: "alert", statusText: "Replace all 10" },
-  { name: "Thermostats (2)", make: "Basic programmable", photo: "img/thermostat.jpg",
-    next: "", note: "One per zone, both at 77F.",
-    status: "ok", statusText: "No issues" },
-  { name: "Water shut-off valves", make: "Main near kitchen sink", photo: "img/kitchen-valves.jpg",
-    next: "Exercise yearly", note: "Kitchen, dishwasher, washer gate valves, half-bath and master bath photographed.",
-    status: "warn", statusText: "Exercise valves" },
+    note: "Pressure washing rides with the paint cycle.", status: "ok", statusText: "Done to 2031" },
 ];
 
 const attention = [
   { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10-year sensor life. Hardwired with battery backup, one brand." },
   { level: "warn", title: "Flush both water heaters", detail: "Drain a few gallons from the bottom valve of each until the water runs clear." },
-  { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus each fixture valve, off and back on. Washer gate valves first." },
+  { level: "warn", title: "Exercise water shut-off valves", detail: "Main near the kitchen sink, plus fixture valves in each bath and the laundry. Washer gate valves first." },
   { level: "info", title: "Pest visit ~Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
 ];
@@ -351,7 +241,7 @@ const attention = [
 const runway = [
   { name: "Smoke detectors", year: "Now", cost: "$300–600", level: "alert" },
   { name: "Dryer", year: "~2027", cost: "$700–1,200", level: "warn" },
-  { name: "AC, primary + master", year: "~2029", cost: "$5,000–9,000 each", level: "warn" },
+  { name: "AC, main house + secondary", year: "~2029", cost: "$5,000–9,000 each", level: "warn" },
   { name: "Roof underlayment", year: "~2029", cost: "$15,000–30,000", level: "warn" },
   { name: "Water heaters (2)", year: "~2031", cost: "$1,200–1,800 each", level: "ok" },
   { name: "Kitchen appliances", year: "~2031", cost: "$800–2,500 each", level: "ok" },
@@ -393,20 +283,107 @@ const logEntries = [
   ["2026-10-08", "Washer supply hoses confirmed braided stainless steel"],
 ];
 
+// Floor plan. Pins: [itemIndex, x, y, label, guess?]
+const rooms = [
+  { name: "Garage", x: 30, w: 200 },
+  { name: "Laundry", x: 230, w: 110 },
+  { name: "Kitchen", x: 340, w: 180 },
+  { name: "Main house", x: 520, w: 270 },
+  { name: "Master side", x: 790, w: 280 },
+];
+const pins = [
+  ["i0", 80, 240, "Opener"],
+  ["i1", 160, 240, "Shutters"],
+  ["i2", 80, 315, "Panel", true],
+  ["i3", 160, 315, "Internet", true],
+  ["i4", 80, 390, "Freezer"],
+  ["i5", 160, 390, "Extinguisher"],
+  ["i6", 80, 450, "Water heater"],
+  ["i7", 285, 315, "Washer"],
+  ["i8", 285, 420, "Dryer"],
+  ["i9", 375, 270, "Fridge"],
+  ["i10", 430, 270, "Range"],
+  ["i11", 485, 270, "Dishwasher"],
+  ["i12", 375, 370, "Wine"],
+  ["i13", 430, 370, "Disposal"],
+  ["i14", 485, 370, "Extinguisher"],
+  ["i15", 430, 450, "Shutoff"],
+  ["i16", 585, 320, "Water heater"],
+  ["i17", 670, 320, "AC (up)"],
+  ["i18", 735, 320, "Thermostat"],
+  ["i19", 575, 225, "Smoke"],
+  ["i19", 615, 225, "Smoke"],
+  ["i19", 655, 225, "Smoke"],
+  ["i19", 695, 225, "Smoke"],
+  ["i19", 735, 225, "Smoke"],
+  ["i19", 600, 425, "Smoke"],
+  ["i19", 710, 425, "Smoke"],
+  ["i20", 870, 330, "AC"],
+  ["i21", 950, 330, "Thermostat"],
+  ["i19", 900, 230, "Smoke"],
+  ["i19", 980, 230, "Smoke"],
+  ["i22", 930, 430, "Valves"],
+  ["i23", 640, 105, "Roof"],
+  ["i24", 1200, 350, "Paint"],
+];
+
 const el = id => document.getElementById(id);
 
 function ditemHtml(d) {
   return `<div class="ditem">
-    ${d.photo ? `<img src="${d.photo}" alt="">` : `<img src="" alt="" style="visibility:hidden">`}
-    <div>
-      <div class="dn">${d.name}</div>
-      <div class="dm">${d.make}</div>
-      ${d.last ? `<div class="dnote"><b>Last:</b> ${d.last}</div>` : ""}
-      ${d.next ? `<div class="dnote"><b>Next:</b> ${d.next}</div>` : ""}
-      ${d.note ? `<div class="dnote">${d.note}</div>` : ""}
-      <span class="pill ${d.status}">${d.statusText}</span>
-    </div>
+    ${d.photo ? `<img class="dphoto" src="${d.photo}" alt="">` : ""}
+    <div class="dn">${d.name}</div>
+    <div class="dm">${d.make}</div>
+    ${d.last ? `<div class="dnote"><b>Last:</b> ${d.last}</div>` : ""}
+    ${d.next ? `<div class="dnote"><b>Next:</b> ${d.next}</div>` : ""}
+    ${d.note ? `<div class="dnote">${d.note}</div>` : ""}
+    <span class="pill ${d.status}">${d.statusText}</span>
   </div>`;
+}
+
+let pinnedPin = null;
+function showPin(ref, pin) {
+  if (pin) pinnedPin = ref;
+  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.ref === (pinnedPin || ref)));
+  const d = items[+ref.slice(1)];
+  const pinNote = pinnedPin ? ` <span style="color:var(--green)">· pinned</span>` : "";
+  el("detail").innerHTML = `<h3>${d.name}${pinNote}</h3><p class="dhint">${d.make}</p>` + ditemHtml(d);
+}
+
+function renderPlan() {
+  const top = 170, bot = 470;
+  const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
+  let svg = `<defs><pattern id="tile" width="26" height="13" patternUnits="userSpaceOnUse">
+      <rect width="26" height="13" fill="#cf8f60"/><path d="M0 13 Q6.5 3 13 13 Q19.5 3 26 13" fill="none" stroke="#a86a42" stroke-width="1.6"/></pattern></defs>`;
+  svg += `<rect x="0" y="0" width="1280" height="600" rx="20" fill="#eef2e9"/>`;
+  svg += `<polygon points="10,${top} 640,42 1270,${top}" fill="url(#tile)" stroke="#a86a42" stroke-width="2"/>`;
+  rooms.forEach(r => {
+    svg += `<rect class="room" x="${r.x}" y="${top}" width="${r.w}" height="${bot - top}" rx="8"/>`;
+    svg += `<text class="rname" x="${r.x + 12}" y="${top + 26}">${r.name}</text>`;
+  });
+  svg += `<line x1="790" y1="${top}" x2="790" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
+  svg += `<text x="790" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
+  svg += `<path d="M30 500 v10 h760 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="410" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
+  svg += `<path d="M790 500 v10 h280 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="930" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
+  pins.forEach(([ref, x, y, label, guess]) => {
+    const d = items[+ref.slice(1)];
+    svg += `<g class="pin" data-ref="${ref}" tabindex="0" role="button" aria-label="${d.name}, ${d.statusText}${guess ? ", location not confirmed" : ""}">`
+      + `<title>${d.name}: ${d.statusText}</title>`
+      + (guess ? `<circle class="guess" cx="${x}" cy="${y}" r="17"/>` : "")
+      + `<circle class="dot" cx="${x}" cy="${y}" r="10" fill="${dotColor[d.status]}"/>`
+      + `<text x="${x}" y="${y + 30}">${label}</text></g>`;
+  });
+  el("floorplan").innerHTML = svg;
+  document.querySelectorAll(".pin").forEach(p => {
+    p.addEventListener("mouseenter", () => { if (!pinnedPin) showPin(p.dataset.ref, false); });
+    p.addEventListener("click", () => showPin(p.dataset.ref, true));
+    p.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); showPin(p.dataset.ref, true); }
+    });
+  });
+  showPin("i9", false);
 }
 
 el("dueNow").innerHTML = attention.map(a =>
@@ -436,7 +413,7 @@ el("log").innerHTML = logEntries.map(([d, t]) =>
   `<div class="row"><date>${d}</date><span>${t}</span></div>`).join("");
 
 el("stOpen").textContent = attention.length;
-el("stItems").textContent = items.length + wholeHouse.length;
+el("stItems").textContent = items.length;
 el("stDone").textContent = logEntries.length;
 
 renderPlan();
