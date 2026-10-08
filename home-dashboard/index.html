@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Dashboard - Jupiter, FL</title>
+<style>
+  :root {
+    --bg: #f4f5f4;
+    --card: #ffffff;
+    --ink: #1e2a24;
+    --muted: #6b7a72;
+    --accent: #2e7d4f;
+    --warn: #c26a1b;
+    --alert: #b3372f;
+    --line: #e2e7e3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { margin-bottom: 24px; }
+  header h1 { font-size: 28px; letter-spacing: -0.5px; }
+  header p { color: var(--muted); margin-top: 4px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; letter-spacing: -0.3px; }
+  .grid { display: grid; gap: 12px; }
+  .grid.cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .card .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .card h3 { font-size: 16px; margin-bottom: 6px; }
+  .card dl { font-size: 13px; }
+  .card dt { float: left; clear: left; color: var(--muted); width: 92px; }
+  .card dd { margin-left: 100px; margin-bottom: 3px; }
+  .pill {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin-top: 8px;
+  }
+  .pill.ok { background: #e3f2e8; color: var(--accent); }
+  .pill.warn { background: #fdf0e0; color: var(--warn); }
+  .pill.alert { background: #fbe7e5; color: var(--alert); }
+  .pill.info { background: #e8eefb; color: #2f5bb3; }
+  .due-list .card { border-left: 4px solid var(--line); }
+  .due-list .card.alert { border-left-color: var(--alert); }
+  .due-list .card.warn { border-left-color: var(--warn); }
+  .due-list .card.info { border-left-color: #2f5bb3; }
+  .cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .month {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .month.current { border: 2px solid var(--accent); }
+  .month h4 { font-size: 14px; margin-bottom: 8px; }
+  .month ul { list-style: none; font-size: 13px; }
+  .month li { padding: 3px 0; border-top: 1px solid var(--line); }
+  .month li:first-child { border-top: none; }
+  .month .none { color: var(--muted); font-style: italic; }
+  .log { font-size: 13px; }
+  .log .card { padding: 10px 16px; }
+  .log date { color: var(--muted); font-weight: 600; margin-right: 8px; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; text-align: center; }
+  @media (max-width: 600px) {
+    .grid.cards, .cal { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Home Dashboard</h1>
+    <p>Jupiter, FL. Built ~2004. CBS block, clay tile roof, no pool, no septic. HOA irrigation (capped, turf lawn).</p>
+  </header>
+
+  <h2>Needs attention</h2>
+  <div class="grid cards due-list" id="dueNow"></div>
+
+  <h2>Equipment</h2>
+  <div class="grid cards" id="equipment"></div>
+
+  <h2>Rolling 12-month maintenance</h2>
+  <div class="cal" id="calendar"></div>
+
+  <h2>Service log</h2>
+  <div class="grid log" id="log"></div>
+
+  <footer>Last updated October 8, 2026. Tell Sarah when something gets done and the dates roll forward.</footer>
+</div>
+
+<script>
+const equipment = [
+  { tag: "HVAC", name: "AC, primary unit", make: "Carrier air handler", installed: "Aug 2014", age: "12 yrs",
+    last: "Filters replaced, drain flushed Oct 8, 2026", next: "Filter check Nov 2026",
+    note: "Coils replaced with new. No accessible drain cleanout, flush from outside yearly. Thermostat 77F.",
+    status: "ok", statusText: "Healthy, new coils" },
+  { tag: "HVAC", name: "AC, master bedroom unit", make: "Air handler", installed: "Aug 2014", age: "12 yrs",
+    last: "Filters replaced, drain flushed Oct 8, 2026", next: "Filter check Nov 2026",
+    note: "Coils replaced with new. Rust staining on drain pan is from an old fixed leak.",
+    status: "ok", statusText: "Healthy, new coils" },
+  { tag: "Water", name: "Water heater, primary bath", make: "Rheem PROE38 S2 RH95, 38 gal electric", installed: "~2021", age: "~5.5 yrs",
+    last: "Not flushed yet", next: "Flush a few gallons",
+    note: "Mfg 04/07/2021. Installed by Admiral Plumbing.",
+    status: "warn", statusText: "Due for flush" },
+  { tag: "Water", name: "Water heater, main house", make: "Rheem Professional Classic, electric", installed: "~2021", age: "~5.5 yrs",
+    last: "Not flushed yet", next: "Flush a few gallons",
+    note: "Installed same time as the other unit by Admiral Plumbing.",
+    status: "warn", statusText: "Due for flush" },
+  { tag: "Kitchen", name: "Refrigerator", make: "GE Profile PYE22KSKBSS", installed: "Mar 2016", age: "~10.5 yrs",
+    last: "Coils vacuumed Oct 8, 2026", next: "Coil clean Oct 2027",
+    note: "Serial FG516292. All kitchen appliances installed 2016.",
+    status: "ok", statusText: "Mid-life, fine" },
+  { tag: "Kitchen", name: "Range", make: "GE Profile electric, glass top", installed: "2016", age: "~10.5 yrs",
+    last: "", next: "",
+    note: "All kitchen appliances installed 2016.",
+    status: "ok", statusText: "No issues" },
+  { tag: "Kitchen", name: "Microwave", make: "GE Profile over-range", installed: "2016", age: "~10.5 yrs",
+    last: "", next: "",
+    note: "All kitchen appliances installed 2016.",
+    status: "ok", statusText: "No issues" },
+  { tag: "Kitchen", name: "Dishwasher", make: "GE Profile", installed: "2016", age: "~10.5 yrs",
+    last: "Filter cleaned Oct 8, 2026. Drain parts and pipes new.", next: "Filter clean Oct 2027",
+    note: "Used ~1x/week, dishes pre-cleaned. Display flagged low rinse aid Oct 2026.",
+    status: "ok", statusText: "Healthy" },
+  { tag: "Kitchen", name: "Wine / beverage cooler", make: "Magic Chef dual-zone", installed: "2016", age: "~10.5 yrs",
+    last: "", next: "",
+    note: "Both zones set to 49F.",
+    status: "ok", statusText: "No issues" },
+  { tag: "Kitchen", name: "Garbage disposal", make: "Waste King Gourmet Series 2600", installed: "New", age: "New",
+    last: "Cleaned with ice Oct 8, 2026", next: "",
+    note: "Clean install under the new kitchen faucet.",
+    status: "ok", statusText: "New" },
+  { tag: "Laundry", name: "Washer", make: "Samsung WA50R5200AW", installed: "Jan 2022", age: "~4.5 yrs",
+    last: "Self-clean run Oct 8, 2026", next: "Self-clean ~Dec 2026",
+    note: "Used 2-3x/week. Supply hoses are braided stainless steel.",
+    status: "ok", statusText: "Healthy" },
+  { tag: "Laundry", name: "Dryer", make: "Samsung MoistureSensor", installed: "Unknown", age: "Unknown",
+    last: "Vent duct fully cleaned Oct 8, 2026", next: "Vent clean Oct 2027",
+    note: "",
+    status: "ok", statusText: "Vent clean" },
+  { tag: "Garage", name: "Garage door opener", make: "LiftMaster P3 Motors Security+ 2.0, chain drive", installed: "~2016", age: "~10 yrs",
+    last: "Rollers replaced (new)", next: "Yearly: wipe sensors, test reverse, lube chain",
+    note: "Mid-life, no concern.",
+    status: "ok", statusText: "Healthy" },
+  { tag: "Structure", name: "Roof", make: "Clay tile", installed: "~2004", age: "22 yrs",
+    last: "Walked Oct 4, 2026, tiles fine", next: "Watch ceilings for water spots",
+    note: "Tiles sound, no cracks. Underlayment age is the watch item; it only shows as interior leaks.",
+    status: "ok", statusText: "Tiles fine" },
+  { tag: "Safety", name: "Smoke detectors (10)", make: "Hardwired w/ battery backup", installed: "Never replaced", age: "12-22 yrs",
+    last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
+    note: "Past the 10-year sensor life. Replace with hardwired + battery backup, one brand (Kidde or First Alert).",
+    status: "alert", statusText: "Replace all 10" },
+  { tag: "Electrical", name: "Electrical panel", make: "Brand TBD", installed: "~2004", age: "22 yrs",
+    last: "", next: "Note the brand",
+    note: "Panels last decades. Rule out Federal Pacific / Zinsco.",
+    status: "info", statusText: "Check brand" },
+  { tag: "Plumbing", name: "Main water shut-off", make: "", installed: "", age: "",
+    last: "", next: "Exercise yearly",
+    note: "Located near the kitchen sink, where the water line enters. Kitchen faucet and laundry faucet both new.",
+    status: "warn", statusText: "Exercise valves" },
+  { tag: "Exterior", name: "Hurricane shutters", make: "Full set", installed: "", age: "",
+    last: "Verified Oct 8, 2026", next: "Season runs through Nov",
+    note: "Stored in the garage, not exposed to weather.",
+    status: "ok", statusText: "Ready" },
+  { tag: "Exterior", name: "Paint and caulk", make: "HOA, 5-year cycle", installed: "", age: "",
+    last: "Full repaint Oct 2026 (3rd cycle)", next: "~2031",
+    note: "Pressure washing rides along with the paint cycle.",
+    status: "ok", statusText: "Done to 2031" },
+];
+
+const attention = [
+  { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10-year sensor life. Hardwired with battery backup, one brand." },
+  { level: "warn", title: "Flush both water heaters", detail: "Drain a few gallons from the bottom valve of each until the water runs clear." },
+  { level: "warn", title: "Exercise water shut-off valves", detail: "Main (near kitchen sink) plus each fixture valve, off and back on." },
+  { level: "info", title: "Pest visit ~Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
+  { level: "info", title: "AC filter check in November", detail: "Filters replaced Oct 8 on both units. Check again next month." },
+  { level: "info", title: "Note the electrical panel brand", detail: "Original ~2004. Rule out Federal Pacific / Zinsco." },
+];
+
+// Rolling calendar: [year, monthIndex, items]
+const months = [
+  [2026, 9, ["Pest treatment (~Oct 24): ask about termite tubes + bond", "Water heater flush (both units)", "Exercise shut-off valves", "Replace 10 smoke detectors", "Note panel brand"]],
+  [2026, 10, ["AC filter check (both units)"]],
+  [2026, 11, ["Washer self-clean", "Pest treatment"]],
+  [2027, 0, []],
+  [2027, 1, ["Pest treatment"]],
+  [2027, 2, ["Gutter cleanout", "Spring AC tune-up", "Hurricane prep check"]],
+  [2027, 3, ["Pest treatment"]],
+  [2027, 4, ["AC filter check (monthly May-Oct)"]],
+  [2027, 5, ["AC filter check", "Pest treatment"]],
+  [2027, 6, ["AC filter check"]],
+  [2027, 7, ["AC filter check", "Pest treatment"]],
+  [2027, 8, ["AC filter check", "Fall: gutters, water heater flush, termite check, pressure wash (HOA cycle)"]],
+];
+
+const logEntries = [
+  ["2026-10-08", "Washer self-clean run (2-3x/week use; next ~Dec 2026)"],
+  ["2026-10-08", "Dishwasher filter cleaned (1x/week use; next Oct 2027)"],
+  ["2026-10-08", "Kitchen faucet replaced; Waste King disposal new; dishwasher drain parts and under-sink pipes new"],
+  ["2026-10-08", "Laundry faucet replaced"],
+  ["2026-10-08", "Smoke detectors tested, all 10 good"],
+  ["2026-10-08", "Garbage disposal cleaned with ice"],
+  ["2026-10-08", "Fridge coils vacuumed (GE Profile, Mar 2016)"],
+  ["2026-10-08", "Dryer vent duct fully cleaned (next Oct 2027)"],
+  ["2026-10-08", "AC drain lines flushed with shop vac, both units (next Oct 2027)"],
+  ["2026-10-08", "AC filters replaced, both units"],
+  ["2026-10-08", "Hurricane shutters verified, full set in garage"],
+  ["2026-10", "HOA full exterior repaint + caulk (5-yr cycle, next ~2031); pressure washing done"],
+  ["2026-10-04", "Gutters cleaned, branches cut at clogging area (next spring 2027)"],
+  ["2026-10-04", "Roof walked, clay tiles fine"],
+];
+
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function el(id) { return document.getElementById(id); }
+
+el("dueNow").innerHTML = attention.map(a =>
+  `<div class="card ${a.level}"><h3>${a.title}</h3><p style="font-size:13px;color:var(--muted)">${a.detail}</p></div>`
+).join("");
+
+el("equipment").innerHTML = equipment.map(e => `
+  <div class="card">
+    <span class="tag">${e.tag}</span>
+    <h3>${e.name}</h3>
+    <dl>
+      ${e.make ? `<dt>Make</dt><dd>${e.make}</dd>` : ""}
+      ${e.installed ? `<dt>Installed</dt><dd>${e.installed}${e.age ? " (" + e.age + ")" : ""}</dd>` : ""}
+      ${e.last ? `<dt>Last done</dt><dd>${e.last}</dd>` : ""}
+      ${e.next ? `<dt>Next</dt><dd>${e.next}</dd>` : ""}
+    </dl>
+    ${e.note ? `<p style="font-size:12px;color:var(--muted);margin-top:8px">${e.note}</p>` : ""}
+    <span class="pill ${e.status}">${e.statusText}</span>
+  </div>`).join("");
+
+const nowM = 9, nowY = 2026;
+el("calendar").innerHTML = months.map(([y, m, items]) => `
+  <div class="month ${y === nowY && m === nowM ? "current" : ""}">
+    <h4>${monthNames[m]} ${y}</h4>
+    ${items.length ? `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>` : `<p class="none">Nothing scheduled</p>`}
+  </div>`).join("");
+
+el("log").innerHTML = logEntries.map(([d, t]) =>
+  `<div class="card"><date>${d}</date>${t}</div>`).join("");
+</script>
+</body>
+</html>
