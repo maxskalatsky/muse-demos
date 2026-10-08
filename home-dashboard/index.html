@@ -49,12 +49,19 @@
   /* House map */
   .house-wrap { display: grid; grid-template-columns: 1.65fr 1fr; gap: 16px; align-items: start; }
   .map-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
-  .map-card svg { width: 100%; height: auto; display: block; }
+  .mapscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mapscroll svg { display: block; width: 100%; min-width: 760px; height: auto; }
   .map-note { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
-  .zone { cursor: pointer; }
-  .zone .zb { transition: filter .15s ease; }
-  .zone:hover .zb, .zone.active .zb { filter: brightness(0.93); stroke: var(--green); stroke-width: 3; }
-  .zone text { pointer-events: none; font-family: inherit; }
+  .room { fill: #ffffff; stroke: var(--line); stroke-width: 2; }
+  .rname { font-size: 15px; font-weight: 700; fill: var(--muted); }
+  .pin { cursor: pointer; }
+  .pin circle.dot { stroke: #fff; stroke-width: 3; }
+  .pin circle.guess { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .pin text { font-size: 12px; font-weight: 600; fill: var(--ink2); text-anchor: middle; pointer-events: none; }
+  .pin:hover circle.dot { stroke: var(--ink); }
+  .map-key { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: 12.5px; color: var(--muted); padding: 0 4px; }
+  .map-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .map-key i.g { background: none; border: 1.5px dashed var(--muted); width: 11px; height: 11px; vertical-align: -1px; }
   .detail { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-height: 320px; }
   .detail h3 { font-size: 17px; }
   .detail .dhint { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
@@ -128,46 +135,16 @@
   <div class="house-wrap">
     <div>
       <div class="map-card">
-        <svg viewBox="0 0 1000 620" role="img" aria-label="Schematic house plan">
-          <g class="zone" data-zone="exterior">
-            <rect class="zb" x="0" y="0" width="1000" height="620" rx="24" fill="#edf1e8"/>
-            <text x="28" y="40" font-size="20" fill="#8a978e" font-weight="600">Exterior</text>
-            <text x="28" y="62" font-size="13" fill="#8a978e">roof, paint, gutters</text>
-          </g>
-          <rect x="70" y="50" width="860" height="520" rx="14" fill="#ffffff" stroke="#d8d2c2" stroke-width="2"/>
-          <g class="zone" data-zone="primary">
-            <rect class="zb" x="90" y="70" width="390" height="270" rx="10" fill="#f2f5ef" stroke="#d8d2c2" stroke-width="2"/>
-            <text x="110" y="108" font-size="19" font-weight="700" fill="#17211c">Primary side</text>
-            <text x="110" y="132" font-size="13" fill="#8a978e">bedrooms and baths</text>
-            <text x="110" y="310" font-size="13" fill="#8a978e" class="count">2 items</text>
-          </g>
-          <g class="zone" data-zone="main">
-            <rect class="zb" x="520" y="70" width="390" height="270" rx="10" fill="#f2f5ef" stroke="#d8d2c2" stroke-width="2"/>
-            <text x="540" y="108" font-size="19" font-weight="700" fill="#17211c">Main side</text>
-            <text x="540" y="132" font-size="13" fill="#8a978e">living areas</text>
-            <text x="540" y="310" font-size="13" fill="#8a978e" class="count">2 items</text>
-          </g>
-          <line x1="500" y1="70" x2="500" y2="340" stroke="#b3372f" stroke-width="2.5" stroke-dasharray="8 6"/>
-          <text x="500" y="360" font-size="12" fill="#b3372f" text-anchor="middle" font-style="italic">the split</text>
-          <g class="zone" data-zone="kitchen">
-            <rect class="zb" x="90" y="378" width="820" height="84" rx="10" fill="#faf3e3" stroke="#d8d2c2" stroke-width="2"/>
-            <text x="110" y="412" font-size="19" font-weight="700" fill="#17211c">Kitchen</text>
-            <text x="110" y="436" font-size="13" fill="#8a978e">five appliances, disposal, valves · 5 items</text>
-          </g>
-          <g class="zone" data-zone="laundry">
-            <rect class="zb" x="90" y="482" width="390" height="88" rx="10" fill="#eef3f8" stroke="#d8d2c2" stroke-width="2"/>
-            <text x="110" y="516" font-size="19" font-weight="700" fill="#17211c">Laundry</text>
-            <text x="110" y="540" font-size="13" fill="#8a978e">washer, dryer, valves · 2 items</text>
-          </g>
-          <g class="zone" data-zone="garage">
-            <rect class="zb" x="520" y="482" width="390" height="88" rx="10" fill="#f0f0f0" stroke="#d8d2c2" stroke-width="2"/>
-            <text x="540" y="516" font-size="19" font-weight="700" fill="#17211c">Garage</text>
-            <text x="540" y="540" font-size="13" fill="#8a978e">panel, freezer, shutters, tools · 6 items</text>
-          </g>
-        </svg>
-        <p class="map-note">Schematic, not to scale. Hover or tap a zone to see its equipment.</p>
+        <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 600" role="img" aria-label="Floor plan with equipment pins"></svg></div>
+        <div class="map-key">
+          <span><i style="background:var(--red)"></i>Urgent</span>
+          <span><i style="background:var(--amber)"></i>Needs attention</span>
+          <span><i style="background:var(--blue)"></i>Check</span>
+          <span><i style="background:var(--green)"></i>Good</span>
+          <span><i class="g"></i>Location not confirmed</span>
+        </div>
+        <p class="map-note">Schematic, not to scale. Tap a pin for details.</p>
       </div>
-      <div class="whole" id="whole"></div>
     </div>
     <div class="detail" id="detail"></div>
   </div>
@@ -186,14 +163,94 @@
 </div></div>
 
 <script>
-const zones = {
-  primary:  { label: "Primary side", hint: "Bedrooms and baths, west of the kitchen wall" },
-  main:     { label: "Main side", hint: "Living areas, east of the kitchen wall" },
-  kitchen:  { label: "Kitchen", hint: "The split itself" },
-  laundry:  { label: "Laundry", hint: "" },
-  garage:   { label: "Garage", hint: "" },
-  exterior: { label: "Exterior", hint: "What the weather touches" },
-};
+// Floor plan. Rooms left to right; the kitchen wall splits main side from master side.
+// Pins: [ref, x, y, label, guess?]  ref "i12" = items[12], "w0" = wholeHouse[0]
+const rooms = [
+  { name: "Garage", x: 30, w: 210 },
+  { name: "Laundry", x: 240, w: 120 },
+  { name: "Living", x: 360, w: 280 },
+  { name: "Kitchen", x: 640, w: 200 },
+  { name: "Master bedroom", x: 850, w: 230 },
+  { name: "Primary bath", x: 1080, w: 170 },
+];
+const pins = [
+  ["i13", 95, 235, "Opener"],
+  ["i16", 175, 235, "Shutters"],
+  ["i11", 95, 310, "Panel", true],
+  ["i12", 175, 310, "Internet", true],
+  ["i14", 95, 385, "Freezer"],
+  ["i15", 175, 385, "Extinguisher"],
+  ["i3", 95, 450, "Water heater", true],
+  ["i1", 175, 450, "Water heater", true],
+  ["i9", 300, 310, "Washer"],
+  ["i10", 300, 410, "Dryer"],
+  ["i2", 450, 340, "AC handler", true],
+  ["w1", 560, 340, "Thermostat", true],
+  ["w0", 505, 235, "Smoke"],
+  ["w0", 680, 255, "Smoke"],
+  ["i15", 745, 255, "Extinguisher"],
+  ["i4", 810, 255, "Fridge"],
+  ["i5", 680, 345, "Range"],
+  ["i6", 745, 345, "Dishwasher"],
+  ["i7", 810, 345, "Wine"],
+  ["i8", 680, 435, "Disposal"],
+  ["w2", 745, 435, "Shutoff"],
+  ["i0", 920, 340, "AC handler", true],
+  ["w1", 1000, 340, "Thermostat", true],
+  ["w0", 960, 235, "Smoke"],
+  ["w0", 1165, 330, "Smoke"],
+  ["i17", 640, 105, "Roof"],
+  ["i18", 1262, 400, "Paint"],
+];
+
+function resolveRef(ref) {
+  return ref[0] === "i" ? items[+ref.slice(1)] : wholeHouse[+ref.slice(1)];
+}
+
+let pinnedPin = null;
+function showPin(ref, pin) {
+  if (pin) pinnedPin = ref;
+  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("active", p.dataset.ref === (pinnedPin || ref)));
+  const d = resolveRef(ref);
+  const pinNote = pinnedPin ? ` <span style="color:var(--green)">· pinned</span>` : "";
+  el("detail").innerHTML = `<h3>${d.name}${pinNote}</h3><p class="dhint">${d.make}</p>` + ditemHtml(d);
+}
+
+function renderPlan() {
+  const top = 170, bot = 470;
+  const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
+  let svg = `<defs><pattern id="tile" width="26" height="13" patternUnits="userSpaceOnUse">
+      <rect width="26" height="13" fill="#cf8f60"/><path d="M0 13 Q6.5 3 13 13 Q19.5 3 26 13" fill="none" stroke="#a86a42" stroke-width="1.6"/></pattern></defs>`;
+  svg += `<rect x="0" y="0" width="1280" height="600" rx="20" fill="#eef2e9"/>`;
+  svg += `<polygon points="10,${top} 640,42 1270,${top}" fill="url(#tile)" stroke="#a86a42" stroke-width="2"/>`;
+  rooms.forEach(r => {
+    svg += `<rect class="room" x="${r.x}" y="${top}" width="${r.w}" height="${bot - top}" rx="8"/>`;
+    svg += `<text class="rname" x="${r.x + 12}" y="${top + 26}">${r.name}</text>`;
+  });
+  svg += `<line x1="845" y1="${top}" x2="845" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
+  svg += `<text x="845" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
+  svg += `<path d="M30 500 v10 h810 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="435" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
+  svg += `<path d="M850 500 v10 h400 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="1050" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
+  pins.forEach(([ref, x, y, label, guess]) => {
+    const d = resolveRef(ref);
+    svg += `<g class="pin" data-ref="${ref}" tabindex="0" role="button" aria-label="${d.name}, ${d.statusText}${guess ? ", location not confirmed" : ""}">`
+      + `<title>${d.name}: ${d.statusText}</title>`
+      + (guess ? `<circle class="guess" cx="${x}" cy="${y}" r="17"/>` : "")
+      + `<circle class="dot" cx="${x}" cy="${y}" r="10" fill="${dotColor[d.status]}"/>`
+      + `<text x="${x}" y="${y + 30}">${label}</text></g>`;
+  });
+  el("floorplan").innerHTML = svg;
+  document.querySelectorAll(".pin").forEach(p => {
+    p.addEventListener("mouseenter", () => { if (!pinnedPin) showPin(p.dataset.ref, false); });
+    p.addEventListener("click", () => showPin(p.dataset.ref, true));
+    p.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); showPin(p.dataset.ref, true); }
+    });
+  });
+  showPin("i4", false);
+}
 
 const items = [
   { zone: "primary", name: "AC, master bedroom", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
@@ -352,27 +409,8 @@ function ditemHtml(d) {
   </div>`;
 }
 
-let pinnedZone = null;
-
-function renderZone(key, pin) {
-  if (pin) pinnedZone = key;
-  document.querySelectorAll(".zone").forEach(z => z.classList.toggle("active", z.dataset.zone === (pinnedZone || key)));
-  const z = zones[key];
-  const list = items.filter(i => i.zone === key);
-  const pinNote = pinnedZone ? ` <span style="color:var(--green)">· pinned</span>` : "";
-  el("detail").innerHTML = `<h3>${z.label}${pinNote}</h3><p class="dhint">${z.hint}${z.hint ? " · " : ""}${list.length} items tracked</p>` +
-    list.map(ditemHtml).join("");
-}
-
 el("dueNow").innerHTML = attention.map(a =>
   `<div class="att ${a.level}"><h3>${a.title}</h3><p>${a.detail}</p></div>`).join("");
-
-el("whole").innerHTML = wholeHouse.map(d => `
-  <div class="wrow">
-    ${d.photo ? `<img src="${d.photo}" alt="">` : ""}
-    <div><div class="wn">${d.name}</div><div class="wm">${d.make}${d.next ? " · Next: " + d.next : ""}</div>
-    <span class="pill ${d.status}">${d.statusText}</span></div>
-  </div>`).join("");
 
 const dotColor = { alert: "var(--red)", warn: "var(--amber)", ok: "var(--green)" };
 el("runway").innerHTML = runway.map(r => `
@@ -401,11 +439,7 @@ el("stOpen").textContent = attention.length;
 el("stItems").textContent = items.length + wholeHouse.length;
 el("stDone").textContent = logEntries.length;
 
-document.querySelectorAll(".zone").forEach(z => {
-  z.addEventListener("mouseenter", () => { if (!pinnedZone) renderZone(z.dataset.zone, false); });
-  z.addEventListener("click", () => renderZone(z.dataset.zone, true));
-});
-renderZone("kitchen", false);
+renderPlan();
 </script>
 </body>
 </html>
