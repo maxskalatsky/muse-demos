@@ -135,7 +135,7 @@
   <h2>The house</h2>
   <div class="house-wrap">
     <div class="map-card">
-      <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 600" role="img" aria-label="Floor plan with equipment pins"></svg></div>
+      <div class="mapscroll"><svg id="floorplan" viewBox="0 0 1280 640" role="img" aria-label="Floor plan with equipment pins"></svg></div>
       <div class="map-key">
         <span><i style="background:var(--red)"></i>Urgent</span>
         <span><i style="background:var(--amber)"></i>Needs attention</span>
@@ -304,39 +304,40 @@ const logMonths = [
 
 // Floor plan. Pins: [itemIndex, x, y, label, guess?]
 const rooms = [
-  { name: "Garage", x: 30, w: 200 },
-  { name: "Laundry", x: 230, w: 110 },
-  { name: "Kitchen", x: 340, w: 180 },
-  { name: "Main house", x: 520, w: 270 },
-  { name: "Master side", x: 790, w: 280 },
+  { name: "Garage", x: 30, w: 220 },
+  { name: "Laundry", x: 250, w: 150 },
+  { name: "Kitchen", x: 400, w: 220 },
+  { name: "Main house", x: 620, w: 300 },
+  { name: "Master side", x: 920, w: 230 },
+  { name: "Outside", x: 1150, w: 100 },
 ];
 const pins = [
-  ["i0", 80, 240, "Opener"],
-  ["i1", 160, 240, "Shutters"],
-  ["i2", 80, 315, "Panel", true],
-  ["i3", 160, 315, "Internet", true],
-  ["i4", 80, 390, "Freezer"],
-  ["i5", 160, 390, "Extinguisher"],
-  ["i6", 80, 450, "Water heater"],
-  ["i7", 285, 315, "Washer"],
-  ["i8", 285, 420, "Dryer"],
-  ["i9", 375, 270, "Fridge"],
-  ["i10", 430, 270, "Range"],
-  ["i11", 485, 270, "Dishwasher"],
-  ["i12", 375, 370, "Wine"],
-  ["i13", 430, 370, "Disposal"],
-  ["i14", 485, 370, "Extinguisher"],
-  ["i15", 430, 450, "Shutoff"],
-  ["i16", 585, 320, "Water heater"],
-  ["i17", 670, 320, "AC (up)"],
-  ["i18", 735, 320, "Thermostat"],
-  ["i19", 655, 300, "Smoke alarms"],
-  ["i20", 870, 330, "AC"],
-  ["i21", 950, 330, "Thermostat"],
-  ["i19", 940, 300, "Smoke alarms"],
-  ["i22", 930, 430, "Valves"],
+  ["i0", 95, 225, "Opener"],
+  ["i1", 185, 225, "Shutters"],
+  ["i2", 95, 300, "Panel", true],
+  ["i3", 185, 300, "Internet", true],
+  ["i4", 95, 375, "Freezer"],
+  ["i5", 185, 375, "Extinguisher"],
+  ["i6", 95, 450, "Water heater"],
+  ["i7", 325, 280, "Washer"],
+  ["i8", 325, 400, "Dryer"],
+  ["i9", 465, 225, "Fridge"],
+  ["i10", 555, 225, "Range"],
+  ["i11", 465, 300, "Dishwasher"],
+  ["i12", 555, 300, "Wine"],
+  ["i13", 465, 375, "Disposal"],
+  ["i14", 555, 375, "Extinguisher"],
+  ["i15", 465, 450, "Shutoff"],
+  ["i16", 700, 280, "Water heater"],
+  ["i19", 840, 280, "Smoke alarms"],
+  ["i17", 700, 400, "AC (up)"],
+  ["i18", 840, 400, "Thermostat"],
+  ["i20", 985, 280, "AC"],
+  ["i19", 1085, 280, "Smoke alarms"],
+  ["i21", 985, 400, "Thermostat"],
+  ["i22", 1085, 400, "Valves"],
   ["i23", 640, 105, "Roof"],
-  ["i24", 1200, 350, "Paint"],
+  ["i24", 1200, 330, "Paint"],
 ];
 
 const el = id => document.getElementById(id);
@@ -363,22 +364,22 @@ function showPin(ref, pin) {
 }
 
 function renderPlan() {
-  const top = 170, bot = 470;
+  const top = 160, bot = 500;
   const dotColor = { ok: "var(--green)", warn: "var(--amber)", alert: "var(--red)", info: "var(--blue)" };
   let svg = `<defs><pattern id="tile" width="26" height="13" patternUnits="userSpaceOnUse">
       <rect width="26" height="13" fill="#cf8f60"/><path d="M0 13 Q6.5 3 13 13 Q19.5 3 26 13" fill="none" stroke="#a86a42" stroke-width="1.6"/></pattern></defs>`;
-  svg += `<rect x="0" y="0" width="1280" height="600" rx="20" fill="#eef2e9"/>`;
+  svg += `<rect x="0" y="0" width="1280" height="640" rx="20" fill="#eef2e9"/>`;
   svg += `<polygon points="10,${top} 640,42 1270,${top}" fill="url(#tile)" stroke="#a86a42" stroke-width="2"/>`;
   rooms.forEach(r => {
     svg += `<rect class="room" x="${r.x}" y="${top}" width="${r.w}" height="${bot - top}" rx="8"/>`;
     svg += `<text class="rname" x="${r.x + 12}" y="${top + 26}">${r.name}</text>`;
   });
-  svg += `<line x1="790" y1="${top}" x2="790" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
-  svg += `<text x="790" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
-  svg += `<path d="M30 500 v10 h760 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="410" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
-  svg += `<path d="M790 500 v10 h280 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
-  svg += `<text x="930" y="540" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
+  svg += `<line x1="920" y1="${top}" x2="920" y2="${bot}" stroke="var(--ink)" stroke-width="3"/>`;
+  svg += `<text x="920" y="${bot + 24}" font-size="13" fill="var(--ink)" text-anchor="middle" font-weight="700">kitchen wall: systems split here</text>`;
+  svg += `<path d="M30 530 v10 h890 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="475" y="572" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Main house side</text>`;
+  svg += `<path d="M920 530 v10 h330 v-10" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+  svg += `<text x="1085" y="572" font-size="14" font-weight="700" fill="var(--ink2)" text-anchor="middle">Master side</text>`;
   pins.forEach(([ref, x, y, label, guess]) => {
     const d = items[+ref.slice(1)];
     svg += `<g class="pin" data-ref="${ref}" tabindex="0" role="button" aria-label="${d.name}, ${d.statusText}${guess ? ", location not confirmed" : ""}">`
