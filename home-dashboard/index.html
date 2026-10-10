@@ -240,7 +240,7 @@ const items = [
   { area: "garage", name: "Fire extinguisher, garage", make: "Kidde ABC dry chemical", photo: "img/extinguisher.jpg",
     last: "Gauge green Oct 8, 2026", next: "Check gauge yearly", note: "By the opener. Predates 2017, came with the house.", status: "ok", statusText: "Gauge green" },
   { area: "garage", name: "Water heater, secondary", make: "Rheem 38 gal, about 5.5 yrs", photo: "img/water-heater-garage.jpg",
-    last: "Never flushed", next: "Flush a few gallons", note: "Mfg 04/2021. The wider drum unit.", status: "warn", statusText: "Due for flush" },
+    last: "Flushed Oct 10, 2026", next: "Flush Oct 2027", note: "Mfg 04/2021. The wider drum unit.", status: "ok", statusText: "Flushed Oct 2026" },
   { area: "laundry", name: "Washer", make: "Samsung WA50R5200AW, about 4.5 yrs", photo: "img/washer.jpg",
     last: "Self clean Oct 8, 2026", next: "Self clean around Dec 2026", note: "Mfg Jan 2022. Used 2 to 3 times a week. Braided steel supply hoses.", status: "ok", statusText: "Healthy" },
   { area: "laundry", name: "Dryer", make: "Samsung MoistureSensor, 12 plus yrs", photo: "img/dryer.jpg",
@@ -260,7 +260,7 @@ const items = [
   { area: "kitchen", name: "Main water shutoff", make: "Near kitchen sink", photo: "img/kitchen-valves.jpg",
     last: "", next: "Exercise yearly", note: "Where the water line enters. Kitchen sink angle stops and dishwasher valves (BrassCraft quarter turn) photographed Oct 2026.", status: "warn", statusText: "Exercise valves" },
   { area: "main", name: "Water heater, primary", make: "Rheem, about 5.5 yrs", photo: null,
-    last: "Never flushed", next: "Flush a few gallons", note: "Location and photo not recorded yet.", status: "warn", statusText: "Due for flush" },
+    last: "Flushed Oct 10, 2026", next: "Flush Oct 2027", note: "Location and photo not recorded yet.", status: "ok", statusText: "Flushed Oct 2026" },
   { area: "upstairs", name: "AC, main house", make: "Carrier air handler, 12 yrs", photo: "img/ac-primary.jpg",
     last: "Filters and drain flush Oct 8, 2026", next: "Filter check Nov 2026", note: "Upstairs near the top of the stairwell. Coils replaced with new. No accessible drain cleanout, flush from outside yearly.", status: "ok", statusText: "New coils" },
   { area: "upstairs", name: "Thermostat, main house", make: "Basic programmable", photo: "img/thermostat.jpg",
@@ -283,7 +283,6 @@ const items = [
 
 const attention = [
   { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10 year sensor life. Hardwired with battery backup, one brand." },
-  { level: "warn", title: "Flush both water heaters", detail: "Drain a few gallons from the bottom valve of each until the water runs clear." },
   { level: "warn", title: "Exercise water shutoff valves", detail: "Main near the kitchen sink, plus fixture valves in each bath and the laundry. Washer gate valves first." },
   { level: "info", title: "Pest visit around Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
@@ -303,7 +302,7 @@ const runway = [
 
 // Starts with the current month (Oct 2026)
 const calEvents = [
-  ["Flush both water heaters", "Exercise shutoff valves", "Replace all 10 smoke detectors", "Pest treatment (around Oct 24)"],
+  ["Exercise shutoff valves", "Replace all 10 smoke detectors", "Pest treatment (around Oct 24)"],
   ["AC filter check, both units"],
   ["Washer self clean", "Pest treatment"],
   [],
@@ -329,6 +328,7 @@ const logMonths = [
     "Hurricane shutters verified, full set in garage",
     "Roof walked, clay tiles fine",
     "Washer supply hoses confirmed braided stainless steel",
+    "Both water heaters flushed (next Oct 2027)",
   ]],
   ["September 2026", [
     "AC drain lines flushed with shop vac, both units (next Sep 2027)",
