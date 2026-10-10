@@ -265,10 +265,10 @@ const items = [
     last: "Filters and drain flush Oct 8, 2026", next: "Filter check Nov 2026", note: "Upstairs near the top of the stairwell. Coils replaced with new. No accessible drain cleanout, flush from outside yearly.", status: "ok", statusText: "New coils" },
   { area: "upstairs", name: "Thermostat, main house", make: "Basic programmable", photo: "img/thermostat.jpg",
     last: "", next: "", note: "Upstairs near the top of the stairwell. Set to 77F.", status: "ok", statusText: "No issues" },
-  { area: "main", name: "Smoke detectors (10)", make: "Hardwired with battery backup", photo: "img/smoke.jpg",
-    last: "All 10 tested good Oct 8, 2026", next: "Replace all 10",
-    note: "Never replaced, past the 10 year sensor life. Locations recorded: 5 upstairs (bedrooms and hallway), 2 downstairs (front room and stairs), 2 on the master side (hallway and bedroom). That is 9; where the 10th one is has not been recorded. One brand: Kidde or First Alert.",
-    status: "alert", statusText: "Replace all 10" },
+  { area: "main", name: "Smoke detectors (9)", make: "Hardwired with battery backup", photo: "img/smoke.jpg",
+    last: "All 9 tested good Oct 8, 2026", next: "Replace all 9",
+    note: "Never replaced, past the 10 year sensor life. Locations: 5 upstairs (bedrooms and hallway), 4 downstairs (front room, stairs, master hallway, master bedroom). Count corrected Oct 10, 2026: 9 total, no tenth detector. One brand: Kidde or First Alert.",
+    status: "alert", statusText: "Replace all 9" },
   { area: "master", name: "AC, secondary", make: "Air handler, 12 yrs", photo: "img/ac-master.jpg",
     last: "Filters and drain flush Oct 8, 2026", next: "Filter check Nov 2026", note: "Coils replaced with new. Pan rust is from an old fixed leak.", status: "ok", statusText: "New coils" },
   { area: "master", name: "Thermostat, secondary", make: "Basic programmable", photo: "img/thermostat-2.jpg",
@@ -282,7 +282,7 @@ const items = [
 ];
 
 const attention = [
-  { level: "alert", title: "Replace all 10 smoke detectors", detail: "Never replaced, past the 10 year sensor life. Hardwired with battery backup, one brand." },
+  { level: "alert", title: "Replace all 9 smoke detectors", detail: "Never replaced, past the 10 year sensor life. Hardwired with battery backup, one brand." },
   { level: "warn", title: "Exercise water shutoff valves", detail: "Main near the kitchen sink, plus fixture valves in each bath and the laundry. Washer gate valves first." },
   { level: "info", title: "Pest visit around Oct 24", detail: "Ask the tech to check for termite mud tubes and whether there is a termite bond." },
   { level: "info", title: "AC filter check in November", detail: "Replaced Oct 8 on both units. Check again next month." },
@@ -302,7 +302,7 @@ const runway = [
 
 // Starts with the current month (Oct 2026)
 const calEvents = [
-  ["Exercise shutoff valves", "Replace all 10 smoke detectors", "Pest treatment (around Oct 24)"],
+  ["Exercise shutoff valves", "Replace all 9 smoke detectors", "Pest treatment (around Oct 24)"],
   ["AC filter check, both units"],
   ["Washer self clean", "Pest treatment"],
   [],
@@ -320,7 +320,7 @@ const logMonths = [
   ["October 2026", [
     "Washer self clean run (used 2 to 3 times a week; next around Dec 2026)",
     "Dishwasher filter cleaned (used weekly; next Oct 2027)",
-    "Smoke detectors tested, all 10 good",
+    "Smoke detectors tested, all 9 good",
     "Garbage disposal cleaned with ice",
     "Fridge coils vacuumed (GE Profile, Mar 2016)",
     "Dryer vent duct fully cleaned (next Oct 2027)",
