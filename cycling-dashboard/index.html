@@ -43,6 +43,15 @@
   @media (max-width: 640px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
   .metric .v { font-size: 17px; font-weight: 650; }
   .metric .l { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
+  .records { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .record { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 12px 14px; }
+  .record .v { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .record .t { font-size: 12px; color: #555; font-weight: 600; margin-top: 2px; }
+  .record .r { font-size: 11px; color: #999; margin-top: 2px; }
+  .trend { margin-bottom: 18px; }
+  .trend:last-child { margin-bottom: 0; }
+  .tlabel { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
+  .xlabels { display: flex; justify-content: space-between; font-size: 10px; color: #999; padding: 2px 30px 0; }
   .foot { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
 </style>
 </head>
@@ -53,6 +62,18 @@
 </header>
 <div class="wrap">
   <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <h2>Personal records</h2>
+    <div class="records" id="records"></div>
+  </div>
+
+  <div class="card">
+    <h2>Trends</h2>
+    <div class="trend"><div class="tlabel">Distance per ride (mi)</div><div id="chDist"></div></div>
+    <div class="trend"><div class="tlabel">Avg speed (mph)</div><div id="chSpeed"></div></div>
+    <div class="trend"><div class="tlabel">Avg power (W)</div><div id="chPower"></div></div>
+  </div>
 
   <div class="card">
     <h2>Distance</h2>
@@ -75,6 +96,38 @@
 <script>
 const rides = [{"date": "2026-09-08", "dist": 10.0, "kcal": null, "kj": null, "label": "Tue Sep 8", "mins": 34.3, "rpm": null, "speed": 17.5, "time": "34:19", "watts": null}, {"date": "2026-09-11", "dist": 9.63, "kcal": 351, "kj": 259, "label": "Fri Sep 11", "mins": 31.6, "rpm": 87, "speed": 18.3, "time": "31:33", "watts": 137}, {"date": "2026-09-14", "dist": 11.22, "kcal": 405, "kj": 299, "label": "Mon Sep 14", "mins": null, "rpm": 76, "speed": null, "time": null, "watts": 134}, {"date": "2026-09-16", "dist": 6.27, "kcal": 231, "kj": 170, "label": "Wed Sep 16", "mins": 20.9, "rpm": 76, "speed": 18.0, "time": "20:56", "watts": 135}, {"date": "2026-09-18", "dist": 10.8, "kcal": 405, "kj": 299, "label": "Fri Sep 18", "mins": 34.7, "rpm": null, "speed": 18.7, "time": "34:41", "watts": 143}, {"date": "2026-09-22", "dist": 12.18, "kcal": 445, "kj": 339, "label": "Tue Sep 22", "mins": 39.3, "rpm": 78, "speed": 16.8, "time": "39:15", "watts": 109}, {"date": "2026-09-24", "dist": 12.93, "kcal": 469, "kj": 346, "label": "Thu Sep 24", "mins": 42.2, "rpm": 77, "speed": 16.6, "time": "42:14", "watts": 105}, {"date": "2026-09-29", "dist": 10.81, "kcal": 399, "kj": 294, "label": "Tue Sep 29", "mins": 35.9, "rpm": 76, "speed": 18.1, "time": "35:54", "watts": 136}, {"date": "2026-10-02", "dist": 10.03, "kcal": 354, "kj": 261, "label": "Fri Oct 2", "mins": 33.3, "rpm": null, "speed": 18.1, "time": "33:20", "watts": 131}, {"date": "2026-10-05", "dist": 15.5, "kcal": 586, "kj": 432, "label": "Mon Oct 5", "mins": 49.2, "rpm": 76, "speed": 17.8, "time": "49:11", "watts": 120}, {"date": "2026-10-13", "dist": 15.37, "kcal": 562, "kj": 415, "label": "Tue Oct 13", "mins": 50.0, "rpm": 77, "speed": 18.5, "time": "~50 min", "watts": 138}];
 const buckets = {"week": [{"label": "Sep 7", "idx": [0, 1]}, {"label": "Sep 14", "idx": [2, 3, 4]}, {"label": "Sep 21", "idx": [5, 6]}, {"label": "Sep 28", "idx": [7, 8]}, {"label": "Oct 5", "idx": [9]}, {"label": "Oct 12", "idx": [10]}], "month": [{"label": "Sep 2026", "idx": [0, 1, 2, 3, 4, 5, 6, 7]}, {"label": "Oct 2026", "idx": [8, 9, 10]}]};
+const records = [{"title": "Longest ride", "value": "15.50 mi", "ride": "Mon Oct 5"}, {"title": "Fastest avg speed", "value": "18.7 mph", "ride": "Fri Sep 18"}, {"title": "Best avg power", "value": "143 W", "ride": "Fri Sep 18"}, {"title": "Most calories", "value": "586 kcal", "ride": "Mon Oct 5"}, {"title": "Longest time", "value": "50 min", "ride": "Tue Oct 13"}];
+
+document.getElementById("records").innerHTML = records.map(r=>`
+  <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
+
+const shortDate = d => { const [y,m,dd] = d.split("-"); return `${+m}/${+dd}`; };
+
+function lineChart(elId, key, color){
+  const el = document.getElementById(elId);
+  const vals = rides.map(r=>r[key]);
+  const pts = vals.map((v,i)=>({v,i})).filter(o=>o.v!=null);
+  if(pts.length<2){ el.innerHTML = "<div class='hint'>Not enough data yet.</div>"; return; }
+  const vs = pts.map(o=>o.v);
+  const lo = Math.min(...vs), hi = Math.max(...vs), span = (hi-lo)||1;
+  const w=600, h=150, p=34;
+  const x = i => p + i*(w-2*p)/(vals.length-1);
+  const y = v => h-p - (v-lo)/span*(h-2*p);
+  const line = pts.map(o=>`${x(o.i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" ");
+  const dots = pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4" fill="${color}"/>`).join("");
+  el.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">
+      <line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#e0e0e0"/>
+      <text x="${p-8}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${hi}</text>
+      <text x="${p-8}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${lo}</text>
+      <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>
+      ${dots}
+    </svg>
+    <div class="xlabels">${vals.map((_,i)=>`<span>${shortDate(rides[i].date)}</span>`).join("")}</div>`;
+}
+lineChart("chDist","dist","#fc4c02");
+lineChart("chSpeed","speed","#0069AA");
+lineChart("chPower","watts","#00a37a");
 
 const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
 

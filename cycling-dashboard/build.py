@@ -31,6 +31,21 @@ buckets = {
     "month": [{"label": m["label"], "idx": m["idx"]} for m in months.values()],
 }
 
+# personal records
+records = []
+def add_rec(key, fmt, title):
+    c = [(r[key], r) for r in rides if r.get(key) is not None]
+    if not c:
+        return
+    v, r = max(c, key=lambda t: t[0])
+    records.append({"title": title, "value": fmt(v), "ride": r["label"]})
+
+add_rec("dist", lambda v: f"{v:.2f} mi", "Longest ride")
+add_rec("speed", lambda v: f"{v:.1f} mph", "Fastest avg speed")
+add_rec("watts", lambda v: f"{v} W", "Best avg power")
+add_rec("kcal", lambda v: f"{v} kcal", "Most calories")
+add_rec("mins", lambda v: f"{int(v)} min", "Longest time")
+
 def js(v):
     return json.dumps(v)
 
@@ -79,6 +94,15 @@ html = """<!DOCTYPE html>
   @media (max-width: 640px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
   .metric .v { font-size: 17px; font-weight: 650; }
   .metric .l { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
+  .records { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .record { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 12px 14px; }
+  .record .v { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .record .t { font-size: 12px; color: #555; font-weight: 600; margin-top: 2px; }
+  .record .r { font-size: 11px; color: #999; margin-top: 2px; }
+  .trend { margin-bottom: 18px; }
+  .trend:last-child { margin-bottom: 0; }
+  .tlabel { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
+  .xlabels { display: flex; justify-content: space-between; font-size: 10px; color: #999; padding: 2px 30px 0; }
   .foot { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
 </style>
 </head>
@@ -89,6 +113,18 @@ html = """<!DOCTYPE html>
 </header>
 <div class="wrap">
   <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <h2>Personal records</h2>
+    <div class="records" id="records"></div>
+  </div>
+
+  <div class="card">
+    <h2>Trends</h2>
+    <div class="trend"><div class="tlabel">Distance per ride (mi)</div><div id="chDist"></div></div>
+    <div class="trend"><div class="tlabel">Avg speed (mph)</div><div id="chSpeed"></div></div>
+    <div class="trend"><div class="tlabel">Avg power (W)</div><div id="chPower"></div></div>
+  </div>
 
   <div class="card">
     <h2>Distance</h2>
@@ -111,6 +147,38 @@ html = """<!DOCTYPE html>
 <script>
 const rides = __RIDES__;
 const buckets = __BUCKETS__;
+const records = __RECORDS__;
+
+document.getElementById("records").innerHTML = records.map(r=>`
+  <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
+
+const shortDate = d => { const [y,m,dd] = d.split("-"); return `${+m}/${+dd}`; };
+
+function lineChart(elId, key, color){
+  const el = document.getElementById(elId);
+  const vals = rides.map(r=>r[key]);
+  const pts = vals.map((v,i)=>({v,i})).filter(o=>o.v!=null);
+  if(pts.length<2){ el.innerHTML = "<div class='hint'>Not enough data yet.</div>"; return; }
+  const vs = pts.map(o=>o.v);
+  const lo = Math.min(...vs), hi = Math.max(...vs), span = (hi-lo)||1;
+  const w=600, h=150, p=34;
+  const x = i => p + i*(w-2*p)/(vals.length-1);
+  const y = v => h-p - (v-lo)/span*(h-2*p);
+  const line = pts.map(o=>`${x(o.i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" ");
+  const dots = pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4" fill="${color}"/>`).join("");
+  el.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">
+      <line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#e0e0e0"/>
+      <text x="${p-8}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${hi}</text>
+      <text x="${p-8}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${lo}</text>
+      <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>
+      ${dots}
+    </svg>
+    <div class="xlabels">${vals.map((_,i)=>`<span>${shortDate(rides[i].date)}</span>`).join("")}</div>`;
+}
+lineChart("chDist","dist","#fc4c02");
+lineChart("chSpeed","speed","#0069AA");
+lineChart("chPower","watts","#00a37a");
 
 const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
 
@@ -200,7 +268,7 @@ first = date.fromisoformat(rides[0]["date"])
 last = date.fromisoformat(rides[-1]["date"])
 rng = f"{MONTHS[first.month-1]} {first.day} to {MONTHS[last.month-1]} {last.day}, {last.year}"
 
-html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RANGE__", rng)
+html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RECORDS__", js(records)).replace("__RANGE__", rng)
 open(os.path.join(HERE, "index.html"), "w").write(html)
 
 # markdown log
