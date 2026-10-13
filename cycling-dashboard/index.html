@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cycling Dashboard (mockup)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; background: #f4f4f4; color: #1a1a1a; }
+  header { background: #1a1a1a; color: #fff; padding: 20px 24px; }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+  header h1 .mock { font-size: 12px; font-weight: 600; background: #fc4c02; border-radius: 4px; padding: 2px 8px; margin-left: 10px; vertical-align: 3px; }
+  header p { margin: 6px 0 0; color: #aaa; font-size: 13px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px 16px; }
+  .stat .v { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat .v small { font-size: 14px; font-weight: 500; color: #777; }
+  .stat .l { font-size: 12px; color: #777; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .card { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 12px; font-size: 16px; }
+  .bars { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; }
+  .bar-lbl { font-size: 11px; color: #777; margin-top: 6px; white-space: nowrap; }
+  .bar-val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .ride { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .ride .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .ride .title { font-weight: 700; font-size: 16px; }
+  .ride .date { font-size: 13px; color: #777; }
+  .ride .dist { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .ride .dist small { font-size: 15px; font-weight: 500; color: #777; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  @media (max-width: 640px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric .v { font-size: 17px; font-weight: 650; }
+  .metric .l { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
+  .foot { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cycling<span class="mock">MOCKUP</span></h1>
+  <p>Indoor bike log, Strava-style. v1 for review.</p>
+</header>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <h2>Weekly distance</h2>
+    <div class="bars" id="bars"></div>
+  </div>
+
+  <h2 style="font-size:16px; margin: 4px 0 12px;">Recent rides</h2>
+  <div id="feed"></div>
+
+  <div class="foot">Mockup v1. Data: Sep 8 to Oct 13, 2026, all indoor bike.</div>
+</div>
+
+<script>
+const rides = [
+  {label:"Tue Sep 8",  dist:10.00, time:"34:19", mins:34.3, speed:17.5, kcal:null, kj:null, watts:null, rpm:null},
+  {label:"Fri Sep 11", dist:9.63,  time:"31:33", mins:31.6, speed:18.3, kcal:351, kj:259, watts:137, rpm:87},
+  {label:"Mon Sep 14", dist:11.22, time:null,    mins:null, speed:null, kcal:405, kj:299, watts:134, rpm:76},
+  {label:"Wed Sep 16", dist:6.27,  time:"20:56", mins:20.9, speed:18.0, kcal:231, kj:170, watts:135, rpm:76},
+  {label:"Fri Sep 18", dist:10.80, time:"34:41", mins:34.7, speed:18.7, kcal:405, kj:299, watts:143, rpm:null},
+  {label:"Tue Sep 22", dist:12.18, time:"39:15", mins:39.3, speed:16.8, kcal:445, kj:339, watts:109, rpm:78},
+  {label:"Thu Sep 24", dist:12.93, time:"42:14", mins:42.2, speed:16.6, kcal:469, kj:346, watts:105, rpm:77},
+  {label:"Tue Sep 29", dist:10.81, time:"35:54", mins:35.9, speed:18.1, kcal:399, kj:294, watts:136, rpm:76},
+  {label:"Fri Oct 2",  dist:10.03, time:"33:20", mins:33.3, speed:18.1, kcal:354, kj:261, watts:131, rpm:null},
+  {label:"Mon Oct 5",  dist:15.50, time:"49:11", mins:49.2, speed:17.8, kcal:586, kj:432, watts:120, rpm:76},
+  {label:"Tue Oct 13", dist:15.37, time:"~50 min", mins:50.0, speed:18.5, kcal:562, kj:415, watts:138, rpm:77},
+];
+const weeks = [
+  {label:"Sep 8",  mi:30.85},
+  {label:"Sep 15", mi:17.07},
+  {label:"Sep 21", mi:25.11},
+  {label:"Sep 28", mi:20.84},
+  {label:"Oct 5",  mi:15.50},
+  {label:"Oct 12", mi:15.37},
+];
+
+const totalMi = rides.reduce((s,r)=>s+r.dist,0);
+const totalKcal = rides.reduce((s,r)=>s+(r.kcal||0),0);
+const totalMins = rides.reduce((s,r)=>s+(r.mins||0),0);
+const hrs = Math.floor(totalMins/60), min = Math.round(totalMins%60);
+
+document.getElementById("stats").innerHTML = [
+  [totalMi.toFixed(1)+" <small>mi</small>", "Distance"],
+  [rides.length, "Rides"],
+  [hrs+"h "+min+"m", "Time"],
+  [totalKcal.toLocaleString(), "Calories"],
+].map(([v,l])=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+
+const maxMi = Math.max(...weeks.map(w=>w.mi));
+document.getElementById("bars").innerHTML = weeks.map(w=>`
+  <div class="bar-col">
+    <div class="bar-val">${w.mi.toFixed(1)}</div>
+    <div class="bar" style="height:${Math.round(w.mi/maxMi*100)}%"></div>
+    <div class="bar-lbl">${w.label}</div>
+  </div>`).join("");
+
+function m(label, val){ return val==null ? "" : `<div class="metric"><div class="v">${val}</div><div class="l">${label}</div></div>`; }
+
+document.getElementById("feed").innerHTML = [...rides].reverse().map(r=>`
+  <div class="ride">
+    <div class="top"><div class="title">Indoor Ride</div><div class="date">${r.label}</div></div>
+    <div class="dist">${r.dist.toFixed(2)} <small>mi</small></div>
+    <div class="metrics">
+      ${m("Time", r.time)}${m("Avg speed", r.speed==null?null:r.speed.toFixed(1)+" mph")}
+      ${m("Calories", r.kcal==null?null:r.kcal+" kcal")}${m("Avg power", r.watts==null?null:r.watts+" W")}
+      ${m("Avg cadence", r.rpm==null?null:r.rpm+" rpm")}${m("Output", r.kj==null?null:r.kj+" kJ")}
+    </div>
+  </div>`).join("");
+</script>
+</body>
+</html>
