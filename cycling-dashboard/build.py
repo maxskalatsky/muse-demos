@@ -157,7 +157,6 @@ h2{font-size:23px;text-transform:uppercase;letter-spacing:.05em}
 .day{width:34px;flex:none;text-align:center;font-size:11px;color:var(--faint);font-weight:600}
 .day b{display:block;width:100%;height:34px;border-radius:7px;background:var(--bg);border:1px solid var(--line);margin:0 0 4px;padding:0}
 .day.ride b{background:var(--accent);border-color:var(--accent)}
-.day.today b{background:var(--ink);border-color:var(--ink);box-shadow:none}
 @media (max-width:520px){.week{grid-template-columns:1fr}.day{width:auto;flex:1}}
 
 /* heatmap */
