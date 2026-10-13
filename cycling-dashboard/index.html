@@ -19,12 +19,21 @@
   .stat .v small { font-size: 14px; font-weight: 500; color: #777; }
   .stat .l { font-size: 12px; color: #777; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
   .card { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
-  .card h2 { margin: 0 0 12px; font-size: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 16px; }
+  .toggle { display: inline-flex; background: #eee; border-radius: 8px; padding: 3px; margin-bottom: 10px; }
+  .toggle button { border: 0; background: transparent; font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 6px; cursor: pointer; color: #555; }
+  .toggle button.on { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .hint { font-size: 12px; color: #888; margin-bottom: 6px; }
   .bars { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; cursor: pointer; }
+  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; transition: opacity .15s; }
+  .bar-col.dim .bar { opacity: .35; }
   .bar-lbl { font-size: 11px; color: #777; margin-top: 6px; white-space: nowrap; }
   .bar-val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .feed-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 12px; }
+  .feed-head h2 { font-size: 16px; margin: 0; }
+  .clear { font-size: 13px; color: #fc4c02; cursor: pointer; font-weight: 600; display: none; }
+  .clear.show { display: inline; }
   .ride { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
   .ride .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
   .ride .title { font-weight: 700; font-size: 16px; }
@@ -47,11 +56,18 @@
   <div class="stats" id="stats"></div>
 
   <div class="card">
-    <h2>Weekly distance</h2>
+    <h2>Distance</h2>
+    <div class="toggle">
+      <button id="tWeek" class="on">Week</button><button id="tMonth">Month</button>
+    </div>
+    <div class="hint">Tap a bar to filter the rides below. Tap again to clear.</div>
     <div class="bars" id="bars"></div>
   </div>
 
-  <h2 style="font-size:16px; margin: 4px 0 12px;">Recent rides</h2>
+  <div class="feed-head">
+    <h2 id="feedTitle">Recent rides</h2>
+    <span class="clear" id="clearBtn">Show all</span>
+  </div>
   <div id="feed"></div>
 
   <div class="foot">Mockup v1. Data: Sep 8 to Oct 13, 2026, all indoor bike.</div>
@@ -71,14 +87,24 @@ const rides = [
   {label:"Mon Oct 5",  dist:15.50, time:"49:11", mins:49.2, speed:17.8, kcal:586, kj:432, watts:120, rpm:76},
   {label:"Tue Oct 13", dist:15.37, time:"~50 min", mins:50.0, speed:18.5, kcal:562, kj:415, watts:138, rpm:77},
 ];
-const weeks = [
-  {label:"Sep 8",  mi:30.85},
-  {label:"Sep 15", mi:17.07},
-  {label:"Sep 21", mi:25.11},
-  {label:"Sep 28", mi:20.84},
-  {label:"Oct 5",  mi:15.50},
-  {label:"Oct 12", mi:15.37},
-];
+const buckets = {
+  week: [
+    {label:"Sep 8",  idx:[0,1,2]},
+    {label:"Sep 15", idx:[3,4]},
+    {label:"Sep 21", idx:[5,6]},
+    {label:"Sep 28", idx:[7,8]},
+    {label:"Oct 5",  idx:[9]},
+    {label:"Oct 12", idx:[10]},
+  ],
+  month: [
+    {label:"Sep 2026", idx:[0,1,2,3,4,5,6,7]},
+    {label:"Oct 2026", idx:[8,9,10]},
+  ],
+};
+const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
+
+let mode = "week";
+let activeBucket = -1;
 
 const totalMi = rides.reduce((s,r)=>s+r.dist,0);
 const totalKcal = rides.reduce((s,r)=>s+(r.kcal||0),0);
@@ -92,26 +118,68 @@ document.getElementById("stats").innerHTML = [
   [totalKcal.toLocaleString(), "Calories"],
 ].map(([v,l])=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
 
-const maxMi = Math.max(...weeks.map(w=>w.mi));
-document.getElementById("bars").innerHTML = weeks.map(w=>`
-  <div class="bar-col">
-    <div class="bar-val">${w.mi.toFixed(1)}</div>
-    <div class="bar" style="height:${Math.round(w.mi/maxMi*100)}%"></div>
-    <div class="bar-lbl">${w.label}</div>
-  </div>`).join("");
+function renderBars(){
+  const bs = buckets[mode];
+  const max = Math.max(...bs.map(bucketMi));
+  document.getElementById("bars").innerHTML = bs.map((b,i)=>{
+    const dim = activeBucket!==-1 && activeBucket!==i;
+    return `
+    <div class="bar-col" data-i="${i}">
+      <div class="bar-val">${bucketMi(b).toFixed(1)}</div>
+      <div class="bar" style="height:${Math.round(bucketMi(b)/max*100)}%;${dim?"opacity:.35":""}"></div>
+      <div class="bar-lbl">${b.label}</div>
+    </div>`;}).join("");
+  document.querySelectorAll(".bar-col").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const i = +el.dataset.i;
+      activeBucket = (activeBucket===i) ? -1 : i;
+      renderBars(); renderFeed();
+    });
+  });
+}
 
 function m(label, val){ return val==null ? "" : `<div class="metric"><div class="v">${val}</div><div class="l">${label}</div></div>`; }
 
-document.getElementById("feed").innerHTML = [...rides].reverse().map(r=>`
-  <div class="ride">
-    <div class="top"><div class="title">Indoor Ride</div><div class="date">${r.label}</div></div>
-    <div class="dist">${r.dist.toFixed(2)} <small>mi</small></div>
-    <div class="metrics">
-      ${m("Time", r.time)}${m("Avg speed", r.speed==null?null:r.speed.toFixed(1)+" mph")}
-      ${m("Calories", r.kcal==null?null:r.kcal+" kcal")}${m("Avg power", r.watts==null?null:r.watts+" W")}
-      ${m("Avg cadence", r.rpm==null?null:r.rpm+" rpm")}${m("Output", r.kj==null?null:r.kj+" kJ")}
-    </div>
-  </div>`).join("");
+function renderFeed(){
+  let list = [...rides].reverse();
+  let title = "Recent rides";
+  if(activeBucket!==-1){
+    const b = buckets[mode][activeBucket];
+    const set = new Set(b.idx);
+    list = list.filter(r => set.has(rides.indexOf(r)));
+    title = "Rides, " + (mode==="week" ? "week of " : "") + b.label;
+  }
+  document.getElementById("feedTitle").textContent = title;
+  document.getElementById("clearBtn").classList.toggle("show", activeBucket!==-1);
+  document.getElementById("feed").innerHTML = list.map(r=>`
+    <div class="ride">
+      <div class="top"><div class="title">Indoor Ride</div><div class="date">${r.label}</div></div>
+      <div class="dist">${r.dist.toFixed(2)} <small>mi</small></div>
+      <div class="metrics">
+        ${m("Time", r.time)}${m("Avg speed", r.speed==null?null:r.speed.toFixed(1)+" mph")}
+        ${m("Calories", r.kcal==null?null:r.kcal+" kcal")}${m("Avg power", r.watts==null?null:r.watts+" W")}
+        ${m("Avg cadence", r.rpm==null?null:r.rpm+" rpm")}${m("Output", r.kj==null?null:r.kj+" kJ")}
+      </div>
+    </div>`).join("");
+}
+
+document.getElementById("tWeek").addEventListener("click", ()=>{
+  mode="week"; activeBucket=-1;
+  document.getElementById("tWeek").classList.add("on");
+  document.getElementById("tMonth").classList.remove("on");
+  renderBars(); renderFeed();
+});
+document.getElementById("tMonth").addEventListener("click", ()=>{
+  mode="month"; activeBucket=-1;
+  document.getElementById("tMonth").classList.add("on");
+  document.getElementById("tWeek").classList.remove("on");
+  renderBars(); renderFeed();
+});
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  activeBucket=-1; renderBars(); renderFeed();
+});
+
+renderBars(); renderFeed();
 </script>
 </body>
 </html>
