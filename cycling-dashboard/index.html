@@ -26,8 +26,7 @@
   .hint { font-size: 12px; color: #888; margin-bottom: 6px; }
   .bars { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
   .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; cursor: pointer; }
-  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; transition: opacity .15s; }
-  .bar-col.dim .bar { opacity: .35; }
+  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; }
   .bar-lbl { font-size: 11px; color: #777; margin-top: 6px; white-space: nowrap; }
   .bar-val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
   .feed-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 12px; }
@@ -74,33 +73,9 @@
 </div>
 
 <script>
-const rides = [
-  {label:"Tue Sep 8",  dist:10.00, time:"34:19", mins:34.3, speed:17.5, kcal:null, kj:null, watts:null, rpm:null},
-  {label:"Fri Sep 11", dist:9.63,  time:"31:33", mins:31.6, speed:18.3, kcal:351, kj:259, watts:137, rpm:87},
-  {label:"Mon Sep 14", dist:11.22, time:null,    mins:null, speed:null, kcal:405, kj:299, watts:134, rpm:76},
-  {label:"Wed Sep 16", dist:6.27,  time:"20:56", mins:20.9, speed:18.0, kcal:231, kj:170, watts:135, rpm:76},
-  {label:"Fri Sep 18", dist:10.80, time:"34:41", mins:34.7, speed:18.7, kcal:405, kj:299, watts:143, rpm:null},
-  {label:"Tue Sep 22", dist:12.18, time:"39:15", mins:39.3, speed:16.8, kcal:445, kj:339, watts:109, rpm:78},
-  {label:"Thu Sep 24", dist:12.93, time:"42:14", mins:42.2, speed:16.6, kcal:469, kj:346, watts:105, rpm:77},
-  {label:"Tue Sep 29", dist:10.81, time:"35:54", mins:35.9, speed:18.1, kcal:399, kj:294, watts:136, rpm:76},
-  {label:"Fri Oct 2",  dist:10.03, time:"33:20", mins:33.3, speed:18.1, kcal:354, kj:261, watts:131, rpm:null},
-  {label:"Mon Oct 5",  dist:15.50, time:"49:11", mins:49.2, speed:17.8, kcal:586, kj:432, watts:120, rpm:76},
-  {label:"Tue Oct 13", dist:15.37, time:"~50 min", mins:50.0, speed:18.5, kcal:562, kj:415, watts:138, rpm:77},
-];
-const buckets = {
-  week: [
-    {label:"Sep 8",  idx:[0,1,2]},
-    {label:"Sep 15", idx:[3,4]},
-    {label:"Sep 21", idx:[5,6]},
-    {label:"Sep 28", idx:[7,8]},
-    {label:"Oct 5",  idx:[9]},
-    {label:"Oct 12", idx:[10]},
-  ],
-  month: [
-    {label:"Sep 2026", idx:[0,1,2,3,4,5,6,7]},
-    {label:"Oct 2026", idx:[8,9,10]},
-  ],
-};
+const rides = [{"date": "2026-09-08", "dist": 10.0, "kcal": null, "kj": null, "label": "Tue Sep 8", "mins": 34.3, "rpm": null, "speed": 17.5, "time": "34:19", "watts": null}, {"date": "2026-09-11", "dist": 9.63, "kcal": 351, "kj": 259, "label": "Fri Sep 11", "mins": 31.6, "rpm": 87, "speed": 18.3, "time": "31:33", "watts": 137}, {"date": "2026-09-14", "dist": 11.22, "kcal": 405, "kj": 299, "label": "Mon Sep 14", "mins": null, "rpm": 76, "speed": null, "time": null, "watts": 134}, {"date": "2026-09-16", "dist": 6.27, "kcal": 231, "kj": 170, "label": "Wed Sep 16", "mins": 20.9, "rpm": 76, "speed": 18.0, "time": "20:56", "watts": 135}, {"date": "2026-09-18", "dist": 10.8, "kcal": 405, "kj": 299, "label": "Fri Sep 18", "mins": 34.7, "rpm": null, "speed": 18.7, "time": "34:41", "watts": 143}, {"date": "2026-09-22", "dist": 12.18, "kcal": 445, "kj": 339, "label": "Tue Sep 22", "mins": 39.3, "rpm": 78, "speed": 16.8, "time": "39:15", "watts": 109}, {"date": "2026-09-24", "dist": 12.93, "kcal": 469, "kj": 346, "label": "Thu Sep 24", "mins": 42.2, "rpm": 77, "speed": 16.6, "time": "42:14", "watts": 105}, {"date": "2026-09-29", "dist": 10.81, "kcal": 399, "kj": 294, "label": "Tue Sep 29", "mins": 35.9, "rpm": 76, "speed": 18.1, "time": "35:54", "watts": 136}, {"date": "2026-10-02", "dist": 10.03, "kcal": 354, "kj": 261, "label": "Fri Oct 2", "mins": 33.3, "rpm": null, "speed": 18.1, "time": "33:20", "watts": 131}, {"date": "2026-10-05", "dist": 15.5, "kcal": 586, "kj": 432, "label": "Mon Oct 5", "mins": 49.2, "rpm": 76, "speed": 17.8, "time": "49:11", "watts": 120}, {"date": "2026-10-13", "dist": 15.37, "kcal": 562, "kj": 415, "label": "Tue Oct 13", "mins": 50.0, "rpm": 77, "speed": 18.5, "time": "~50 min", "watts": 138}];
+const buckets = {"week": [{"label": "Sep 7", "idx": [0, 1]}, {"label": "Sep 14", "idx": [2, 3, 4]}, {"label": "Sep 21", "idx": [5, 6]}, {"label": "Sep 28", "idx": [7, 8]}, {"label": "Oct 5", "idx": [9]}, {"label": "Oct 12", "idx": [10]}], "month": [{"label": "Sep 2026", "idx": [0, 1, 2, 3, 4, 5, 6, 7]}, {"label": "Oct 2026", "idx": [8, 9, 10]}]};
+
 const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
 
 let mode = "week";
