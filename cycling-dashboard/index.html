@@ -51,8 +51,8 @@ h2{font-size:23px;text-transform:uppercase;letter-spacing:.05em}
 .stepper button:hover{background:#f0f1f4}
 .days{display:flex;gap:6px;align-items:flex-start}
 .day{width:34px;flex:none;text-align:center;font-size:11px;color:var(--faint);font-weight:600}
-.day b{display:block;width:100%;height:34px;border-radius:7px;background:var(--bg);border:1px solid var(--line);margin:0 0 4px;padding:0}
-.day.ride b{background:var(--accent);border-color:var(--accent)}
+.day .sq{display:block;aspect-ratio:1;border-radius:7px;background:var(--bg);border:1px solid var(--line);margin:0 0 4px}
+.day .sq.rode{background:var(--accent);border-color:var(--accent)}
 @media (max-width:520px){.week{grid-template-columns:1fr}.day{width:auto;flex:1}}
 
 /* heatmap */
@@ -225,7 +225,7 @@ function renderWeek(){
   document.getElementById("days").innerHTML = [0,1,2,3,4,5,6].map(k=>{
     const d = iso(new Date(D(wkStart).getTime() + k*DAY));
     const rode = rides.some(r => r.date === d);
-    return `<div class="day${rode?" ride":""}${d===TODAY?" today":""}"><b title="${fmt(d)}${rode?" · ride":""}"></b>${WD[(k+1)%7][0]}</div>`;
+    return `<div class="day"><span class="sq${rode?" rode":""}" title="${fmt(d)}${rode?" · ride":""}"></span>${WD[(k+1)%7][0]}</div>`;
   }).join("");
 }
 function bumpGoal(d){
