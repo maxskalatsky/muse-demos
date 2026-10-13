@@ -9,8 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#eef0f2; --panel:#fbfbfc; --ink:#16191d; --muted:#5c6470; --faint:#8a929c; --line:#d9dde2;
-  --accent:#fc4c02; --accent-soft:#ffe9dc;
+  --bg:#f7f9fb; --panel:#ffffff; --ink:#1a1a1a; --muted:#6b7280; --faint:#9ca3af; --line:#e2eaf0;
+  --accent:#0069AA; --accent-soft:#e3f0f8;
   --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
   --body:'IBM Plex Sans',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
@@ -49,11 +49,11 @@ h2{font-size:23px;text-transform:uppercase;letter-spacing:.05em}
 .stepper{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .stepper button{width:26px;height:26px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;cursor:pointer;font:700 15px var(--body);line-height:1}
 .stepper button:hover{background:#f0f1f4}
-.days{display:flex;gap:6px}
-.day{width:34px;text-align:center;font-size:11px;color:var(--faint);font-weight:600}
-.day b{display:block;height:34px;border-radius:7px;background:var(--bg);border:1px solid var(--line);margin-bottom:4px}
+.days{display:flex;gap:6px;align-items:flex-start}
+.day{width:34px;flex:none;text-align:center;font-size:11px;color:var(--faint);font-weight:600}
+.day b{display:block;width:100%;height:34px;border-radius:7px;background:var(--bg);border:1px solid var(--line);margin:0 0 4px;padding:0}
 .day.ride b{background:var(--accent);border-color:var(--accent)}
-.day.today b{outline:2px solid var(--ink);outline-offset:1px}
+.day.today b{box-shadow:0 0 0 2px var(--ink)}
 @media (max-width:520px){.week{grid-template-columns:1fr}.day{width:auto;flex:1}}
 
 /* heatmap */
@@ -62,7 +62,7 @@ h2{font-size:23px;text-transform:uppercase;letter-spacing:.05em}
 .heat .wk{color:var(--muted);font-family:var(--mono);font-size:11px}
 .cell{aspect-ratio:1;max-width:100%;border-radius:5px;background:var(--bg);border:1px solid var(--line);position:relative}
 .cell.future{border-style:dashed;background:transparent}
-.cell.today{outline:2px solid var(--ink);outline-offset:1px}
+.cell.today{box-shadow:0 0 0 2px var(--ink)}
 .heat .tot{text-align:right;color:var(--ink)}
 .gapnote{margin-top:12px;font-size:13px;color:var(--muted)}
 
@@ -80,7 +80,7 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
 
 /* records */
 .recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.rec{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--accent-soft);border-color:#ffd9c2}
+.rec{border:1px solid #c4dcee;border-radius:10px;padding:12px 14px;background:var(--accent-soft)}
 .rec .num{font-size:30px;margin:4px 0 2px}
 .rec .num small{font-size:14px;color:var(--muted);margin-left:2px}
 .rec .when{font-size:12px;color:var(--muted)}
@@ -298,11 +298,11 @@ function renderWeekly(){
 
 /* trends: 5 metrics */
 const METRICS = {
-  watts: {n:"Power",    u:"W",   c:"#fc4c02", d:0},
-  dist:  {n:"Distance", u:"mi",  c:"#1f5fd1", d:2},
-  mins:  {n:"Duration", u:"min", c:"#7c3aed", d:1},
-  rpm:   {n:"Cadence",  u:"rpm", c:"#1d7f55", d:0},
-  speed: {n:"Speed",    u:"mph", c:"#b25b00", d:1},
+  watts: {n:"Power",    u:"W",   c:"#0069AA", d:0},
+  dist:  {n:"Distance", u:"mi",  c:"#0d2d6b", d:2},
+  mins:  {n:"Duration", u:"min", c:"#00C99C", d:1},
+  rpm:   {n:"Cadence",  u:"rpm", c:"#004F82", d:0},
+  speed: {n:"Speed",    u:"mph", c:"#4d9fd1", d:1},
 };
 let metric = "watts";
 document.getElementById("metricToggle").innerHTML =
