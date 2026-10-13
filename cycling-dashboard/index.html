@@ -3,71 +3,132 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cycling Dashboard (mockup)</title>
+<title>Cycling Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --orange:#fc4c02; --ink:#141416; --muted:#6d6d76; --faint:#a2a2ab;
+    --bg:#f5f5f7; --card:#ffffff; --line:#e8e8ec; --tint:#fff4ed;
+  }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; background: #f4f4f4; color: #1a1a1a; }
-  header { background: #1a1a1a; color: #fff; padding: 20px 24px; }
-  header h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
-  header h1 .mock { font-size: 12px; font-weight: 600; background: #fc4c02; border-radius: 4px; padding: 2px 8px; margin-left: 10px; vertical-align: 3px; }
-  header p { margin: 6px 0 0; color: #aaa; font-size: 13px; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-  .stat { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px 16px; }
-  .stat .v { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
-  .stat .v small { font-size: 14px; font-weight: 500; color: #777; }
-  .stat .l { font-size: 12px; color: #777; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .card { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
-  .card h2 { margin: 0 0 4px; font-size: 16px; }
-  .toggle { display: inline-flex; background: #eee; border-radius: 8px; padding: 3px; margin-bottom: 10px; }
-  .toggle button { border: 0; background: transparent; font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 6px; cursor: pointer; color: #555; }
-  .toggle button.on { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
-  .hint { font-size: 12px; color: #888; margin-bottom: 6px; }
-  .bars { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; cursor: pointer; }
-  .bar { width: 100%; max-width: 64px; background: #fc4c02; border-radius: 6px 6px 0 0; min-height: 4px; }
-  .bar-lbl { font-size: 11px; color: #777; margin-top: 6px; white-space: nowrap; }
-  .bar-val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
-  .feed-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 12px; }
-  .feed-head h2 { font-size: 16px; margin: 0; }
-  .clear { font-size: 13px; color: #fc4c02; cursor: pointer; font-weight: 600; display: none; }
-  .clear.show { display: inline; }
-  .ride { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
-  .ride .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-  .ride .title { font-weight: 700; font-size: 16px; }
-  .ride .date { font-size: 13px; color: #777; }
-  .ride .dist { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
-  .ride .dist small { font-size: 15px; font-weight: 500; color: #777; }
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  @media (max-width: 640px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-  .metric .v { font-size: 17px; font-weight: 650; }
-  .metric .l { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
-  .records { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-  .record { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 12px 14px; }
-  .record .v { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-  .record .t { font-size: 12px; color: #555; font-weight: 600; margin-top: 2px; }
-  .record .r { font-size: 11px; color: #999; margin-top: 2px; }
-  .trend { margin-bottom: 18px; }
-  .trend:last-child { margin-bottom: 0; }
-  .tlabel { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
-  .xlabels { display: flex; justify-content: space-between; font-size: 10px; color: #999; padding: 2px 30px 0; }
-  .foot { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    margin:0; background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  header{
+    background:#131315; color:#fff; padding:18px 28px;
+    display:flex; align-items:center; gap:14px;
+    border-bottom:3px solid var(--orange);
+  }
+  header h1{ margin:0; font-size:21px; font-weight:800; letter-spacing:-0.02em; }
+  header h1 .mock{
+    font-size:11px; font-weight:700; background:var(--orange); color:#fff;
+    border-radius:5px; padding:3px 9px; margin-left:10px; vertical-align:3px; letter-spacing:.04em;
+  }
+  header p{ margin:0 0 0 auto; color:#8e8e96; font-size:13px; }
+  .wrap{ max-width:920px; margin:0 auto; padding:24px 18px 56px; }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:24px; margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(18,18,24,.03), 0 10px 28px rgba(18,18,24,.05);
+  }
+  .card h2{ margin:0 0 16px; font-size:15px; font-weight:700; letter-spacing:-0.01em; }
+  .sect{
+    font-size:11px; text-transform:uppercase; letter-spacing:.12em;
+    color:var(--faint); font-weight:700; margin-bottom:14px;
+  }
+  /* hero */
+  .hero{ display:grid; grid-template-columns:1fr 1.35fr; gap:28px; }
+  .hero-left{ border-right:1px solid var(--line); padding-right:28px; }
+  .goalrow{ display:flex; align-items:center; gap:18px; }
+  #goalText .big{ font-size:15px; font-weight:700; }
+  #goalText .mid{ font-size:14px; color:var(--ink); margin-top:6px; font-weight:600; }
+  #goalText .sub{ font-size:13px; color:var(--muted); margin-top:2px; }
+  .hero-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px 16px; }
+  .hstat .v{ font-size:34px; font-weight:800; letter-spacing:-0.035em; line-height:1; }
+  .hstat .v small{ font-size:14px; font-weight:600; color:var(--muted); letter-spacing:0; }
+  .hstat .l{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-top:6px; font-weight:600; }
+  @media (max-width:700px){
+    .hero{ grid-template-columns:1fr; }
+    .hero-left{ border-right:0; border-bottom:1px solid var(--line); padding:0 0 22px; }
+    header p{ display:none; }
+  }
+  /* records */
+  .records{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .record{
+    background:var(--tint); border:1px solid #ffdfc9; border-radius:14px; padding:14px 16px;
+  }
+  .record .v{ font-size:23px; font-weight:800; letter-spacing:-0.02em; }
+  .record .t{ font-size:12px; font-weight:700; margin-top:3px; }
+  .record .r{ font-size:11px; color:var(--muted); margin-top:2px; }
+  /* toggles */
+  .toggle{ display:inline-flex; background:#ececf0; border-radius:10px; padding:3px; margin-bottom:14px; }
+  .toggle button{
+    border:0; background:transparent; font-family:inherit; font-size:13px; font-weight:600;
+    padding:7px 18px; border-radius:8px; cursor:pointer; color:#6d6d76;
+    transition:all .15s ease;
+  }
+  .toggle button.on{ background:#fff; color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.14); }
+  .hint{ font-size:12px; color:var(--faint); margin-bottom:8px; }
+  /* bars */
+  .bars{ display:flex; align-items:flex-end; gap:12px; height:160px; padding-top:10px; }
+  .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; cursor:pointer; }
+  .bar{
+    width:100%; max-width:66px; background:linear-gradient(180deg,#ff6a2b,var(--orange));
+    border-radius:8px 8px 4px 4px; min-height:5px; transition:filter .15s ease, transform .15s ease;
+  }
+  .bar-col:hover .bar{ filter:brightness(1.08); transform:scaleY(1.015); transform-origin:bottom; }
+  .bar-lbl{ font-size:11px; color:var(--muted); margin-top:8px; font-weight:500; }
+  .bar-val{ font-size:12px; font-weight:700; margin-bottom:5px; letter-spacing:-0.01em; }
+  /* trends */
+  .tlabel{ font-size:13px; font-weight:600; color:var(--muted); margin-bottom:6px; }
+  .xlabels{ display:flex; justify-content:space-between; font-size:10px; color:var(--faint); padding:4px 36px 0; font-weight:500; }
+  /* feed */
+  .feed-head{ display:flex; align-items:center; justify-content:space-between; margin:6px 2px 14px; }
+  .feed-head h2{ font-size:15px; margin:0; font-weight:700; letter-spacing:-0.01em; }
+  #feedArrow{ color:var(--faint); font-size:13px; margin-right:6px; }
+  .clear{ font-size:13px; color:var(--orange); cursor:pointer; font-weight:700; display:none; }
+  .clear.show{ display:inline; }
+  .ride{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px 22px; margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(18,18,24,.03), 0 6px 18px rgba(18,18,24,.04);
+    transition:box-shadow .15s ease;
+  }
+  .ride:hover{ box-shadow:0 1px 2px rgba(18,18,24,.04), 0 10px 26px rgba(18,18,24,.07); }
+  .ride .top{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; }
+  .ride .title{ font-weight:700; font-size:16px; letter-spacing:-0.01em; }
+  .ride .date{ font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+  .ride .dist{ font-size:34px; font-weight:800; letter-spacing:-0.03em; margin-bottom:10px; }
+  .ride .dist small{ font-size:15px; font-weight:600; color:var(--muted); }
+  .metrics{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:640px){ .metrics{ grid-template-columns:repeat(2,1fr); } }
+  .metric .v{ font-size:17px; font-weight:700; letter-spacing:-0.01em; }
+  .metric .l{ font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-top:2px; }
+  .foot{ text-align:center; color:var(--faint); font-size:12px; margin-top:28px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Cycling<span class="mock">MOCKUP</span></h1>
-  <p>Indoor bike log, Strava-style. v1 for review.</p>
+  <p>Indoor training log</p>
 </header>
 <div class="wrap">
-  <div class="stats" id="stats"></div>
 
-  <div class="card">
-    <h2>Weekly goal</h2>
-    <div style="display:flex;align-items:center;gap:20px">
-      <div id="goalRing"></div>
-      <div id="goalText"></div>
+  <div class="card hero">
+    <div class="hero-left">
+      <div class="sect">Weekly goal</div>
+      <div class="goalrow">
+        <div id="goalRing"></div>
+        <div id="goalText"></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="sect">All time</div>
+      <div class="hero-stats" id="heroStats"></div>
     </div>
   </div>
 
@@ -81,7 +142,7 @@
     <div class="toggle">
       <button id="cDist" class="on">Distance</button><button id="cSpeed">Speed</button><button id="cPower">Power</button>
     </div>
-    <div id="chartArea" style="margin-top:6px"></div>
+    <div id="chartArea" style="margin-top:4px"></div>
   </div>
 
   <div class="card">
@@ -94,12 +155,12 @@
   </div>
 
   <div class="feed-head" id="feedHead" style="cursor:pointer">
-    <h2><span id="feedArrow">▾</span> <span id="feedTitle">Recent rides</span></h2>
+    <h2><span id="feedArrow">▾</span><span id="feedTitle">Recent rides</span></h2>
     <span class="clear" id="clearBtn">Show all</span>
   </div>
   <div id="feed"></div>
 
-  <div class="foot">Mockup v1. Data: Sep 8 to Oct 13, 2026, all indoor bike.</div>
+  <div class="foot">Training log, Sep 8 to Oct 13, 2026. All rides indoor.</div>
 </div>
 
 <script>
@@ -108,28 +169,48 @@ const buckets = {"week": [{"label": "Sep 7", "idx": [0, 1]}, {"label": "Sep 14",
 const records = [{"title": "Longest ride", "value": "15.50 mi", "ride": "Mon Oct 5"}, {"title": "Fastest avg speed", "value": "18.7 mph", "ride": "Fri Sep 18"}, {"title": "Best avg power", "value": "143 W", "ride": "Fri Sep 18"}, {"title": "Most calories", "value": "586 kcal", "ride": "Mon Oct 5"}, {"title": "Longest time", "value": "50 min", "ride": "Tue Oct 13"}];
 const goal = {"goal": 30, "current": 15.37, "label": "Oct 12"};
 
+/* hero stats */
+(function(){
+  const totalMi = rides.reduce((s,r)=>s+r.dist,0);
+  const totalKcal = rides.reduce((s,r)=>s+(r.kcal||0),0);
+  const totalMins = rides.reduce((s,r)=>s+(r.mins||0),0);
+  const hrs = Math.floor(totalMins/60), min = Math.round(totalMins%60);
+  document.getElementById("heroStats").innerHTML = [
+    [totalMi.toFixed(1)+" <small>mi</small>", "Distance"],
+    [rides.length, "Rides"],
+    [hrs+"h "+min+"m", "Time"],
+    [totalKcal.toLocaleString(), "Calories"],
+  ].map(([v,l])=>`<div class="hstat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+})();
+
+/* goal ring */
 (function(){
   const pct = Math.min(goal.current / goal.goal, 1);
   const C = 2 * Math.PI * 54;
   const off = C * (1 - pct);
   const remaining = Math.max(goal.goal - goal.current, 0);
   document.getElementById("goalRing").innerHTML = `
-    <svg viewBox="0 0 120 120" width="110" height="110">
-      <circle cx="60" cy="60" r="54" fill="none" stroke="#eee" stroke-width="10"/>
-      <circle cx="60" cy="60" r="54" fill="none" stroke="${pct>=1 ? "#00a37a" : "#fc4c02"}" stroke-width="10"
+    <svg viewBox="0 0 120 120" width="112" height="112">
+      <defs><linearGradient id="goalGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff6a2b"/><stop offset="1" stop-color="#fc4c02"/>
+      </linearGradient></defs>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#efeff2" stroke-width="11"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="${pct>=1 ? "#00a37a" : "url(#goalGrad)"}" stroke-width="11"
         stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
         stroke-linecap="round" transform="rotate(-90 60 60)"/>
-      <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-size="19" font-weight="700">${Math.round(pct*100)}%</text>
+      <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="800" letter-spacing="-0.02em">${Math.round(pct*100)}%</text>
     </svg>`;
   document.getElementById("goalText").innerHTML = `
-    <div style="font-size:15px;font-weight:700">Week of ${goal.label}</div>
-    <div style="font-size:13px;color:#555;margin-top:4px">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
-    <div style="font-size:13px;color:#888;margin-top:2px">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
+    <div class="big">Week of ${goal.label}</div>
+    <div class="mid">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
+    <div class="sub">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
 })();
 
+/* records */
 document.getElementById("records").innerHTML = records.map(r=>`
   <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
 
+/* trends */
 const shortDate = d => { const [y,m,dd] = d.split("-"); return `${+m}/${+dd}`; };
 
 function lineChart(elId, key, color){
@@ -139,21 +220,30 @@ function lineChart(elId, key, color){
   if(pts.length<2){ el.innerHTML = "<div class='hint'>Not enough data yet.</div>"; return; }
   const vs = pts.map(o=>o.v);
   const lo = Math.min(...vs), hi = Math.max(...vs), span = (hi-lo)||1;
-  const w=600, h=150, p=34;
+  const w=640, h=170, p=38, base=h-30;
   const x = i => p + i*(w-2*p)/(vals.length-1);
-  const y = v => h-p - (v-lo)/span*(h-2*p);
+  const y = v => base - (v-lo)/span*(base-22);
   const line = pts.map(o=>`${x(o.i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" ");
-  const dots = pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4" fill="${color}"/>`).join("");
+  const area = `M${x(pts[0].i).toFixed(1)},${base} L` +
+    pts.map(o=>`${x(o.i).toFixed(1)},${y(o.v).toFixed(1)}`).join(" L") +
+    ` L${x(pts[pts.length-1].i).toFixed(1)},${base} Z`;
+  const gid = "g"+key, mid = (lo+hi)/2;
   el.innerHTML = `
     <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">
-      <line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#e0e0e0"/>
-      <text x="${p-8}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${hi}</text>
-      <text x="${p-8}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#999">${lo}</text>
-      <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>
-      ${dots}
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${color}" stop-opacity=".20"/>
+        <stop offset="1" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient></defs>
+      ${[hi,mid,lo].map(v=>`<line x1="${p}" y1="${y(v).toFixed(1)}" x2="${w-16}" y2="${y(v).toFixed(1)}" stroke="#ebebf0" stroke-dasharray="3 4"/>`).join("")}
+      <path d="${area}" fill="url(#${gid})"/>
+      <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4.5" fill="#fff" stroke="${color}" stroke-width="2.5"/>`).join("")}
+      <text x="${p-9}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${hi}</text>
+      <text x="${p-9}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${lo}</text>
     </svg>
     <div class="xlabels">${vals.map((_,i)=>`<span>${shortDate(rides[i].date)}</span>`).join("")}</div>`;
 }
+
 let chartKey = "dist";
 const chartMeta = {
   dist:  {color:"#fc4c02", title:"Distance per ride (mi)"},
@@ -175,29 +265,10 @@ function renderChart(){
 });
 renderChart();
 
-let feedOpen = true;
-document.getElementById("feedHead").addEventListener("click", ()=>{
-  feedOpen = !feedOpen;
-  document.getElementById("feed").style.display = feedOpen ? "" : "none";
-  document.getElementById("feedArrow").textContent = feedOpen ? "▾" : "▸";
-});
-
+/* distance bars + drill-down */
 const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
-
 let mode = "week";
 let activeBucket = -1;
-
-const totalMi = rides.reduce((s,r)=>s+r.dist,0);
-const totalKcal = rides.reduce((s,r)=>s+(r.kcal||0),0);
-const totalMins = rides.reduce((s,r)=>s+(r.mins||0),0);
-const hrs = Math.floor(totalMins/60), min = Math.round(totalMins%60);
-
-document.getElementById("stats").innerHTML = [
-  [totalMi.toFixed(1)+" <small>mi</small>", "Distance"],
-  [rides.length, "Rides"],
-  [hrs+"h "+min+"m", "Time"],
-  [totalKcal.toLocaleString(), "Calories"],
-].map(([v,l])=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
 
 function renderBars(){
   const bs = buckets[mode];
@@ -207,7 +278,7 @@ function renderBars(){
     return `
     <div class="bar-col" data-i="${i}">
       <div class="bar-val">${bucketMi(b).toFixed(1)}</div>
-      <div class="bar" style="height:${Math.round(bucketMi(b)/max*100)}%;${dim?"opacity:.35":""}"></div>
+      <div class="bar" style="height:${Math.round(bucketMi(b)/max*100)}%;${dim?"opacity:.3":""}"></div>
       <div class="bar-lbl">${b.label}</div>
     </div>`;}).join("");
   document.querySelectorAll(".bar-col").forEach(el=>{
@@ -260,8 +331,15 @@ document.getElementById("clearBtn").addEventListener("click", (e)=>{
   e.stopPropagation();
   activeBucket=-1; renderBars(); renderFeed();
 });
-
 renderBars(); renderFeed();
+
+/* collapsible log */
+let feedOpen = true;
+document.getElementById("feedHead").addEventListener("click", ()=>{
+  feedOpen = !feedOpen;
+  document.getElementById("feed").style.display = feedOpen ? "" : "none";
+  document.getElementById("feedArrow").textContent = feedOpen ? "▾" : "▸";
+});
 </script>
 </body>
 </html>
