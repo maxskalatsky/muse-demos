@@ -9,6 +9,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 rides = json.load(open(os.path.join(HERE, "rides.json")))
 rides.sort(key=lambda r: r["date"])
 
+GOAL_MI_PER_WEEK = 30
+
 MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 # week buckets (Monday start), month buckets
@@ -45,6 +47,14 @@ add_rec("speed", lambda v: f"{v:.1f} mph", "Fastest avg speed")
 add_rec("watts", lambda v: f"{v} W", "Best avg power")
 add_rec("kcal", lambda v: f"{v} kcal", "Most calories")
 add_rec("mins", lambda v: f"{int(v)} min", "Longest time")
+
+# weekly goal: current (latest) week vs target
+_last_w = list(weeks.values())[-1]
+goal_data = {
+    "goal": GOAL_MI_PER_WEEK,
+    "current": round(sum(rides[i]["dist"] for i in _last_w["idx"]), 2),
+    "label": _last_w["label"],
+}
 
 def js(v):
     return json.dumps(v)
@@ -115,6 +125,14 @@ html = """<!DOCTYPE html>
   <div class="stats" id="stats"></div>
 
   <div class="card">
+    <h2>Weekly goal</h2>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div id="goalRing"></div>
+      <div id="goalText"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Personal records</h2>
     <div class="records" id="records"></div>
   </div>
@@ -149,6 +167,26 @@ html = """<!DOCTYPE html>
 const rides = __RIDES__;
 const buckets = __BUCKETS__;
 const records = __RECORDS__;
+const goal = __GOAL__;
+
+(function(){
+  const pct = Math.min(goal.current / goal.goal, 1);
+  const C = 2 * Math.PI * 54;
+  const off = C * (1 - pct);
+  const remaining = Math.max(goal.goal - goal.current, 0);
+  document.getElementById("goalRing").innerHTML = `
+    <svg viewBox="0 0 120 120" width="110" height="110">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#eee" stroke-width="10"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="${pct>=1 ? "#00a37a" : "#fc4c02"}" stroke-width="10"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+        stroke-linecap="round" transform="rotate(-90 60 60)"/>
+      <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-size="19" font-weight="700">${Math.round(pct*100)}%</text>
+    </svg>`;
+  document.getElementById("goalText").innerHTML = `
+    <div style="font-size:15px;font-weight:700">Week of ${goal.label}</div>
+    <div style="font-size:13px;color:#555;margin-top:4px">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
+})();
 
 document.getElementById("records").innerHTML = records.map(r=>`
   <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
@@ -294,7 +332,7 @@ first = date.fromisoformat(rides[0]["date"])
 last = date.fromisoformat(rides[-1]["date"])
 rng = f"{MONTHS[first.month-1]} {first.day} to {MONTHS[last.month-1]} {last.day}, {last.year}"
 
-html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RECORDS__", js(records)).replace("__RANGE__", rng)
+html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RECORDS__", js(records)).replace("__GOAL__", js(goal_data)).replace("__RANGE__", rng)
 open(os.path.join(HERE, "index.html"), "w").write(html)
 
 # markdown log

@@ -64,6 +64,14 @@
   <div class="stats" id="stats"></div>
 
   <div class="card">
+    <h2>Weekly goal</h2>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div id="goalRing"></div>
+      <div id="goalText"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Personal records</h2>
     <div class="records" id="records"></div>
   </div>
@@ -98,6 +106,26 @@
 const rides = [{"date": "2026-09-08", "dist": 10.0, "kcal": null, "kj": null, "label": "Tue Sep 8", "mins": 34.3, "rpm": null, "speed": 17.5, "time": "34:19", "watts": null}, {"date": "2026-09-11", "dist": 9.63, "kcal": 351, "kj": 259, "label": "Fri Sep 11", "mins": 31.6, "rpm": 87, "speed": 18.3, "time": "31:33", "watts": 137}, {"date": "2026-09-14", "dist": 11.22, "kcal": 405, "kj": 299, "label": "Mon Sep 14", "mins": null, "rpm": 76, "speed": null, "time": null, "watts": 134}, {"date": "2026-09-16", "dist": 6.27, "kcal": 231, "kj": 170, "label": "Wed Sep 16", "mins": 20.9, "rpm": 76, "speed": 18.0, "time": "20:56", "watts": 135}, {"date": "2026-09-18", "dist": 10.8, "kcal": 405, "kj": 299, "label": "Fri Sep 18", "mins": 34.7, "rpm": null, "speed": 18.7, "time": "34:41", "watts": 143}, {"date": "2026-09-22", "dist": 12.18, "kcal": 445, "kj": 339, "label": "Tue Sep 22", "mins": 39.3, "rpm": 78, "speed": 16.8, "time": "39:15", "watts": 109}, {"date": "2026-09-24", "dist": 12.93, "kcal": 469, "kj": 346, "label": "Thu Sep 24", "mins": 42.2, "rpm": 77, "speed": 16.6, "time": "42:14", "watts": 105}, {"date": "2026-09-29", "dist": 10.81, "kcal": 399, "kj": 294, "label": "Tue Sep 29", "mins": 35.9, "rpm": 76, "speed": 18.1, "time": "35:54", "watts": 136}, {"date": "2026-10-02", "dist": 10.03, "kcal": 354, "kj": 261, "label": "Fri Oct 2", "mins": 33.3, "rpm": null, "speed": 18.1, "time": "33:20", "watts": 131}, {"date": "2026-10-05", "dist": 15.5, "kcal": 586, "kj": 432, "label": "Mon Oct 5", "mins": 49.2, "rpm": 76, "speed": 17.8, "time": "49:11", "watts": 120}, {"date": "2026-10-13", "dist": 15.37, "kcal": 562, "kj": 415, "label": "Tue Oct 13", "mins": 50.0, "rpm": 77, "speed": 18.5, "time": "~50 min", "watts": 138}];
 const buckets = {"week": [{"label": "Sep 7", "idx": [0, 1]}, {"label": "Sep 14", "idx": [2, 3, 4]}, {"label": "Sep 21", "idx": [5, 6]}, {"label": "Sep 28", "idx": [7, 8]}, {"label": "Oct 5", "idx": [9]}, {"label": "Oct 12", "idx": [10]}], "month": [{"label": "Sep 2026", "idx": [0, 1, 2, 3, 4, 5, 6, 7]}, {"label": "Oct 2026", "idx": [8, 9, 10]}]};
 const records = [{"title": "Longest ride", "value": "15.50 mi", "ride": "Mon Oct 5"}, {"title": "Fastest avg speed", "value": "18.7 mph", "ride": "Fri Sep 18"}, {"title": "Best avg power", "value": "143 W", "ride": "Fri Sep 18"}, {"title": "Most calories", "value": "586 kcal", "ride": "Mon Oct 5"}, {"title": "Longest time", "value": "50 min", "ride": "Tue Oct 13"}];
+const goal = {"goal": 30, "current": 15.37, "label": "Oct 12"};
+
+(function(){
+  const pct = Math.min(goal.current / goal.goal, 1);
+  const C = 2 * Math.PI * 54;
+  const off = C * (1 - pct);
+  const remaining = Math.max(goal.goal - goal.current, 0);
+  document.getElementById("goalRing").innerHTML = `
+    <svg viewBox="0 0 120 120" width="110" height="110">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#eee" stroke-width="10"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="${pct>=1 ? "#00a37a" : "#fc4c02"}" stroke-width="10"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+        stroke-linecap="round" transform="rotate(-90 60 60)"/>
+      <text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-size="19" font-weight="700">${Math.round(pct*100)}%</text>
+    </svg>`;
+  document.getElementById("goalText").innerHTML = `
+    <div style="font-size:15px;font-weight:700">Week of ${goal.label}</div>
+    <div style="font-size:13px;color:#555;margin-top:4px">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
+})();
 
 document.getElementById("records").innerHTML = records.map(r=>`
   <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
