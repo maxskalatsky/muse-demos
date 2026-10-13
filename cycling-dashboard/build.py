@@ -121,9 +121,10 @@ html = """<!DOCTYPE html>
 
   <div class="card">
     <h2>Trends</h2>
-    <div class="trend"><div class="tlabel">Distance per ride (mi)</div><div id="chDist"></div></div>
-    <div class="trend"><div class="tlabel">Avg speed (mph)</div><div id="chSpeed"></div></div>
-    <div class="trend"><div class="tlabel">Avg power (W)</div><div id="chPower"></div></div>
+    <div class="toggle">
+      <button id="cDist" class="on">Distance</button><button id="cSpeed">Speed</button><button id="cPower">Power</button>
+    </div>
+    <div id="chartArea" style="margin-top:6px"></div>
   </div>
 
   <div class="card">
@@ -135,8 +136,8 @@ html = """<!DOCTYPE html>
     <div class="bars" id="bars"></div>
   </div>
 
-  <div class="feed-head">
-    <h2 id="feedTitle">Recent rides</h2>
+  <div class="feed-head" id="feedHead" style="cursor:pointer">
+    <h2><span id="feedArrow">▾</span> <span id="feedTitle">Recent rides</span></h2>
     <span class="clear" id="clearBtn">Show all</span>
   </div>
   <div id="feed"></div>
@@ -176,9 +177,33 @@ function lineChart(elId, key, color){
     </svg>
     <div class="xlabels">${vals.map((_,i)=>`<span>${shortDate(rides[i].date)}</span>`).join("")}</div>`;
 }
-lineChart("chDist","dist","#fc4c02");
-lineChart("chSpeed","speed","#0069AA");
-lineChart("chPower","watts","#00a37a");
+let chartKey = "dist";
+const chartMeta = {
+  dist:  {color:"#fc4c02", title:"Distance per ride (mi)"},
+  speed: {color:"#0069AA", title:"Avg speed (mph)"},
+  watts: {color:"#00a37a", title:"Avg power (W)"},
+};
+function renderChart(){
+  const meta = chartMeta[chartKey];
+  document.getElementById("chartArea").innerHTML =
+    `<div class="tlabel">${meta.title}</div><div id="chOne"></div>`;
+  lineChart("chOne", chartKey, meta.color);
+}
+[["cDist","dist"],["cSpeed","speed"],["cPower","watts"]].forEach(([id,key])=>{
+  document.getElementById(id).addEventListener("click", ()=>{
+    chartKey = key;
+    ["cDist","cSpeed","cPower"].forEach(x=>document.getElementById(x).classList.toggle("on", x===id));
+    renderChart();
+  });
+});
+renderChart();
+
+let feedOpen = true;
+document.getElementById("feedHead").addEventListener("click", ()=>{
+  feedOpen = !feedOpen;
+  document.getElementById("feed").style.display = feedOpen ? "" : "none";
+  document.getElementById("feedArrow").textContent = feedOpen ? "▾" : "▸";
+});
 
 const bucketMi = b => b.idx.reduce((s,i)=>s+rides[i].dist,0);
 
@@ -254,7 +279,8 @@ document.getElementById("tMonth").addEventListener("click", ()=>{
   document.getElementById("tWeek").classList.remove("on");
   renderBars(); renderFeed();
 });
-document.getElementById("clearBtn").addEventListener("click", ()=>{
+document.getElementById("clearBtn").addEventListener("click", (e)=>{
+  e.stopPropagation();
   activeBucket=-1; renderBars(); renderFeed();
 });
 
