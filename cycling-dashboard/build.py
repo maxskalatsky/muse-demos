@@ -35,8 +35,9 @@ buckets = {
 
 # personal records
 records = []
-def add_rec(key, fmt, title):
-    c = [(r[key], r) for r in rides if r.get(key) is not None]
+def add_rec(key, fmt, title, pool=None):
+    pool = pool if pool is not None else rides
+    c = [(r[key], r) for r in pool if r.get(key) is not None]
     if not c:
         return
     v, r = max(c, key=lambda t: t[0])
@@ -44,9 +45,50 @@ def add_rec(key, fmt, title):
 
 add_rec("dist", lambda v: f"{v:.2f} mi", "Longest ride")
 add_rec("speed", lambda v: f"{v:.1f} mph", "Fastest avg speed")
-add_rec("watts", lambda v: f"{v} W", "Best avg power")
-add_rec("kcal", lambda v: f"{v} kcal", "Most calories")
 add_rec("mins", lambda v: f"{int(v)} min", "Longest time")
+
+# ---- data checks: work (kJ) should equal avg power x time ----
+for r in rides:
+    r["flags"] = []  # [code, title, detail]
+    r["bad"] = {}
+    if r["watts"] is None:
+        r["flags"].append(["nopower", "No power data", "No power, cadence, or work recorded. Excluded from power stats."])
+    if r["mins"] is None:
+        r["flags"].append(["notime", "Time not recorded", "Time-based stats skip this ride."])
+    if r["time"] and r["time"].startswith("~"):
+        r["flags"].append(["approx", "Approximate time", "Duration was logged as an estimate."])
+    if r["kj"] and r["watts"] and r["mins"]:
+        implied_mins = r["kj"] * 1000 / (r["watts"] * 60)
+        off = abs(implied_mins - r["mins"]) / r["mins"]
+        r["consistent"] = off <= 0.05
+        if not r["consistent"]:
+            w = round(r["kj"] * 1000 / (r["mins"] * 60))
+            r["bad"]["watts"] = True
+            r["implied_watts"] = w
+            r["flags"].append(["mismatch", "Power doesn't match work",
+                f"{r['watts']} W recorded, but {r['kj']} kJ over {r['time']} implies {w} W. Recorded average power is likely wrong."])
+
+for i in range(len(rides)):
+    for j in range(i + 1, len(rides)):
+        a, b = rides[i], rides[j]
+        if a["kj"] and a["kj"] == b["kj"] and a["kcal"] and a["kcal"] == b["kcal"]:
+            copy = a if not a.get("consistent") else b
+            other = b if copy is a else a
+            copy["bad"]["kj"] = True
+            copy["bad"]["kcal"] = True
+            copy["flags"].append(["dup", "Possible duplicate reading",
+                f"Same {a['kcal']} kcal and {a['kj']} kJ as {other['label']}. That ride checks out against its own power and time, so this one needs verification."])
+
+_clean_watts = [r for r in rides if r.get("consistent") and not r["bad"].get("watts")]
+_clean_kj = [r for r in rides if r["kj"] and not r["bad"].get("kj")]
+add_rec("watts", lambda v: f"{v} W", "Best avg power", _clean_watts)
+add_rec("kj", lambda v: f"{v} kJ", "Most work", _clean_kj)
+
+checks_data = {
+    "issues": [{"date": r["label"], "title": t, "detail": d}
+               for r in rides for (_, t, d) in r["flags"]],
+    "clean": [r["label"] for r in rides if r.get("consistent")],
+}
 
 # weekly goal: current (latest) week vs target
 _last_w = list(weeks.values())[-1]
@@ -169,6 +211,18 @@ html = """<!DOCTYPE html>
   @media (max-width:640px){ .metrics{ grid-template-columns:repeat(2,1fr); } }
   .metric .v{ font-size:17px; font-weight:700; letter-spacing:-0.01em; }
   .metric .l{ font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-top:2px; }
+  .check{ border:1px solid var(--line); border-left:4px solid #e7a35a; border-radius:10px; padding:12px 16px; margin-bottom:10px; }
+  .check.ok{ border-left-color:#1d7f55; }
+  .check .ct{ font-weight:700; font-size:14px; }
+  .check .cd{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .flagrow{ margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; }
+  .flagchip{ font-size:11px; font-weight:700; color:#b25b00; background:#fbead6; border-radius:999px; padding:3px 10px; cursor:help; }
+  .stepper{ display:inline-flex; align-items:center; gap:8px; }
+  .stepper button{
+    width:26px; height:26px; border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:8px; cursor:pointer; font:700 15px 'Inter',sans-serif; line-height:1;
+  }
+  .stepper button:hover{ background:#f0f0f3; }
   .foot{ text-align:center; color:var(--faint); font-size:12px; margin-top:28px; }
 </style>
 </head>
@@ -181,7 +235,10 @@ html = """<!DOCTYPE html>
 
   <div class="card hero">
     <div class="hero-left">
-      <div class="sect">Weekly goal</div>
+      <div class="sect" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Weekly goal</span>
+        <span class="stepper"><button id="gMinus" aria-label="Lower goal">−</button><button id="gPlus" aria-label="Raise goal">+</button></span>
+      </div>
       <div class="goalrow">
         <div id="goalRing"></div>
         <div id="goalText"></div>
@@ -196,6 +253,12 @@ html = """<!DOCTYPE html>
   <div class="card">
     <h2>Personal records</h2>
     <div class="records" id="records"></div>
+  </div>
+
+  <div class="card">
+    <h2>Data check</h2>
+    <div class="hint" style="margin-bottom:12px">Work (kJ) should equal average power × time. Where it doesn't, one of the numbers is wrong.</div>
+    <div id="checks"></div>
   </div>
 
   <div class="card">
@@ -245,11 +308,13 @@ const goal = __GOAL__;
 })();
 
 /* goal ring */
-(function(){
-  const pct = Math.min(goal.current / goal.goal, 1);
+let goalVal = goal.goal;
+try { const g = +localStorage.getItem("cycleGoal"); if (g > 0) goalVal = g; } catch(e){}
+function renderGoal(){
+  const pct = Math.min(goal.current / goalVal, 1);
   const C = 2 * Math.PI * 54;
   const off = C * (1 - pct);
-  const remaining = Math.max(goal.goal - goal.current, 0);
+  const remaining = Math.max(goalVal - goal.current, 0);
   document.getElementById("goalRing").innerHTML = `
     <svg viewBox="0 0 120 120" width="112" height="112">
       <defs><linearGradient id="goalGrad" x1="0" y1="0" x2="1" y2="1">
@@ -263,13 +328,31 @@ const goal = __GOAL__;
     </svg>`;
   document.getElementById("goalText").innerHTML = `
     <div class="big">Week of ${goal.label}</div>
-    <div class="mid">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
+    <div class="mid">${goal.current.toFixed(1)} of ${goalVal} mi</div>
     <div class="sub">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
-})();
+}
+function bumpGoal(d){
+  goalVal = Math.max(5, goalVal + d);
+  try { localStorage.setItem("cycleGoal", goalVal); } catch(e){}
+  renderGoal();
+}
+document.getElementById("gMinus").addEventListener("click", ()=>bumpGoal(-5));
+document.getElementById("gPlus").addEventListener("click", ()=>bumpGoal(5));
+renderGoal();
 
 /* records */
 document.getElementById("records").innerHTML = records.map(r=>`
   <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
+
+/* data checks */
+const checks = __CHECKS__;
+(function(){
+  let h = checks.issues.map(i=>`
+    <div class="check"><div class="ct">${i.date}: ${i.title}</div><div class="cd">${i.detail}</div></div>`).join("");
+  h += `<div class="check ok"><div class="ct">${checks.clean.length} rides check out</div>` +
+    `<div class="cd">${checks.clean.join(", ")}: work matches power × time within 5%.</div></div>`;
+  document.getElementById("checks").innerHTML = h;
+})();
 
 /* trends */
 const shortDate = d => { const [y,m,dd] = d.split("-"); return `${+m}/${+dd}`; };
@@ -280,6 +363,8 @@ function lineChart(elId, key, color){
   const pts = vals.map((v,i)=>({v,i})).filter(o=>o.v!=null);
   if(pts.length<2){ el.innerHTML = "<div class='hint'>Not enough data yet.</div>"; return; }
   const vs = pts.map(o=>o.v);
+  const showImplied = key === "watts";
+  if(showImplied) pts.forEach(o=>{ const r = rides[o.i]; if(r.bad && r.bad.watts && r.implied_watts != null) vs.push(r.implied_watts); });
   const lo = Math.min(...vs), hi = Math.max(...vs), span = (hi-lo)||1;
   const w=640, h=170, p=38, base=h-30;
   const x = i => p + i*(w-2*p)/(vals.length-1);
@@ -298,7 +383,17 @@ function lineChart(elId, key, color){
       ${[hi,mid,lo].map(v=>`<line x1="${p}" y1="${y(v).toFixed(1)}" x2="${w-16}" y2="${y(v).toFixed(1)}" stroke="#ebebf0" stroke-dasharray="3 4"/>`).join("")}
       <path d="${area}" fill="url(#${gid})"/>
       <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4.5" fill="#fff" stroke="${color}" stroke-width="2.5"/>`).join("")}
+      ${pts.map(o=>{
+        const r = rides[o.i];
+        const cx = x(o.i).toFixed(1), cy = y(o.v).toFixed(1);
+        if(showImplied && r.bad && r.bad.watts && r.implied_watts != null){
+          const iy = y(r.implied_watts).toFixed(1);
+          return `<line x1="${cx}" x2="${cx}" y1="${cy}" y2="${iy}" stroke="#e7a35a" stroke-dasharray="3 3"/>` +
+            `<circle cx="${cx}" cy="${cy}" r="5" fill="#fff" stroke="#e7a35a" stroke-width="2.5"/>` +
+            `<circle cx="${cx}" cy="${iy}" r="3.5" fill="#e7a35a"><title>Implied: ${r.implied_watts} W</title></circle>`;
+        }
+        return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
+      }).join("")}
       <text x="${p-9}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${hi}</text>
       <text x="${p-9}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${lo}</text>
     </svg>
@@ -313,8 +408,10 @@ const chartMeta = {
 };
 function renderChart(){
   const meta = chartMeta[chartKey];
+  const flagged = chartKey === "watts" && rides.some(r=>r.bad && r.bad.watts);
   document.getElementById("chartArea").innerHTML =
-    `<div class="tlabel">${meta.title}</div><div id="chOne"></div>`;
+    `<div class="tlabel">${meta.title}</div><div id="chOne"></div>` +
+    (flagged ? `<div class="hint" style="margin-top:8px">Hollow points failed the work check; orange dots show power implied by work and time.</div>` : "");
   lineChart("chOne", chartKey, meta.color);
 }
 [["cDist","dist"],["cSpeed","speed"],["cPower","watts"]].forEach(([id,key])=>{
@@ -373,6 +470,7 @@ function renderFeed(){
         ${m("Calories", r.kcal==null?null:r.kcal+" kcal")}${m("Avg power", r.watts==null?null:r.watts+" W")}
         ${m("Avg cadence", r.rpm==null?null:r.rpm+" rpm")}${m("Output", r.kj==null?null:r.kj+" kJ")}
       </div>
+      ${r.flags && r.flags.length ? `<div class="flagrow">${r.flags.map(f=>`<span class="flagchip" title="${String(f[2]).replace(/"/g,"&quot;")}">&#9888; ${f[1]}</span>`).join("")}</div>` : ""}
     </div>`).join("");
 }
 
@@ -410,7 +508,7 @@ first = date.fromisoformat(rides[0]["date"])
 last = date.fromisoformat(rides[-1]["date"])
 rng = f"{MONTHS[first.month-1]} {first.day} to {MONTHS[last.month-1]} {last.day}, {last.year}"
 
-html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RECORDS__", js(records)).replace("__GOAL__", js(goal_data)).replace("__RANGE__", rng)
+html = html.replace("__RIDES__", js(rides)).replace("__BUCKETS__", js(buckets)).replace("__RECORDS__", js(records)).replace("__GOAL__", js(goal_data)).replace("__CHECKS__", js(checks_data)).replace("__RANGE__", rng)
 open(os.path.join(HERE, "index.html"), "w").write(html)
 
 # markdown log
@@ -425,7 +523,10 @@ def notes(r):
         w = f"{r['watts']} W" if r["watts"] else ""
         c = f"{r['rpm']} rpm" if r["rpm"] else ""
         rest.append("avg " + " / ".join(x for x in [w, c] if x))
-    return s + ("; " + ", ".join(rest) if rest else "") if (r["kcal"] or r["kj"]) else ""
+    note = s + ("; " + ", ".join(rest) if rest else "") if (r["kcal"] or r["kj"]) else ""
+    if r["flags"]:
+        note = (note + "; " if note else "") + "⚠ " + "; ".join(t for _, t, _ in r["flags"])
+    return note
 
 lines = ["# Cycling Log", ""]
 for wkey, w in weeks.items():

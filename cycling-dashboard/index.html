@@ -108,6 +108,18 @@
   @media (max-width:640px){ .metrics{ grid-template-columns:repeat(2,1fr); } }
   .metric .v{ font-size:17px; font-weight:700; letter-spacing:-0.01em; }
   .metric .l{ font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-top:2px; }
+  .check{ border:1px solid var(--line); border-left:4px solid #e7a35a; border-radius:10px; padding:12px 16px; margin-bottom:10px; }
+  .check.ok{ border-left-color:#1d7f55; }
+  .check .ct{ font-weight:700; font-size:14px; }
+  .check .cd{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .flagrow{ margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; }
+  .flagchip{ font-size:11px; font-weight:700; color:#b25b00; background:#fbead6; border-radius:999px; padding:3px 10px; cursor:help; }
+  .stepper{ display:inline-flex; align-items:center; gap:8px; }
+  .stepper button{
+    width:26px; height:26px; border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:8px; cursor:pointer; font:700 15px 'Inter',sans-serif; line-height:1;
+  }
+  .stepper button:hover{ background:#f0f0f3; }
   .foot{ text-align:center; color:var(--faint); font-size:12px; margin-top:28px; }
 </style>
 </head>
@@ -120,7 +132,10 @@
 
   <div class="card hero">
     <div class="hero-left">
-      <div class="sect">Weekly goal</div>
+      <div class="sect" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Weekly goal</span>
+        <span class="stepper"><button id="gMinus" aria-label="Lower goal">−</button><button id="gPlus" aria-label="Raise goal">+</button></span>
+      </div>
       <div class="goalrow">
         <div id="goalRing"></div>
         <div id="goalText"></div>
@@ -135,6 +150,12 @@
   <div class="card">
     <h2>Personal records</h2>
     <div class="records" id="records"></div>
+  </div>
+
+  <div class="card">
+    <h2>Data check</h2>
+    <div class="hint" style="margin-bottom:12px">Work (kJ) should equal average power × time. Where it doesn't, one of the numbers is wrong.</div>
+    <div id="checks"></div>
   </div>
 
   <div class="card">
@@ -164,9 +185,9 @@
 </div>
 
 <script>
-const rides = [{"date": "2026-09-08", "dist": 10.0, "kcal": null, "kj": null, "label": "Tue Sep 8", "mins": 34.3, "rpm": null, "speed": 17.5, "time": "34:19", "watts": null}, {"date": "2026-09-11", "dist": 9.63, "kcal": 351, "kj": 259, "label": "Fri Sep 11", "mins": 31.6, "rpm": 87, "speed": 18.3, "time": "31:33", "watts": 137}, {"date": "2026-09-14", "dist": 11.22, "kcal": 405, "kj": 299, "label": "Mon Sep 14", "mins": null, "rpm": 76, "speed": null, "time": null, "watts": 134}, {"date": "2026-09-16", "dist": 6.27, "kcal": 231, "kj": 170, "label": "Wed Sep 16", "mins": 20.9, "rpm": 76, "speed": 18.0, "time": "20:56", "watts": 135}, {"date": "2026-09-18", "dist": 10.8, "kcal": 405, "kj": 299, "label": "Fri Sep 18", "mins": 34.7, "rpm": null, "speed": 18.7, "time": "34:41", "watts": 143}, {"date": "2026-09-22", "dist": 12.18, "kcal": 445, "kj": 339, "label": "Tue Sep 22", "mins": 39.3, "rpm": 78, "speed": 16.8, "time": "39:15", "watts": 109}, {"date": "2026-09-24", "dist": 12.93, "kcal": 469, "kj": 346, "label": "Thu Sep 24", "mins": 42.2, "rpm": 77, "speed": 16.6, "time": "42:14", "watts": 105}, {"date": "2026-09-29", "dist": 10.81, "kcal": 399, "kj": 294, "label": "Tue Sep 29", "mins": 35.9, "rpm": 76, "speed": 18.1, "time": "35:54", "watts": 136}, {"date": "2026-10-02", "dist": 10.03, "kcal": 354, "kj": 261, "label": "Fri Oct 2", "mins": 33.3, "rpm": null, "speed": 18.1, "time": "33:20", "watts": 131}, {"date": "2026-10-05", "dist": 15.5, "kcal": 586, "kj": 432, "label": "Mon Oct 5", "mins": 49.2, "rpm": 76, "speed": 17.8, "time": "49:11", "watts": 120}, {"date": "2026-10-13", "dist": 15.37, "kcal": 562, "kj": 415, "label": "Tue Oct 13", "mins": 50.0, "rpm": 77, "speed": 18.5, "time": "~50 min", "watts": 138}];
+const rides = [{"date": "2026-09-08", "dist": 10.0, "kcal": null, "kj": null, "label": "Tue Sep 8", "mins": 34.3, "rpm": null, "speed": 17.5, "time": "34:19", "watts": null, "flags": [["nopower", "No power data", "No power, cadence, or work recorded. Excluded from power stats."]], "bad": {}}, {"date": "2026-09-11", "dist": 9.63, "kcal": 351, "kj": 259, "label": "Fri Sep 11", "mins": 31.6, "rpm": 87, "speed": 18.3, "time": "31:33", "watts": 137, "flags": [], "bad": {}, "consistent": true}, {"date": "2026-09-14", "dist": 11.22, "kcal": 405, "kj": 299, "label": "Mon Sep 14", "mins": null, "rpm": 76, "speed": null, "time": null, "watts": 134, "flags": [["notime", "Time not recorded", "Time-based stats skip this ride."], ["dup", "Possible duplicate reading", "Same 405 kcal and 299 kJ as Fri Sep 18. That ride checks out against its own power and time, so this one needs verification."]], "bad": {"kj": true, "kcal": true}}, {"date": "2026-09-16", "dist": 6.27, "kcal": 231, "kj": 170, "label": "Wed Sep 16", "mins": 20.9, "rpm": 76, "speed": 18.0, "time": "20:56", "watts": 135, "flags": [], "bad": {}, "consistent": true}, {"date": "2026-09-18", "dist": 10.8, "kcal": 405, "kj": 299, "label": "Fri Sep 18", "mins": 34.7, "rpm": null, "speed": 18.7, "time": "34:41", "watts": 143, "flags": [], "bad": {}, "consistent": true}, {"date": "2026-09-22", "dist": 12.18, "kcal": 445, "kj": 339, "label": "Tue Sep 22", "mins": 39.3, "rpm": 78, "speed": 16.8, "time": "39:15", "watts": 109, "flags": [["mismatch", "Power doesn't match work", "109 W recorded, but 339 kJ over 39:15 implies 144 W. Recorded average power is likely wrong."]], "bad": {"watts": true}, "consistent": false, "implied_watts": 144}, {"date": "2026-09-24", "dist": 12.93, "kcal": 469, "kj": 346, "label": "Thu Sep 24", "mins": 42.2, "rpm": 77, "speed": 16.6, "time": "42:14", "watts": 105, "flags": [["mismatch", "Power doesn't match work", "105 W recorded, but 346 kJ over 42:14 implies 137 W. Recorded average power is likely wrong."]], "bad": {"watts": true}, "consistent": false, "implied_watts": 137}, {"date": "2026-09-29", "dist": 10.81, "kcal": 399, "kj": 294, "label": "Tue Sep 29", "mins": 35.9, "rpm": 76, "speed": 18.1, "time": "35:54", "watts": 136, "flags": [], "bad": {}, "consistent": true}, {"date": "2026-10-02", "dist": 10.03, "kcal": 354, "kj": 261, "label": "Fri Oct 2", "mins": 33.3, "rpm": null, "speed": 18.1, "time": "33:20", "watts": 131, "flags": [], "bad": {}, "consistent": true}, {"date": "2026-10-05", "dist": 15.5, "kcal": 586, "kj": 432, "label": "Mon Oct 5", "mins": 49.2, "rpm": 76, "speed": 17.8, "time": "49:11", "watts": 120, "flags": [["mismatch", "Power doesn't match work", "120 W recorded, but 432 kJ over 49:11 implies 146 W. Recorded average power is likely wrong."]], "bad": {"watts": true}, "consistent": false, "implied_watts": 146}, {"date": "2026-10-13", "dist": 15.37, "kcal": 562, "kj": 415, "label": "Tue Oct 13", "mins": 50.0, "rpm": 77, "speed": 18.5, "time": "~50 min", "watts": 138, "flags": [["approx", "Approximate time", "Duration was logged as an estimate."]], "bad": {}, "consistent": true}];
 const buckets = {"week": [{"label": "Sep 7", "idx": [0, 1]}, {"label": "Sep 14", "idx": [2, 3, 4]}, {"label": "Sep 21", "idx": [5, 6]}, {"label": "Sep 28", "idx": [7, 8]}, {"label": "Oct 5", "idx": [9]}, {"label": "Oct 12", "idx": [10]}], "month": [{"label": "Sep 2026", "idx": [0, 1, 2, 3, 4, 5, 6, 7]}, {"label": "Oct 2026", "idx": [8, 9, 10]}]};
-const records = [{"title": "Longest ride", "value": "15.50 mi", "ride": "Mon Oct 5"}, {"title": "Fastest avg speed", "value": "18.7 mph", "ride": "Fri Sep 18"}, {"title": "Best avg power", "value": "143 W", "ride": "Fri Sep 18"}, {"title": "Most calories", "value": "586 kcal", "ride": "Mon Oct 5"}, {"title": "Longest time", "value": "50 min", "ride": "Tue Oct 13"}];
+const records = [{"title": "Longest ride", "value": "15.50 mi", "ride": "Mon Oct 5"}, {"title": "Fastest avg speed", "value": "18.7 mph", "ride": "Fri Sep 18"}, {"title": "Longest time", "value": "50 min", "ride": "Tue Oct 13"}, {"title": "Best avg power", "value": "143 W", "ride": "Fri Sep 18"}, {"title": "Most work", "value": "432 kJ", "ride": "Mon Oct 5"}];
 const goal = {"goal": 30, "current": 15.37, "label": "Oct 12"};
 
 /* hero stats */
@@ -184,11 +205,13 @@ const goal = {"goal": 30, "current": 15.37, "label": "Oct 12"};
 })();
 
 /* goal ring */
-(function(){
-  const pct = Math.min(goal.current / goal.goal, 1);
+let goalVal = goal.goal;
+try { const g = +localStorage.getItem("cycleGoal"); if (g > 0) goalVal = g; } catch(e){}
+function renderGoal(){
+  const pct = Math.min(goal.current / goalVal, 1);
   const C = 2 * Math.PI * 54;
   const off = C * (1 - pct);
-  const remaining = Math.max(goal.goal - goal.current, 0);
+  const remaining = Math.max(goalVal - goal.current, 0);
   document.getElementById("goalRing").innerHTML = `
     <svg viewBox="0 0 120 120" width="112" height="112">
       <defs><linearGradient id="goalGrad" x1="0" y1="0" x2="1" y2="1">
@@ -202,13 +225,31 @@ const goal = {"goal": 30, "current": 15.37, "label": "Oct 12"};
     </svg>`;
   document.getElementById("goalText").innerHTML = `
     <div class="big">Week of ${goal.label}</div>
-    <div class="mid">${goal.current.toFixed(1)} of ${goal.goal} mi</div>
+    <div class="mid">${goal.current.toFixed(1)} of ${goalVal} mi</div>
     <div class="sub">${remaining > 0 ? remaining.toFixed(1) + " mi to go" : "Goal hit. Nice."}</div>`;
-})();
+}
+function bumpGoal(d){
+  goalVal = Math.max(5, goalVal + d);
+  try { localStorage.setItem("cycleGoal", goalVal); } catch(e){}
+  renderGoal();
+}
+document.getElementById("gMinus").addEventListener("click", ()=>bumpGoal(-5));
+document.getElementById("gPlus").addEventListener("click", ()=>bumpGoal(5));
+renderGoal();
 
 /* records */
 document.getElementById("records").innerHTML = records.map(r=>`
   <div class="record"><div class="v">${r.value}</div><div class="t">${r.title}</div><div class="r">${r.ride}</div></div>`).join("");
+
+/* data checks */
+const checks = {"issues": [{"date": "Tue Sep 8", "title": "No power data", "detail": "No power, cadence, or work recorded. Excluded from power stats."}, {"date": "Mon Sep 14", "title": "Time not recorded", "detail": "Time-based stats skip this ride."}, {"date": "Mon Sep 14", "title": "Possible duplicate reading", "detail": "Same 405 kcal and 299 kJ as Fri Sep 18. That ride checks out against its own power and time, so this one needs verification."}, {"date": "Tue Sep 22", "title": "Power doesn't match work", "detail": "109 W recorded, but 339 kJ over 39:15 implies 144 W. Recorded average power is likely wrong."}, {"date": "Thu Sep 24", "title": "Power doesn't match work", "detail": "105 W recorded, but 346 kJ over 42:14 implies 137 W. Recorded average power is likely wrong."}, {"date": "Mon Oct 5", "title": "Power doesn't match work", "detail": "120 W recorded, but 432 kJ over 49:11 implies 146 W. Recorded average power is likely wrong."}, {"date": "Tue Oct 13", "title": "Approximate time", "detail": "Duration was logged as an estimate."}], "clean": ["Fri Sep 11", "Wed Sep 16", "Fri Sep 18", "Tue Sep 29", "Fri Oct 2", "Tue Oct 13"]};
+(function(){
+  let h = checks.issues.map(i=>`
+    <div class="check"><div class="ct">${i.date}: ${i.title}</div><div class="cd">${i.detail}</div></div>`).join("");
+  h += `<div class="check ok"><div class="ct">${checks.clean.length} rides check out</div>` +
+    `<div class="cd">${checks.clean.join(", ")}: work matches power × time within 5%.</div></div>`;
+  document.getElementById("checks").innerHTML = h;
+})();
 
 /* trends */
 const shortDate = d => { const [y,m,dd] = d.split("-"); return `${+m}/${+dd}`; };
@@ -219,6 +260,8 @@ function lineChart(elId, key, color){
   const pts = vals.map((v,i)=>({v,i})).filter(o=>o.v!=null);
   if(pts.length<2){ el.innerHTML = "<div class='hint'>Not enough data yet.</div>"; return; }
   const vs = pts.map(o=>o.v);
+  const showImplied = key === "watts";
+  if(showImplied) pts.forEach(o=>{ const r = rides[o.i]; if(r.bad && r.bad.watts && r.implied_watts != null) vs.push(r.implied_watts); });
   const lo = Math.min(...vs), hi = Math.max(...vs), span = (hi-lo)||1;
   const w=640, h=170, p=38, base=h-30;
   const x = i => p + i*(w-2*p)/(vals.length-1);
@@ -237,7 +280,17 @@ function lineChart(elId, key, color){
       ${[hi,mid,lo].map(v=>`<line x1="${p}" y1="${y(v).toFixed(1)}" x2="${w-16}" y2="${y(v).toFixed(1)}" stroke="#ebebf0" stroke-dasharray="3 4"/>`).join("")}
       <path d="${area}" fill="url(#${gid})"/>
       <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map(o=>`<circle cx="${x(o.i).toFixed(1)}" cy="${y(o.v).toFixed(1)}" r="4.5" fill="#fff" stroke="${color}" stroke-width="2.5"/>`).join("")}
+      ${pts.map(o=>{
+        const r = rides[o.i];
+        const cx = x(o.i).toFixed(1), cy = y(o.v).toFixed(1);
+        if(showImplied && r.bad && r.bad.watts && r.implied_watts != null){
+          const iy = y(r.implied_watts).toFixed(1);
+          return `<line x1="${cx}" x2="${cx}" y1="${cy}" y2="${iy}" stroke="#e7a35a" stroke-dasharray="3 3"/>` +
+            `<circle cx="${cx}" cy="${cy}" r="5" fill="#fff" stroke="#e7a35a" stroke-width="2.5"/>` +
+            `<circle cx="${cx}" cy="${iy}" r="3.5" fill="#e7a35a"><title>Implied: ${r.implied_watts} W</title></circle>`;
+        }
+        return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
+      }).join("")}
       <text x="${p-9}" y="${(y(hi)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${hi}</text>
       <text x="${p-9}" y="${(y(lo)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#a2a2ab" font-weight="600">${lo}</text>
     </svg>
@@ -252,8 +305,10 @@ const chartMeta = {
 };
 function renderChart(){
   const meta = chartMeta[chartKey];
+  const flagged = chartKey === "watts" && rides.some(r=>r.bad && r.bad.watts);
   document.getElementById("chartArea").innerHTML =
-    `<div class="tlabel">${meta.title}</div><div id="chOne"></div>`;
+    `<div class="tlabel">${meta.title}</div><div id="chOne"></div>` +
+    (flagged ? `<div class="hint" style="margin-top:8px">Hollow points failed the work check; orange dots show power implied by work and time.</div>` : "");
   lineChart("chOne", chartKey, meta.color);
 }
 [["cDist","dist"],["cSpeed","speed"],["cPower","watts"]].forEach(([id,key])=>{
@@ -312,6 +367,7 @@ function renderFeed(){
         ${m("Calories", r.kcal==null?null:r.kcal+" kcal")}${m("Avg power", r.watts==null?null:r.watts+" W")}
         ${m("Avg cadence", r.rpm==null?null:r.rpm+" rpm")}${m("Output", r.kj==null?null:r.kj+" kJ")}
       </div>
+      ${r.flags && r.flags.length ? `<div class="flagrow">${r.flags.map(f=>`<span class="flagchip" title="${String(f[2]).replace(/"/g,"&quot;")}">&#9888; ${f[1]}</span>`).join("")}</div>` : ""}
     </div>`).join("");
 }
 
