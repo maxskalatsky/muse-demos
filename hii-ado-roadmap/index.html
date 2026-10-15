@@ -3,118 +3,155 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ADO AI engagement: v1 roadmap (working draft)</title>
+<title>ADO AI engagement — v1 roadmap</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-    margin: 0; padding: 32px 24px 64px; color: #1a1a1a;
-    background-color: #f7f9fb;
-  }
-  .wrap { max-width: 860px; margin: 0 auto; }
-  h1 { font-size: clamp(30px, 5vw, 52px); line-height: 1.05; margin: 0 0 8px; letter-spacing: -0.02em; }
-  h1 .hl { background: #0d2d6b; color: #fff; padding: 0 12px; }
-  .sub { color: #6b7280; font-size: 14px; margin-bottom: 28px; }
-  h2 { font-size: 22px; margin: 34px 0 10px; letter-spacing: -0.01em; color: #0d2d6b; }
-  h3 { font-size: 16px; margin: 18px 0 6px; }
-  p, li { font-size: 15px; line-height: 1.6; color: #333; }
-  ul { padding-left: 20px; margin: 6px 0; }
-  li { margin-bottom: 6px; }
-  .card { background: #fff; border: 1px solid #e2eaf0; border-radius: 12px; padding: 20px 22px; margin: 14px 0; }
-  .pill { display: inline-block; font-size: 12px; font-weight: 700; color: #fff; background: #006699; border-radius: 999px; padding: 3px 12px; margin-bottom: 8px; }
-  .q { background: #fff; border: 1px solid #e2eaf0; border-left: 4px solid #00c99c; border-radius: 8px; padding: 16px 18px; margin: 12px 0; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; color: #1a1a1a; background: #f7f9fb; }
+  .hero { background: #0d2d6b; color: #fff; padding: 40px 24px 34px; }
+  .hero .wrap, .wrap { max-width: 1060px; margin: 0 auto; }
+  .hero h1 { font-size: clamp(30px, 5vw, 50px); margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.05; }
+  .hero p { color: #c8e0ec; font-size: 15px; margin: 0; max-width: 640px; line-height: 1.55; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; background: #00c99c; color: #0d2d6b; border-radius: 999px; padding: 4px 14px; margin-bottom: 14px; }
+  .wrap { padding: 0 24px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: -26px auto 0; max-width: 1060px; padding: 0 24px; }
+  .stat { background: #fff; border: 1px solid #e2eaf0; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(13,45,107,.06); }
+  .stat .num { font-size: 34px; font-weight: 800; color: #0d2d6b; letter-spacing: -0.02em; }
+  .stat .lbl { font-size: 13px; color: #6b7280; margin-top: 4px; line-height: 1.45; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: #6b7280; margin: 40px 0 14px; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } }
+  .card { background: #fff; border: 1px solid #e2eaf0; border-radius: 14px; padding: 20px 22px; box-shadow: 0 2px 10px rgba(13,45,107,.05); }
+  .card h3 { margin: 0 0 4px; font-size: 17px; color: #0d2d6b; }
+  .card .who { font-size: 12.5px; color: #9ca3af; margin-bottom: 10px; }
+  .card ul { margin: 0; padding-left: 18px; }
+  .card li, .card p { font-size: 14.5px; line-height: 1.6; color: #333; }
+  .card li { margin-bottom: 7px; }
+  .bet { background: #0d2d6b; color: #fff; border-radius: 14px; padding: 24px 26px; margin-top: 14px; }
+  .bet p { color: #e6f1fb; font-size: 16px; line-height: 1.65; margin: 0; }
+  .bet strong { color: #00c99c; }
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .roles { grid-template-columns: 1fr; } }
+  .role { background: #fff; border: 1px solid #e2eaf0; border-top: 4px solid #006699; border-radius: 12px; padding: 16px 18px; }
+  .role.lead { border-top-color: #00c99c; }
+  .role.steer { border-top-color: #0d2d6b; }
+  .role h4 { margin: 0 0 6px; font-size: 15px; color: #0d2d6b; }
+  .role p { margin: 0; font-size: 13.5px; color: #4b5563; line-height: 1.55; }
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; background: #fff; border: 1px solid #e2eaf0; border-radius: 14px; overflow: hidden; }
+  @media (max-width: 760px) { .timeline { grid-template-columns: 1fr; } }
+  .step { padding: 22px; position: relative; }
+  .step + .step { border-left: 1px solid #e2eaf0; }
+  @media (max-width: 760px) { .step + .step { border-left: 0; border-top: 1px solid #e2eaf0; } }
+  .step .t { font-size: 13px; font-weight: 800; color: #fff; background: #006699; display: inline-block; border-radius: 999px; padding: 4px 14px; margin-bottom: 10px; }
+  .step:nth-child(2) .t { background: #00c99c; color: #0d2d6b; }
+  .step:nth-child(3) .t { background: #0d2d6b; }
+  .step p { font-size: 14px; color: #333; line-height: 1.6; margin: 0; }
+  .gbb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .gbb { grid-template-columns: 1fr; } }
+  .g { border-radius: 14px; padding: 20px 22px; color: #fff; }
+  .g.good { background: #006699; } .g.better { background: #004f82; } .g.best { background: #0d2d6b; }
+  .g h4 { margin: 0 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: .08em; }
+  .g p { margin: 0; font-size: 14px; line-height: 1.6; color: #e6f1fb; }
+  .inputzone { background: #fff; border: 1px solid #e2eaf0; border-radius: 14px; padding: 24px 26px; margin-top: 8px; }
+  .inputzone h3 { margin: 0 0 4px; font-size: 19px; color: #0d2d6b; }
+  .inputzone > p { font-size: 14px; color: #6b7280; margin: 0 0 16px; }
+  .q { margin: 16px 0; }
   .q label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #0d2d6b; }
-  .q textarea { width: 100%; min-height: 74px; font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #d0dce8; border-radius: 8px; resize: vertical; }
+  .q textarea { width: 100%; min-height: 70px; font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #d0dce8; border-radius: 8px; resize: vertical; }
   .q textarea:focus { outline: 2px solid #006699; border-color: #006699; }
-  .actions { margin: 26px 0; }
-  button { font: inherit; font-size: 15px; font-weight: 700; color: #fff; background: #0d2d6b; border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; }
+  button { font: inherit; font-size: 15px; font-weight: 700; color: #fff; background: #0d2d6b; border: 0; border-radius: 10px; padding: 12px 24px; cursor: pointer; margin-top: 8px; }
   button:hover { background: #004f82; }
-  #done { display: none; margin-top: 14px; font-size: 14px; color: #00a583; font-weight: 600; }
-  #fallback { display: none; margin-top: 14px; }
-  #fallback textarea { width: 100%; min-height: 220px; font: 13px/1.5 monospace; padding: 12px; border: 1px solid #d0dce8; border-radius: 8px; }
-  .foot { margin-top: 40px; font-size: 12.5px; color: #9ca3af; }
+  #done { display: none; margin-top: 12px; font-size: 14px; color: #00a583; font-weight: 600; }
+  #fallback { display: none; margin-top: 12px; }
+  #fallback textarea { width: 100%; min-height: 200px; font: 13px/1.5 monospace; padding: 12px; border: 1px solid #d0dce8; border-radius: 8px; }
+  .foot { max-width: 1060px; margin: 0 auto; padding: 34px 24px 50px; font-size: 12.5px; color: #9ca3af; }
 </style>
 </head>
 <body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="badge">Working draft — for Eric's input</span>
+    <h1>ADO AI engagement: v1 roadmap</h1>
+    <p>Where Max lands, what the motion is, and where ADO could be at 30-90-180 days. Built from the Marc and Jen/Bill conversations and Eric's direction. Not a slide.</p>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">5</div><div class="lbl">Program leaders like Eric in ADO, each running their own portfolio</div></div>
+  <div class="stat"><div class="num">20–30</div><div class="lbl">Paying mission partners per leader, each with implied requirements beyond contract</div></div>
+  <div class="stat"><div class="num">2,000<span style="font-size:18px"> hrs</span></div><div class="lbl">EPMO budget vs. a $200M effort — the constraint every slice lives inside</div></div>
+  <div class="stat"><div class="num">$2.2B</div><div class="lbl">STINGRAI task order for SOUTHCOM sitting in ADO</div></div>
+</div>
+
 <div class="wrap">
-  <h1><span class="hl">ADO AI engagement</span> v1 roadmap</h1>
-  <div class="sub">Working draft, October 2026. Built for Eric's input before Max is in the door. Plain working document, not a deck.</div>
-
-  <h2>The bet</h2>
-  <p>ADO has real productivity gains on the table, and those are legitimate early wins. But if the motion stops at productivity, the gains get absorbed and nothing changes. The bet: start with the wins, build toward a leadership-lab-crowd motion. Todd and Eric lead, Max runs the lab, the crowd gets frontier access. The question underneath is how AI changes what ADO does, not just how fast it does it.</p>
-
-  <h2>Roles</h2>
-  <div class="card">
-    <ul>
-      <li><strong>Todd Gentry (sponsor):</strong> sets the direction, clears the path, decides what the org is trying to become.</li>
-      <li><strong>Eric (lead):</strong> tasks the work and owns the programs where slices land. Brings the team and the pains.</li>
-      <li><strong>Max (steers the motion):</strong> runs the lab. Listens, runs thin slices live, hands off with named owners. Picks what to work on from his vantage point; Eric's ideas are inputs.</li>
-      <li><strong>Eric's team:</strong> the operators. They bring the pains, the data access, and the people who run what gets built.</li>
-      <li><strong>Marc (enterprise):</strong> hardening, cyber alignment, scale. Downstream of validated work, never upstream of discovery.</li>
-      <li><strong>Jen / Bill (EPMO):</strong> the coordination net and the data door. Supplier relationship: Max feeds their picture, never redesigns their operation.</li>
-    </ul>
+  <h2>What the room sees</h2>
+  <div class="cols2">
+    <div class="card">
+      <h3>What Marc sees</h3>
+      <div class="who">CIO, Mission Technologies — from the 9/23 call</div>
+      <ul>
+        <li>Transformation mandate, wants a business-facing face of AI inside the division.</li>
+        <li>Absorption is the biggest inhibitor: the org has to get comfortable as modern tooling permeates.</li>
+        <li>Still staffing the people to run modern tech. The who-pays question on bigger moves is open.</li>
+        <li>His lane is hardening, cyber alignment, scale. Downstream of validated work, never upstream of discovery.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What Jen &amp; Bill see</h3>
+      <div class="who">Enterprise PMO, ADO — from the 10/14 call</div>
+      <ul>
+        <li>Four-year-old indirect entity built to offload admin from PMs: travel, deliverables, purchasing, portals.</li>
+        <li>Starved: ~2,000 hours of entry-level labor against a $200M effort. The ask list only grows.</li>
+        <li>Each program is its own colony; the division is the federation. Standardization vs. customization, every week.</li>
+        <li>Current playbook is incremental and opportunistic: SaaS, low-code, light AI, one database behind the portals. Eric is the early adopter.</li>
+      </ul>
+    </div>
   </div>
 
-  <h2>30-90-180</h2>
-  <div class="card">
-    <ul>
-      <li><strong>30 days:</strong> listen. Sit in on rhythms, learn the tools people actually use, map how work gets from conversation to delivery. Come out with two or three candidate pains. Run the first thin slice live.</li>
-      <li><strong>90 days:</strong> repeat the loop. String wins together. The crowd starts getting frontier access. The business case for the next level of investment starts forming from evidence.</li>
-      <li><strong>180 days:</strong> the motion is established. Handoffs have named owners. The conversation shifts from "can this work" to "where next."</li>
-    </ul>
+  <div class="bet">
+    <p><strong>The bet:</strong> ADO has real productivity wins on the table, and those are legitimate early victories. But if the motion stops at productivity, the gains get absorbed and nothing changes. Start with the wins, build toward the lab motion: Todd and Eric lead, Max runs the lab, the crowd gets frontier access.</p>
+  </div>
+
+  <h2>Roles</h2>
+  <div class="roles">
+    <div class="role lead"><h4>Todd Gentry — sponsor</h4><p>Sets the direction, clears the path, decides what the org is trying to become.</p></div>
+    <div class="role lead"><h4>Eric — lead</h4><p>Tasks the work, owns the programs where slices land. The customer of the motion.</p></div>
+    <div class="role steer"><h4>Max — steers the motion</h4><p>Runs the lab. Listens, runs thin slices live, hands off with named owners. Eric's ideas are inputs his assessment rules on.</p></div>
+    <div class="role"><h4>Eric's team</h4><p>The operators. They bring the pains, the data access, and the people who run what gets built.</p></div>
+    <div class="role"><h4>Marc</h4><p>Enterprise hardening and scale. The downstream path for validated prototypes.</p></div>
+    <div class="role"><h4>Jen / Bill</h4><p>The coordination net and the data door. Supplier relationship: feed their picture, never redesign their operation.</p></div>
+  </div>
+
+  <h2>30 — 90 — 180</h2>
+  <div class="timeline">
+    <div class="step"><span class="t">30 days</span><p>Listen. Sit in on rhythms, learn the tools people actually use, map how work gets from conversation to delivery. Come out with two or three candidate pains. Run the first thin slice live.</p></div>
+    <div class="step"><span class="t">90 days</span><p>Repeat the loop. String wins together. The crowd starts getting frontier access. The business case for the next level of investment forms from evidence.</p></div>
+    <div class="step"><span class="t">180 days</span><p>The motion is established. Handoffs have named owners. The conversation shifts from "can this work" to "where next."</p></div>
   </div>
 
   <h2>How success gets tracked</h2>
-  <div class="card">
-    <ul>
-      <li><strong>Good:</strong> a demo that proves the motion on a real pain. Done fits in one sentence.</li>
-      <li><strong>Better:</strong> repeated demos that string into a pattern the org trusts.</li>
-      <li><strong>Best:</strong> the org runs the motion itself with Max steering. Validated prototypes flowing into the factories.</li>
-    </ul>
-    <p>The line: prod ROI happens in the factories, not in Max's lane. His lane ends at validated prototypes with a business case attached.</p>
+  <div class="gbb">
+    <div class="g good"><h4>Good</h4><p>A demo that proves the motion on a real pain. Done fits in one sentence.</p></div>
+    <div class="g better"><h4>Better</h4><p>Repeated demos that string into a pattern the org trusts.</p></div>
+    <div class="g best"><h4>Best</h4><p>The org runs the motion itself with Max steering. Validated prototypes flowing into the factories. Prod ROI itself lives in the factories, not in Max's lane.</p></div>
   </div>
 
-  <h2><span class="pill">Eric's input</span></h2>
-  <p>Eric, these are the open questions. Type straight into the boxes, then hit the button at the bottom. It copies everything as plain text you can paste into an email back to Max.</p>
-
-  <div class="q">
-    <label for="q1">1. Which programs or parts of ADO should go first?</label>
-    <textarea id="q1" data-q="Which programs or parts of ADO should go first?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q2">2. Where do you see the clearest productivity gains in ADO today?</label>
-    <textarea id="q2" data-q="Where do you see the clearest productivity gains in ADO today?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q3">3. What time horizon should each phase run on?</label>
-    <textarea id="q3" data-q="What time horizon should each phase run on?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q4">4. What does success look like per phase — a working demo, adoption by the team, a business case for investment?</label>
-    <textarea id="q4" data-q="What does success look like per phase?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q5">5. Who funds the lab function — whose budget, whose people, whose time?</label>
-    <textarea id="q5" data-q="Who funds the lab function?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q6">6. What is the data-access path? (Bill's portals team, direct, any clearance boundary to know about?)</label>
-    <textarea id="q6" data-q="What is the data-access path?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q7">7. Who else in HII needs to be involved, and when?</label>
-    <textarea id="q7" data-q="Who else in HII needs to be involved, and when?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q8">8. Is the EPMO's ask list (the mission partners per program leader) in scope as starting material?</label>
-    <textarea id="q8" data-q="Is the EPMO's ask list in scope as starting material?"></textarea>
-  </div>
-  <div class="q">
-    <label for="q9">9. Anything else — what does "good" look like to you in the first 30 days?</label>
-    <textarea id="q9" data-q="Anything else — what does 'good' look like in the first 30 days?"></textarea>
-  </div>
-
-  <div class="actions">
+  <h2>Eric's input — 3 questions</h2>
+  <div class="inputzone">
+    <h3>Eric, your turn</h3>
+    <p>Type straight into the boxes, then hit the button. It copies everything as plain text you can paste into an email back to Max. Nothing is stored anywhere.</p>
+    <div class="q">
+      <label for="q1">1. Which programs or parts of ADO should go first, and where are the clearest early wins?</label>
+      <textarea id="q1" data-q="Which programs or parts of ADO should go first, and where are the clearest early wins?"></textarea>
+    </div>
+    <div class="q">
+      <label for="q2">2. What does success look like at 90 days — a working demo, real adoption, or a business case for bigger investment?</label>
+      <textarea id="q2" data-q="What does success look like at 90 days?"></textarea>
+    </div>
+    <div class="q">
+      <label for="q3">3. What do I need to know going in — data access, key people, landmines?</label>
+      <textarea id="q3" data-q="What do I need to know going in?"></textarea>
+    </div>
     <button id="copyBtn" type="button">Copy my input as email text</button>
     <div id="done">Copied. Paste it into an email back to Max.</div>
     <div id="fallback">
@@ -122,9 +159,9 @@
       <textarea id="fallbackText" readonly></textarea>
     </div>
   </div>
-
-  <div class="foot">Working draft for Eric Lachance and Max Skalatsky, October 2026. For their eyes only.</div>
 </div>
+
+<div class="foot">Working draft for Eric Lachance and Max Skalatsky, October 2026. For their eyes only.</div>
 
 <script>
 document.getElementById('copyBtn').addEventListener('click', function () {
