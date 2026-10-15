@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADO AI engagement: v1 roadmap (working draft)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    margin: 0; padding: 32px 24px 64px; color: #1a1a1a;
+    background-color: #f7f9fb;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: clamp(30px, 5vw, 52px); line-height: 1.05; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h1 .hl { background: #0d2d6b; color: #fff; padding: 0 12px; }
+  .sub { color: #6b7280; font-size: 14px; margin-bottom: 28px; }
+  h2 { font-size: 22px; margin: 34px 0 10px; letter-spacing: -0.01em; color: #0d2d6b; }
+  h3 { font-size: 16px; margin: 18px 0 6px; }
+  p, li { font-size: 15px; line-height: 1.6; color: #333; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  li { margin-bottom: 6px; }
+  .card { background: #fff; border: 1px solid #e2eaf0; border-radius: 12px; padding: 20px 22px; margin: 14px 0; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; color: #fff; background: #006699; border-radius: 999px; padding: 3px 12px; margin-bottom: 8px; }
+  .q { background: #fff; border: 1px solid #e2eaf0; border-left: 4px solid #00c99c; border-radius: 8px; padding: 16px 18px; margin: 12px 0; }
+  .q label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #0d2d6b; }
+  .q textarea { width: 100%; min-height: 74px; font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #d0dce8; border-radius: 8px; resize: vertical; }
+  .q textarea:focus { outline: 2px solid #006699; border-color: #006699; }
+  .actions { margin: 26px 0; }
+  button { font: inherit; font-size: 15px; font-weight: 700; color: #fff; background: #0d2d6b; border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; }
+  button:hover { background: #004f82; }
+  #done { display: none; margin-top: 14px; font-size: 14px; color: #00a583; font-weight: 600; }
+  #fallback { display: none; margin-top: 14px; }
+  #fallback textarea { width: 100%; min-height: 220px; font: 13px/1.5 monospace; padding: 12px; border: 1px solid #d0dce8; border-radius: 8px; }
+  .foot { margin-top: 40px; font-size: 12.5px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="hl">ADO AI engagement</span> v1 roadmap</h1>
+  <div class="sub">Working draft, October 2026. Built for Eric's input before Max is in the door. Plain working document, not a deck.</div>
+
+  <h2>The bet</h2>
+  <p>ADO has real productivity gains on the table, and those are legitimate early wins. But if the motion stops at productivity, the gains get absorbed and nothing changes. The bet: start with the wins, build toward a leadership-lab-crowd motion. Todd and Eric lead, Max runs the lab, the crowd gets frontier access. The question underneath is how AI changes what ADO does, not just how fast it does it.</p>
+
+  <h2>Roles</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Todd Gentry (sponsor):</strong> sets the direction, clears the path, decides what the org is trying to become.</li>
+      <li><strong>Eric (lead):</strong> tasks the work and owns the programs where slices land. Brings the team and the pains.</li>
+      <li><strong>Max (steers the motion):</strong> runs the lab. Listens, runs thin slices live, hands off with named owners. Picks what to work on from his vantage point; Eric's ideas are inputs.</li>
+      <li><strong>Eric's team:</strong> the operators. They bring the pains, the data access, and the people who run what gets built.</li>
+      <li><strong>Marc (enterprise):</strong> hardening, cyber alignment, scale. Downstream of validated work, never upstream of discovery.</li>
+      <li><strong>Jen / Bill (EPMO):</strong> the coordination net and the data door. Supplier relationship: Max feeds their picture, never redesigns their operation.</li>
+    </ul>
+  </div>
+
+  <h2>30-90-180</h2>
+  <div class="card">
+    <ul>
+      <li><strong>30 days:</strong> listen. Sit in on rhythms, learn the tools people actually use, map how work gets from conversation to delivery. Come out with two or three candidate pains. Run the first thin slice live.</li>
+      <li><strong>90 days:</strong> repeat the loop. String wins together. The crowd starts getting frontier access. The business case for the next level of investment starts forming from evidence.</li>
+      <li><strong>180 days:</strong> the motion is established. Handoffs have named owners. The conversation shifts from "can this work" to "where next."</li>
+    </ul>
+  </div>
+
+  <h2>How success gets tracked</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Good:</strong> a demo that proves the motion on a real pain. Done fits in one sentence.</li>
+      <li><strong>Better:</strong> repeated demos that string into a pattern the org trusts.</li>
+      <li><strong>Best:</strong> the org runs the motion itself with Max steering. Validated prototypes flowing into the factories.</li>
+    </ul>
+    <p>The line: prod ROI happens in the factories, not in Max's lane. His lane ends at validated prototypes with a business case attached.</p>
+  </div>
+
+  <h2><span class="pill">Eric's input</span></h2>
+  <p>Eric, these are the open questions. Type straight into the boxes, then hit the button at the bottom. It copies everything as plain text you can paste into an email back to Max.</p>
+
+  <div class="q">
+    <label for="q1">1. Which programs or parts of ADO should go first?</label>
+    <textarea id="q1" data-q="Which programs or parts of ADO should go first?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q2">2. Where do you see the clearest productivity gains in ADO today?</label>
+    <textarea id="q2" data-q="Where do you see the clearest productivity gains in ADO today?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q3">3. What time horizon should each phase run on?</label>
+    <textarea id="q3" data-q="What time horizon should each phase run on?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q4">4. What does success look like per phase — a working demo, adoption by the team, a business case for investment?</label>
+    <textarea id="q4" data-q="What does success look like per phase?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q5">5. Who funds the lab function — whose budget, whose people, whose time?</label>
+    <textarea id="q5" data-q="Who funds the lab function?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q6">6. What is the data-access path? (Bill's portals team, direct, any clearance boundary to know about?)</label>
+    <textarea id="q6" data-q="What is the data-access path?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q7">7. Who else in HII needs to be involved, and when?</label>
+    <textarea id="q7" data-q="Who else in HII needs to be involved, and when?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q8">8. Is the EPMO's ask list (the mission partners per program leader) in scope as starting material?</label>
+    <textarea id="q8" data-q="Is the EPMO's ask list in scope as starting material?"></textarea>
+  </div>
+  <div class="q">
+    <label for="q9">9. Anything else — what does "good" look like to you in the first 30 days?</label>
+    <textarea id="q9" data-q="Anything else — what does 'good' look like in the first 30 days?"></textarea>
+  </div>
+
+  <div class="actions">
+    <button id="copyBtn" type="button">Copy my input as email text</button>
+    <div id="done">Copied. Paste it into an email back to Max.</div>
+    <div id="fallback">
+      <p style="font-size:14px">Copy didn't work in this browser. Select the text below and copy it manually:</p>
+      <textarea id="fallbackText" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="foot">Working draft for Eric Lachance and Max Skalatsky, October 2026. For their eyes only.</div>
+</div>
+
+<script>
+document.getElementById('copyBtn').addEventListener('click', function () {
+  var parts = ['Eric\'s input — ADO AI engagement v1 roadmap', ''];
+  document.querySelectorAll('.q textarea').forEach(function (ta, i) {
+    var q = ta.getAttribute('data-q');
+    var a = ta.value.trim() || '(no answer)';
+    parts.push((i + 1) + '. ' + q);
+    parts.push('   ' + a);
+    parts.push('');
+  });
+  var text = parts.join('\n');
+  function showFallback() {
+    document.getElementById('fallbackText').value = text;
+    document.getElementById('fallback').style.display = 'block';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () {
+      document.getElementById('done').style.display = 'block';
+    }, showFallback);
+  } else {
+    showFallback();
+  }
+});
+</script>
+</body>
+</html>
