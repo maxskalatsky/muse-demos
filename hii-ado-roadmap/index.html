@@ -48,6 +48,21 @@
   .goal { background: #e9faf5; border: 1px solid #00c99c; border-radius: 14px; padding: 20px 24px; margin-top: 14px; }
   .goal p { margin: 0; font-size: 15px; line-height: 1.65; color: #0d2d6b; }
   .goal strong { color: #0d2d6b; }
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 760px) { .pgrid { grid-template-columns: 1fr; } }
+  .pq { border-radius: 14px; padding: 20px 22px; border: 1px solid #e2eaf0; }
+  .pq h4 { margin: 0 0 2px; font-size: 17px; }
+  .pq .pqsub { font-size: 12.5px; font-weight: 600; margin-bottom: 8px; }
+  .pq p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+  .pq.accel { background: #0d2d6b; border-color: #0d2d6b; }
+  .pq.accel h4, .pq.accel .pqsub { color: #fff; }
+  .pq.accel p { color: #c8e0ec; }
+  .pq.unlock { background: #dbe9f6; border-color: #bcd6ef; }
+  .pq.unlock h4 { color: #0d2d6b; } .pq.unlock .pqsub { color: #006699; } .pq.unlock p { color: #33475c; }
+  .pq.quick { background: #eef2f6; }
+  .pq.quick h4 { color: #0d2d6b; } .pq.quick .pqsub { color: #6b7280; } .pq.quick p { color: #4b5563; }
+  .pq.depri { background: #fff; }
+  .pq.depri h4 { color: #0d2d6b; } .pq.depri .pqsub { color: #6b7280; } .pq.depri p { color: #4b5563; }
   .foot { max-width: 1060px; margin: 0 auto; padding: 34px 24px 50px; font-size: 12.5px; color: #9ca3af; }
 </style>
 </head>
@@ -86,6 +101,21 @@
     <div class="pr"><h4>Stay model-flexible</h4><p>Do not marry today's models or harness. Switch mid-flight when something better appears. Inside guardrails the cyber risk is manageable; that distinction matters.</p></div>
   </div>
 
+  <h2>How we pick: the portfolio grid</h2>
+  <div class="card">
+    <p style="margin-top:0">Every ask gets scored on two questions: <strong>can we execute it today?</strong> and <strong>how big is the prize?</strong> Where it lands sets the rule. This is how the 1-2 deep picks get made: a shared decision with Eric, not a judgment call.</p>
+  </div>
+  <div class="pgrid">
+    <div class="pq unlock"><h4>Invest to Unlock</h4><div class="pqsub">Big prize, not ready yet</div><p>Fix what is blocking it, whether that is data, ownership, or policy, before scaling it.</p></div>
+    <div class="pq accel"><h4>Accelerate Now</h4><div class="pqsub">Ready now, big prize</div><p>Fund it, give it an owner and a measure, and move. The first wave comes from here.</p></div>
+    <div class="pq depri"><h4>Deprioritize</h4><div class="pqsub">Not ready, smaller prize</div><p>Stop it, merge it, or renegotiate scope. In ADO a paying partner's ask gets renegotiated, not killed.</p></div>
+    <div class="pq quick"><h4>Quick Wins</h4><div class="pqsub">Ready now, smaller prize</div><p>Keep it running while it pays, but do not add to it. Count separately from goal progress.</p></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <p style="margin-top:0"><strong>The picking rules.</strong> Rank by odds of success first, then return: the first wave has to prove the org can turn AI into measurable results. Every pilot gets an owner, a checkable outcome, and a cost. Go/no-go criteria get written before the pilot starts, no pilot purgatory. When we do not know if AI can do the work, the test states what it needs to learn.</p>
+    <p style="margin-bottom:0">Impact scores against mission outcomes and contract health, not just revenue. Goals here live in task orders, not CEO slide decks.</p>
+  </div>
+
   <h2>Roles</h2>
   <div class="roles">
     <div class="role cmd"><h4>Todd: higher command</h4><p>Sets the objective, clears the path.</p></div>
@@ -98,7 +128,7 @@
 
   <h2>30: 60: 90</h2>
   <div class="timeline">
-    <div class="step"><span class="t">30 days</span><p>Pick 1-2 items to excavate deeply and run 3-5 explorations in parallel. The parallel work demos agentic separation: project-level tasks assigned like a team. Show something that changes their world, live. Listen first, then show.</p></div>
+    <div class="step"><span class="t">30 days</span><p>Run the asks through the portfolio grid with Eric. Pick 1-2 items to excavate deeply and run 3-5 explorations in parallel. The parallel work demos agentic separation: project-level tasks assigned like a team. Show something that changes their world, live. Listen first, then show.</p></div>
     <div class="step"><span class="t">60 days</span><p>Setup on the identified win. Standing it up with Eric's team, data wired, the right people in the loop.</p></div>
     <div class="step"><span class="t">90 days</span><p>The one agreed task, workflow, or tangible thing heading for deployment. In the factory path with a named owner.</p></div>
   </div>
