@@ -73,6 +73,11 @@
   .mo li em { font-style: normal; color: var(--warn); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
   .logpanel { padding: 16px 20px 18px; }
   .logpanel p { font-size: 13.5px; color: var(--body); }
+  .log { display: grid; gap: 14px; }
+  .log h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+  .log .rows { display: grid; gap: 6px; }
+  .log .lrow { background: var(--page); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 13.5px; }
+  .log .lrow.example { border-style: dashed; }
   .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
   .nav a { font-size: 13px; font-weight: 700; color: #c8e0ec; text-decoration: none; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 12px; }
   .nav a:hover { background: rgba(255,255,255,.12); }
@@ -324,10 +329,15 @@
 </section>
 
 <section id="log">
-  <div class="shead"><h2>Service log</h2><p>Empty on purpose — entries appear here as the owner records them</p></div>
-  <div class="panel logpanel">
-    <p>No entries yet. Log one line per job: date, what was done, and next due. Grouped by month, same as the Florida dashboard. Example format: “2026-10-26: walked property, photographed water heater nameplate (placeholder). Next: fill in model and age.”</p>
+  <div class="shead"><h2>Service log</h2><p>Grouped by month, one line per job</p></div>
+  <div class="panel logpanel"><div class="log">
+    <div><h4>Example — October 2026 (not real entries)</h4><div class="rows">
+      <div class="lrow example">2026-10-15: heating system serviced, filters replaced (EXAMPLE; next service ~Oct 2027)</div>
+      <div class="lrow example">2026-10-12: septic tank pumped (EXAMPLE; next pump-out ~Oct 2029)</div>
+      <div class="lrow example">2026-10-08: barn water lines checked before first freeze, heat tape tested (EXAMPLE; recheck each fall)</div>
+    </div></div>
   </div>
+  <p style="margin-top:12px">Example only. These three rows are invented to show the format: date, what was done, and next due in parentheses. Real entries replace them as jobs are recorded.</p></div>
 </section>
 
 </main>
