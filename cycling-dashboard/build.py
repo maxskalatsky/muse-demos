@@ -107,6 +107,8 @@ def js(v):
 # read from the chart bars (they average to ~3,430, matching 3,439).
 steps_week = {
     "label": "Oct 20-26, 2026",
+    "start": "2026-10-20",
+    "end": "2026-10-26",
     "average": 3439,
     "days": [
         ["Tue", 1400], ["Wed", 2800], ["Thu", 1200], ["Fri", 3400],
@@ -259,7 +261,14 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
       <div><div class="num" style="font-size:36px" id="stepsAvg"></div><div style="font-size:13px;color:var(--muted)">avg steps / day</div></div>
     </div>
     <div class="steps" id="stepsBars"></div>
-    <div class="steps-note">Daily values read from the Apple Health chart, approximate. Average as reported by Apple Health. Source: screenshot shared Oct 26, 2026.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;font-size:13px;color:var(--muted)">
+      <span>Walking <b class="mono" id="stepsWalk"></b></span>
+      <span>Rides <b class="mono" id="stepsRides"></b></span>
+      <span>Combined <b class="mono" id="stepsCombined"></b></span>
+    </div>
+    <div class="goalbar"><i id="stepsGoalFill"></i></div>
+    <div style="font-size:13px;color:var(--muted)" id="stepsGoalNote"></div>
+    <div class="steps-note">Every step counts: 2,000 steps = 1 mile. Daily values read from the Apple Health chart, approximate. Average as reported by Apple Health. Source: screenshot shared Oct 26, 2026.</div>
   </section>
 
   <div class="grid2">
@@ -346,6 +355,14 @@ document.getElementById("sub").textContent = `${fmt(rides[0].date)} to ${fmt(TOD
   document.getElementById("stepsAvg").textContent = stepsWeek.average.toLocaleString();
   document.getElementById("stepsBars").innerHTML = stepsWeek.days.map(([d, v]) =>
     `<div class="bar"><b>~${v.toLocaleString()}</b><i style="height:${Math.round(v / max * 150)}px"></i><span>${d}</span></div>`).join("");
+  const walkMi = sum(stepsWeek.days, d => d[1]) / 2000;
+  const rideMi = sum(rides.filter(r => r.date >= stepsWeek.start && r.date <= stepsWeek.end), r => r.dist);
+  const combined = walkMi + rideMi, pct = Math.min(combined / goal.goal, 1);
+  document.getElementById("stepsWalk").textContent = `~${walkMi.toFixed(1)} mi`;
+  document.getElementById("stepsRides").textContent = `${rideMi.toFixed(1)} mi`;
+  document.getElementById("stepsCombined").textContent = `${combined.toFixed(1)} mi`;
+  document.getElementById("stepsGoalFill").style.width = `${Math.round(pct * 100)}%`;
+  document.getElementById("stepsGoalNote").textContent = `${combined.toFixed(1)} of ${goal.goal} mi weekly goal · ${Math.round(pct * 100)}%`;
 })();
 
 /* this week + goal */
