@@ -142,5 +142,17 @@
   "watts": null,
   "rpm": null,
   "speed": 18.6
+ },
+ {
+  "date": "2026-10-20",
+  "label": "Tue Oct 20",
+  "dist": 13.64,
+  "mins": 44.6,
+  "time": "44:37",
+  "kcal": 491,
+  "kj": 362,
+  "watts": 135,
+  "rpm": 76,
+  "speed": 18.3
  }
 ]
