@@ -102,6 +102,18 @@ goal_data = {
 def js(v):
     return json.dumps(v)
 
+# steps week from the Apple Health screenshot shared Oct 26, 2026.
+# Average is as reported by Apple Health; daily values are approximate,
+# read from the chart bars (they average to ~3,430, matching 3,439).
+steps_week = {
+    "label": "Oct 20-26, 2026",
+    "average": 3439,
+    "days": [
+        ["Tue", 1400], ["Wed", 2800], ["Thu", 1200], ["Fri", 3400],
+        ["Sat", 5700], ["Sun", 4200], ["Mon", 5300],
+    ],
+}
+
 html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -205,6 +217,14 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
 .metric .v{font-size:16px;font-weight:600;font-family:var(--mono)}
 .metric .l{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-top:2px}
 .foot{font-size:12px;color:var(--faint);text-align:center}
+
+/* steps */
+.steps{display:flex;align-items:flex-end;gap:14px;height:170px;padding:8px 4px 0;border-bottom:1px solid var(--line)}
+.steps .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.steps .bar i{display:block;width:100%;max-width:56px;border-radius:6px 6px 0 0;background:var(--accent)}
+.steps .bar b{font-size:12px;font-weight:600;font-family:var(--mono);white-space:nowrap}
+.steps .bar span{font-size:12px;color:var(--muted)}
+.steps-note{font-size:12px;color:var(--faint);margin-top:10px}
 </style>
 
 <div class="wrap">
@@ -231,6 +251,15 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
         <div style="font-size:13px;color:var(--muted)" id="weekNote"></div>
       </div>
     </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Steps</h2><p id="stepsSub"></p></div>
+      <div><div class="num" style="font-size:36px" id="stepsAvg"></div><div style="font-size:13px;color:var(--muted)">avg steps / day</div></div>
+    </div>
+    <div class="steps" id="stepsBars"></div>
+    <div class="steps-note">Daily values read from the Apple Health chart, approximate. Average as reported by Apple Health. Source: screenshot shared Oct 26, 2026.</div>
   </section>
 
   <div class="grid2">
@@ -269,6 +298,7 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
 
 <script>
 const rides = __RIDES__;
+const stepsWeek = __STEPS__;
 const weekList = __WEEKS__;
 const records = __RECORDS__;
 const goal = __GOAL__;
@@ -307,6 +337,15 @@ document.getElementById("sub").textContent = `${fmt(rides[0].date)} to ${fmt(TOD
   ];
   document.getElementById("readout").innerHTML =
     tiles.map(([l,v,u,c])=>`<div><div class="label">${l}</div><div class="num">${v}<small>${u}</small></div><div class="cov">${c}</div></div>`).join("");
+})();
+
+/* steps */
+(function(){
+  const max = Math.max(...stepsWeek.days.map(d => d[1]));
+  document.getElementById("stepsSub").textContent = `Week of ${stepsWeek.label} · Apple Health`;
+  document.getElementById("stepsAvg").textContent = stepsWeek.average.toLocaleString();
+  document.getElementById("stepsBars").innerHTML = stepsWeek.days.map(([d, v]) =>
+    `<div class="bar"><b>~${v.toLocaleString()}</b><i style="height:${Math.round(v / max * 150)}px"></i><span>${d}</span></div>`).join("");
 })();
 
 /* this week + goal */
@@ -499,6 +538,7 @@ renderWeek(); renderWeekly(); renderFeed();
 """
 
 html = (html.replace("__RIDES__", js(rides))
+            .replace("__STEPS__", js(steps_week))
             .replace("__WEEKS__", js(week_list))
             .replace("__RECORDS__", js(records))
             .replace("__GOAL__", js({**goal_data, "today": TODAY}))
