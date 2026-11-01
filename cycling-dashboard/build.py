@@ -102,17 +102,18 @@ goal_data = {
 def js(v):
     return json.dumps(v)
 
-# steps week from the Apple Health screenshot shared Oct 26, 2026.
-# Average is as reported by Apple Health; daily values are approximate,
-# read from the chart bars (they average to ~3,430, matching 3,439).
+# steps week from the Apple Health screenshot shared Nov 1, 2026.
+# Saturday Oct 31 is exact (7,257, labeled in the screenshot); other daily
+# values are approximate, read from the chart bars. Sunday's bar is partial,
+# as of the 10:07 AM screenshot, and will be finalized with a later shot.
 steps_week = {
-    "label": "Oct 20-26, 2026",
-    "start": "2026-10-20",
-    "end": "2026-10-26",
-    "average": 3439,
+    "label": "Oct 26-Nov 1, 2026",
+    "start": "2026-10-26",
+    "end": "2026-11-01",
+    "average": 5494,
     "days": [
-        ["Tue", 1400], ["Wed", 2800], ["Thu", 1200], ["Fri", 3400],
-        ["Sat", 5700], ["Sun", 4200], ["Mon", 5300],
+        ["Mon", 8700], ["Tue", 5400], ["Wed", 3200], ["Thu", 6700],
+        ["Fri", 2800], ["Sat", 7257], ["Sun", 4400],
     ],
 }
 
@@ -268,7 +269,7 @@ svg text{fill:var(--faint);font-family:var(--mono);font-size:10px}
     </div>
     <div class="goalbar"><i id="stepsGoalFill"></i></div>
     <div style="font-size:13px;color:var(--muted)" id="stepsGoalNote"></div>
-    <div class="steps-note">Every step counts: 2,000 steps = 1 mile. Daily values read from the Apple Health chart, approximate. Average as reported by Apple Health. Source: screenshot shared Oct 26, 2026.</div>
+    <div class="steps-note">Every step counts: 2,000 steps = 1 mile. Daily values read from the Apple Health chart, approximate; Saturday Oct 31 is exact at 7,257, and Sunday's bar is partial as of the 10:07 AM screenshot. Source: screenshot shared Nov 1, 2026.</div>
   </section>
 
   <div class="grid2">
