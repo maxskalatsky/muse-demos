@@ -251,10 +251,8 @@
   .rmclose{margin-left:auto;color:#fff;font-size:22px;line-height:1;padding:4px 8px;border-radius:8px}
   .rmclose:hover{background:rgba(255,255,255,.14)}
   .rmbody{padding:16px 20px 24px;overflow:auto;flex:1}
-  .rmadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:2fr 1fr auto auto;gap:8px;margin-bottom:16px}
-  .rmadd #rmNote{grid-column:1 / -1}
-  .rmadd input,.rmadd select{padding:8px 10px;border:1px solid var(--line2);border-radius:8px;font:inherit;font-size:13px;width:100%}
-  .rmadd button{background:var(--teal);color:var(--navy);font-weight:750;border-radius:8px;padding:8px 16px;font-size:13px}
+  .rmsearch{margin-bottom:12px}
+  .rmsearch input{width:100%;padding:9px 12px;border:1px solid var(--line2);border-radius:9px;font:inherit;font-size:13px;background:#fff}
   .rmcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
   .rmcol{background:#eef3f8;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:180px}
   .rmcol.drop{border-color:var(--teal);background:#eafaf5}
@@ -275,12 +273,11 @@
   .rmcard .acts button{font-size:11.5px;font-weight:700;color:var(--blue);border:1px solid var(--line2);border-radius:7px;padding:3px 9px;background:#fff}
   .rmcard .acts button:hover{border-color:var(--blue)}
   .rmcard .acts button.donebtn{background:var(--teal);border-color:var(--teal);color:var(--navy)}
-  .rmcard .acts button.delbtn{color:#b3261e}
   .rmcard .acts select{font-size:11.5px;font-weight:600;color:var(--deep);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;background:#fff}
   .rmfoot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);background:#fff}
   .rmfoot button{color:var(--blue);font-weight:650;font-size:12px}
-  @media (max-width:900px){.rmcols{grid-template-columns:repeat(2,minmax(0,1fr))}.rmadd{grid-template-columns:1fr 1fr}}
-  @media (max-width:560px){.rmcols{grid-template-columns:1fr}.rmadd{grid-template-columns:1fr}}
+  @media (max-width:900px){.rmcols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:560px){.rmcols{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -340,22 +337,12 @@
   <div class="rmhead">
     <div>
       <h2>Roadmap: making the map better</h2>
-      <p>What is next for this page, in order. Drag a card to move it, or use the buttons. Mark it done when it ships. Changes save on this machine.</p>
+      <p>What is next for this page, in order. Search filters every card. Drag a card to move it, or use the buttons. Mark it done when it ships. Changes save on this machine.</p>
     </div>
     <button class="rmclose" id="rmClose" aria-label="Close roadmap">&times;</button>
   </div>
   <div class="rmbody">
-    <div class="rmadd">
-      <input id="rmTitle" type="text" placeholder="New item, for example: Show portal score per person" maxlength="90">
-      <input id="rmBy" type="text" placeholder="Requested by, for example: Angela Edwards" maxlength="40">
-      <input id="rmNote" type="text" placeholder="One line on why it matters" maxlength="180">
-      <select id="rmCol" aria-label="Column">
-        <option value="now">Now</option>
-        <option value="next" selected>Next</option>
-        <option value="later">Later</option>
-      </select>
-      <button id="rmAdd">Add item</button>
-    </div>
+    <div class="rmsearch"><input id="rmQ" type="search" placeholder="Search the roadmap, try: Angela, mod, TDL" aria-label="Search the roadmap"></div>
     <div class="rmcols" id="rmCols"></div>
   </div>
   <div class="rmfoot">
@@ -927,7 +914,7 @@ select(fromHash(), false);
    ROADMAP. Kanban inside the tool. State saves in localStorage
    on this machine, so moves and done items survive a reload.
    ========================================================== */
-const RM_KEY = "logix-roadmap-v1";
+const RM_KEY = "logix-roadmap-v2";
 const RM_COLS = [
   {id:"now", title:"Now", hint:"Being worked on."},
   {id:"next", title:"Next", hint:"Queued up."},
@@ -937,7 +924,6 @@ const RM_COLS = [
 const RM_DEFAULT = [
   {id:"finish-tdls", col:"now", tag:"Spec", by:"Max Skalatsky", title:"Finish the 20 remaining TDLs", note:"Layer 2 is still empty for 20 of 23 TDLs. Add the lead, phase, portal score, and what each one does."},
   {id:"tdl-details", col:"now", tag:"Spec", by:"Max Skalatsky", title:"Mission partner, description, and contact info per TDL", note:"One line on what the TDL does, who the mission partner is, and how to reach the lead."},
-  {id:"eric-edits", col:"now", tag:"Eric", by:"Eric Lachance", title:"Apply Eric's markups from his review", note:"Eric already sent a few fixes after seeing it. Fold them in and show him the result."},
   {id:"mod-auto", col:"next", tag:"Angela", by:"Angela Edwards", title:"A mod change updates the chart by itself", note:"When a mod changes a COR or ACOR, the new name should land in the chart and the short sheets without someone retyping it. Start with COR and ACOR only."},
   {id:"person-docs", col:"next", tag:"Angela", by:"Angela Edwards", title:"Click a name, see their documents", note:"RIPs, training records, and links tied to the person, searchable from their name. Angela asked for this."},
   {id:"partner-view", col:"next", tag:"Eric", by:"Eric Lachance", title:"A view for mission partners and customers", note:"Let the customer see their contractor team. Open question: they are off the HII network, so access needs a decision before this ships."},
@@ -951,6 +937,12 @@ const RM_DEFAULT = [
   {id:"tdl-pattern", col:"done", tag:"Spec", by:"Max Skalatsky", title:"Three TDLs filled in to set the pattern", note:"1C8, 1U1, and 1L5 are filled in to show what a finished TDL looks like."}
 ];
 let rmCards = [];
+let rmFilter = "";
+function rmVisible(c){
+  if (!rmFilter) return true;
+  const hay = (c.title + " " + c.note + " " + (c.by || "") + " " + c.tag).toLowerCase();
+  return hay.includes(rmFilter);
+}
 function rmLoad(){
   try{
     const raw = localStorage.getItem(RM_KEY);
@@ -974,11 +966,11 @@ function rmOpenCount(){ return rmCards.filter(c => c.col !== "done").length; }
 function rmRender(){
   const cols = document.getElementById("rmCols");
   cols.innerHTML = RM_COLS.map(col => {
-    const cards = rmCards.filter(c => c.col === col.id);
+    const cards = rmCards.filter(c => c.col === col.id && rmVisible(c));
     return `<div class="rmcol" data-col="${col.id}">
       <h3>${col.title}<span>${cards.length}</span></h3>
       <p class="hint">${col.hint}</p>
-      <div class="rmcards">${cards.map(rmCardHtml).join("") || `<p class="hint">Nothing here yet.</p>`}</div>
+      <div class="rmcards">${cards.map(rmCardHtml).join("") || `<p class="hint">${rmFilter ? "No match in this column." : "Nothing here yet."}</p>`}</div>
     </div>`;
   }).join("");
   const open = rmOpenCount();
@@ -1015,7 +1007,6 @@ function rmCardHtml(c){
     <p>${esc(c.note)}</p>
     <div class="req">Requested by <b>${esc(c.by || c.tag)}</b></div>
     <div class="acts">${move}
-      <button class="delbtn" data-act="del" data-id="${c.id}">Delete</button>
       <select data-act="move" data-id="${c.id}" aria-label="Move to">${opts}</select>
     </div>
   </div>`;
@@ -1027,10 +1018,6 @@ document.getElementById("rmCols").addEventListener("click", e => {
   if (!card) return;
   if (btn.dataset.act === "done") card.col = "done";
   else if (btn.dataset.act === "reopen") card.col = "next";
-  else if (btn.dataset.act === "del"){
-    if (confirm("Delete this item from the roadmap?")) rmCards = rmCards.filter(x => x.id !== card.id);
-    else return;
-  }
   rmSave(); rmRender();
 });
 document.getElementById("rmCols").addEventListener("change", e => {
@@ -1041,16 +1028,9 @@ document.getElementById("rmCols").addEventListener("change", e => {
   card.col = sel.value;
   rmSave(); rmRender();
 });
-document.getElementById("rmAdd").addEventListener("click", () => {
-  const title = document.getElementById("rmTitle").value.trim();
-  const by = document.getElementById("rmBy").value.trim() || "Team";
-  const note = document.getElementById("rmNote").value.trim() || "Added by the team.";
-  if (!title) { document.getElementById("rmTitle").focus(); return; }
-  rmCards.push({id:"u" + Date.now(), col:document.getElementById("rmCol").value, tag:"Team", by:by, title:title, note:note});
-  document.getElementById("rmTitle").value = "";
-  document.getElementById("rmBy").value = "";
-  document.getElementById("rmNote").value = "";
-  rmSave(); rmRender();
+document.getElementById("rmQ").addEventListener("input", e => {
+  rmFilter = e.target.value.trim().toLowerCase();
+  rmRender();
 });
 document.getElementById("rmReset").addEventListener("click", () => {
   rmCards = RM_DEFAULT.map(c => ({...c}));
