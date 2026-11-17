@@ -274,6 +274,12 @@
   .rmcard .acts button:hover{border-color:var(--blue)}
   .rmcard .acts button.donebtn{background:var(--teal);border-color:var(--teal);color:var(--navy)}
   .rmcard .acts select{font-size:11.5px;font-weight:600;color:var(--deep);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;background:#fff}
+  .rm-link{float:right;color:var(--blue);font-weight:700;font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+  .rm-item{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .rm-item:hover{border-color:var(--blue)}
+  .rm-item .pill{flex:none;margin-top:1px}
+  .rm-item b{display:block;font-size:13px;color:var(--navy);font-weight:650;line-height:1.35}
+  .rm-item small{display:block;font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
   .rmfoot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);background:#fff}
   .rmfoot button{color:var(--blue);font-weight:650;font-size:12px}
   @media (max-width:900px){.rmcols{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -336,7 +342,7 @@
 <aside class="rmpanel" id="rmPanel" aria-label="Product roadmap">
   <div class="rmhead">
     <div>
-      <h2>Roadmap: making the map better</h2>
+      <h2>Feature Roadmap</h2>
       <p>What is next for this page, in order. Search filters every card. Drag a card to move it, or use the buttons. Mark it done when it ships. Changes save on this machine.</p>
     </div>
     <button class="rmclose" id="rmClose" aria-label="Close roadmap">&times;</button>
@@ -692,6 +698,7 @@ function insPerson(p){
         </div></div>` : ""}
         <div class="f"><div class="fl">TDLs</div><div class="fv">${tdls}</div></div>
         <div class="f"><div class="fl">Owns</div><div class="fv">${p.owns ? esc(p.owns) : MISSING}</div></div>
+        ${(typeof rmPersonSection === "function") ? rmPersonSection(p) : ""}
       </div>
     </div>`;
 }
@@ -1044,6 +1051,26 @@ document.getElementById("rmOpen").addEventListener("click", () => rmToggle(true)
 document.getElementById("rmClose").addEventListener("click", () => rmToggle(false));
 document.getElementById("rmOverlay").addEventListener("click", () => rmToggle(false));
 document.addEventListener("keydown", e => { if (e.key === "Escape") rmToggle(false); });
+function rmForPerson(name){
+  const n = (name || "").trim().toLowerCase();
+  return rmCards.filter(c => (c.by || "").trim().toLowerCase() === n);
+}
+function rmPersonSection(p){
+  const items = rmForPerson(p.name);
+  if (!items.length) return "";
+  const order = {now:0, next:1, later:2, done:3};
+  const dot = {now:"#00C99C", next:"#006699", later:"#9ca3af", done:"#0d2d6b"};
+  const label = {now:"Now", next:"Next", later:"Later", done:"Done"};
+  items.sort((a,b) => order[a.col] - order[b.col]);
+  return `<div class="f"><div class="fl">On the Feature Roadmap <button class="rm-link" data-open-roadmap>Open roadmap</button></div>
+    <div class="fv stacklist">${items.map(c => `<button class="rm-item" data-open-roadmap>
+      <span class="pill" style="background:#eef4f9;color:var(--deep)"><i style="background:${dot[c.col]}"></i>${label[c.col]}</span>
+      <span><b>${esc(c.title)}</b><small>${esc(c.note)}</small></span>
+    </button>`).join("")}</div></div>`;
+}
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-open-roadmap]")) rmToggle(true);
+});
 rmLoad();
 rmRender();
 
