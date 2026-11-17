@@ -251,7 +251,8 @@
   .rmclose{margin-left:auto;color:#fff;font-size:22px;line-height:1;padding:4px 8px;border-radius:8px}
   .rmclose:hover{background:rgba(255,255,255,.14)}
   .rmbody{padding:16px 20px 24px;overflow:auto;flex:1}
-  .rmadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;margin-bottom:16px}
+  .rmadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:2fr 1fr auto auto;gap:8px;margin-bottom:16px}
+  .rmadd #rmNote{grid-column:1 / -1}
   .rmadd input,.rmadd select{padding:8px 10px;border:1px solid var(--line2);border-radius:8px;font:inherit;font-size:13px;width:100%}
   .rmadd button{background:var(--teal);color:var(--navy);font-weight:750;border-radius:8px;padding:8px 16px;font-size:13px}
   .rmcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
@@ -267,11 +268,14 @@
   .rmcard.done{opacity:.75;background:#f4f8fb}
   .rmcard .tag{display:inline-block;font-size:10.5px;font-weight:750;letter-spacing:.6px;text-transform:uppercase;color:var(--blue);background:#e7f1f8;border-radius:5px;padding:2px 7px;margin-bottom:6px}
   .rmcard h4{margin:0 0 4px;font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.3}
-  .rmcard p{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .rmcard p{margin:0 0 6px;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .rmcard .req{font-size:11.5px;color:var(--muted);margin:0 0 8px}
+  .rmcard .req b{color:var(--deep);font-weight:650}
   .rmcard .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .rmcard .acts button{font-size:11.5px;font-weight:700;color:var(--blue);border:1px solid var(--line2);border-radius:7px;padding:3px 9px;background:#fff}
   .rmcard .acts button:hover{border-color:var(--blue)}
   .rmcard .acts button.donebtn{background:var(--teal);border-color:var(--teal);color:var(--navy)}
+  .rmcard .acts button.delbtn{color:#b3261e}
   .rmcard .acts select{font-size:11.5px;font-weight:600;color:var(--deep);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;background:#fff}
   .rmfoot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);background:#fff}
   .rmfoot button{color:var(--blue);font-weight:650;font-size:12px}
@@ -343,6 +347,7 @@
   <div class="rmbody">
     <div class="rmadd">
       <input id="rmTitle" type="text" placeholder="New item, for example: Show portal score per person" maxlength="90">
+      <input id="rmBy" type="text" placeholder="Requested by, for example: Angela Edwards" maxlength="40">
       <input id="rmNote" type="text" placeholder="One line on why it matters" maxlength="180">
       <select id="rmCol" aria-label="Column">
         <option value="now">Now</option>
@@ -930,20 +935,20 @@ const RM_COLS = [
   {id:"done", title:"Done", hint:"Shipped. Closed out."}
 ];
 const RM_DEFAULT = [
-  {id:"finish-tdls", col:"now", tag:"Spec", title:"Finish the 20 remaining TDLs", note:"Layer 2 is still empty for 20 of 23 TDLs. Add the lead, phase, portal score, and what each one does."},
-  {id:"tdl-details", col:"now", tag:"Spec", title:"Mission partner, description, and contact info per TDL", note:"One line on what the TDL does, who the mission partner is, and how to reach the lead."},
-  {id:"eric-edits", col:"now", tag:"Eric", title:"Apply Eric's markups from his review", note:"Eric already sent a few fixes after seeing it. Fold them in and show him the result."},
-  {id:"mod-auto", col:"next", tag:"Angela", title:"A mod change updates the chart by itself", note:"When a mod changes a COR or ACOR, the new name should land in the chart and the short sheets without someone retyping it. Start with COR and ACOR only."},
-  {id:"person-docs", col:"next", tag:"Angela", title:"Click a name, see their documents", note:"RIPs, training records, and links tied to the person, searchable from their name. Angela asked for this."},
-  {id:"partner-view", col:"next", tag:"Eric", title:"A view for mission partners and customers", note:"Let the customer see their contractor team. Open question: they are off the HII network, so access needs a decision before this ships."},
-  {id:"onboarding", col:"next", tag:"Angela", title:"A first day view for new joiners", note:"Hand a new person the chart and they can see who is responsible for what and where they sit, without a deck."},
-  {id:"link-pages", col:"next", tag:"Team", title:"Link the set: AFEB dashboard and master search", note:"Page 2 is the AFEB dashboard. Tie the pages together and add one search across all of them."},
-  {id:"scope-calls", col:"next", tag:"Spec", title:"Settle the open scope questions", note:"Which TDLs are future state versus the current 23, and whether the government side or the EPMO belongs in the chart."},
-  {id:"print-export", col:"later", tag:"Max", title:"A print and export view for the award fee deck", note:"Max has to put an org chart inside the AFEB deck. A clean print view does that without screenshots."},
-  {id:"changelog", col:"later", tag:"Team", title:"A what changed log", note:"Every update lists what moved, so the team can see the chart is alive and what is new since they last looked."},
-  {id:"story-mode", col:"later", tag:"Angela", title:"A guided walkthrough mode", note:"Short tours that move through the chart and tell the story, the way Angela described. No slides."},
-  {id:"ship-v1", col:"done", tag:"Team", title:"Ship v1: a searchable org chart", note:"Searchable by name, role, and TDL. Live on muse-demos, working on the HII laptop."},
-  {id:"tdl-pattern", col:"done", tag:"Spec", title:"Three TDLs filled in to set the pattern", note:"1C8, 1U1, and 1L5 are filled in to show what a finished TDL looks like."}
+  {id:"finish-tdls", col:"now", tag:"Spec", by:"Max Skalatsky", title:"Finish the 20 remaining TDLs", note:"Layer 2 is still empty for 20 of 23 TDLs. Add the lead, phase, portal score, and what each one does."},
+  {id:"tdl-details", col:"now", tag:"Spec", by:"Max Skalatsky", title:"Mission partner, description, and contact info per TDL", note:"One line on what the TDL does, who the mission partner is, and how to reach the lead."},
+  {id:"eric-edits", col:"now", tag:"Eric", by:"Eric Lachance", title:"Apply Eric's markups from his review", note:"Eric already sent a few fixes after seeing it. Fold them in and show him the result."},
+  {id:"mod-auto", col:"next", tag:"Angela", by:"Angela Edwards", title:"A mod change updates the chart by itself", note:"When a mod changes a COR or ACOR, the new name should land in the chart and the short sheets without someone retyping it. Start with COR and ACOR only."},
+  {id:"person-docs", col:"next", tag:"Angela", by:"Angela Edwards", title:"Click a name, see their documents", note:"RIPs, training records, and links tied to the person, searchable from their name. Angela asked for this."},
+  {id:"partner-view", col:"next", tag:"Eric", by:"Eric Lachance", title:"A view for mission partners and customers", note:"Let the customer see their contractor team. Open question: they are off the HII network, so access needs a decision before this ships."},
+  {id:"onboarding", col:"next", tag:"Angela", by:"Angela Edwards", title:"A first day view for new joiners", note:"Hand a new person the chart and they can see who is responsible for what and where they sit, without a deck."},
+  {id:"link-pages", col:"next", tag:"Team", by:"Max Skalatsky", title:"Link the set: AFEB dashboard and master search", note:"Page 2 is the AFEB dashboard. Tie the pages together and add one search across all of them."},
+  {id:"scope-calls", col:"next", tag:"Spec", by:"Max Skalatsky", title:"Settle the open scope questions", note:"Which TDLs are future state versus the current 23, and whether the government side or the EPMO belongs in the chart."},
+  {id:"print-export", col:"later", tag:"Max", by:"Max Skalatsky", title:"A print and export view for the award fee deck", note:"Max has to put an org chart inside the AFEB deck. A clean print view does that without screenshots."},
+  {id:"changelog", col:"later", tag:"Team", by:"Sarah", title:"A what changed log", note:"Every update lists what moved, so the team can see the chart is alive and what is new since they last looked."},
+  {id:"story-mode", col:"later", tag:"Angela", by:"Angela Edwards", title:"A guided walkthrough mode", note:"Short tours that move through the chart and tell the story, the way Angela described. No slides."},
+  {id:"ship-v1", col:"done", tag:"Team", by:"Max Skalatsky", title:"Ship v1: a searchable org chart", note:"Searchable by name, role, and TDL. Live on muse-demos, working on the HII laptop."},
+  {id:"tdl-pattern", col:"done", tag:"Spec", by:"Max Skalatsky", title:"Three TDLs filled in to set the pattern", note:"1C8, 1U1, and 1L5 are filled in to show what a finished TDL looks like."}
 ];
 let rmCards = [];
 function rmLoad(){
@@ -953,6 +958,7 @@ function rmLoad(){
       const saved = JSON.parse(raw);
       if (saved && Array.isArray(saved.cards)){
         rmCards = saved.cards;
+        rmCards.forEach(c => { if (!c.by){ const d = RM_DEFAULT.find(x => x.id === c.id); c.by = d ? d.by : (c.tag || "Team"); } });
         const have = new Set(rmCards.map(c => c.id));
         RM_DEFAULT.forEach(d => { if (!have.has(d.id)) rmCards.push({...d}); });
         return;
@@ -1007,7 +1013,9 @@ function rmCardHtml(c){
     <span class="tag">${esc(c.tag)}</span>
     <h4>${esc(c.title)}</h4>
     <p>${esc(c.note)}</p>
+    <div class="req">Requested by <b>${esc(c.by || c.tag)}</b></div>
     <div class="acts">${move}
+      <button class="delbtn" data-act="del" data-id="${c.id}">Delete</button>
       <select data-act="move" data-id="${c.id}" aria-label="Move to">${opts}</select>
     </div>
   </div>`;
@@ -1018,7 +1026,11 @@ document.getElementById("rmCols").addEventListener("click", e => {
   const card = rmCards.find(c => c.id === btn.dataset.id);
   if (!card) return;
   if (btn.dataset.act === "done") card.col = "done";
-  if (btn.dataset.act === "reopen") card.col = "next";
+  else if (btn.dataset.act === "reopen") card.col = "next";
+  else if (btn.dataset.act === "del"){
+    if (confirm("Delete this item from the roadmap?")) rmCards = rmCards.filter(x => x.id !== card.id);
+    else return;
+  }
   rmSave(); rmRender();
 });
 document.getElementById("rmCols").addEventListener("change", e => {
@@ -1031,10 +1043,12 @@ document.getElementById("rmCols").addEventListener("change", e => {
 });
 document.getElementById("rmAdd").addEventListener("click", () => {
   const title = document.getElementById("rmTitle").value.trim();
+  const by = document.getElementById("rmBy").value.trim() || "Team";
   const note = document.getElementById("rmNote").value.trim() || "Added by the team.";
   if (!title) { document.getElementById("rmTitle").focus(); return; }
-  rmCards.push({id:"u" + Date.now(), col:document.getElementById("rmCol").value, tag:"Team", title:title, note:note});
+  rmCards.push({id:"u" + Date.now(), col:document.getElementById("rmCol").value, tag:"Team", by:by, title:title, note:note});
   document.getElementById("rmTitle").value = "";
+  document.getElementById("rmBy").value = "";
   document.getElementById("rmNote").value = "";
   rmSave(); rmRender();
 });
