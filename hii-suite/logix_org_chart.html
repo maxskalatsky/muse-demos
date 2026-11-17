@@ -236,6 +236,47 @@
     .top-in,.bar-in,.app{padding-left:14px;padding-right:14px}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+
+  /* ---------- Roadmap ---------- */
+  .rmbtn{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:8px;font-size:12.5px;font-weight:700;color:#fff;background:var(--navy);border:1px solid var(--navy)}
+  .rmbtn:hover{background:var(--deep2)}
+  .rmcount{background:var(--teal);color:var(--navy);border-radius:10px;padding:0 7px;font-size:11px;font-weight:800;line-height:18px}
+  .rmoverlay{position:fixed;inset:0;background:rgba(13,45,107,.45);z-index:60;display:none}
+  .rmoverlay.open{display:block}
+  .rmpanel{position:fixed;top:0;right:0;bottom:0;width:min(920px,96vw);background:var(--wash);z-index:61;box-shadow:-16px 0 40px rgba(13,45,107,.25);display:none;flex-direction:column}
+  .rmpanel.open{display:flex}
+  .rmhead{background:var(--navy);color:#fff;padding:16px 20px;display:flex;align-items:flex-start;gap:14px}
+  .rmhead h2{margin:0;font-size:16px;font-weight:750}
+  .rmhead p{margin:3px 0 0;font-size:12.5px;color:#b8c8e0;max-width:560px}
+  .rmclose{margin-left:auto;color:#fff;font-size:22px;line-height:1;padding:4px 8px;border-radius:8px}
+  .rmclose:hover{background:rgba(255,255,255,.14)}
+  .rmbody{padding:16px 20px 24px;overflow:auto;flex:1}
+  .rmadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;margin-bottom:16px}
+  .rmadd input,.rmadd select{padding:8px 10px;border:1px solid var(--line2);border-radius:8px;font:inherit;font-size:13px;width:100%}
+  .rmadd button{background:var(--teal);color:var(--navy);font-weight:750;border-radius:8px;padding:8px 16px;font-size:13px}
+  .rmcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+  .rmcol{background:#eef3f8;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:180px}
+  .rmcol.drop{border-color:var(--teal);background:#eafaf5}
+  .rmcol h3{margin:0 0 2px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--deep2);font-weight:750;display:flex;justify-content:space-between}
+  .rmcol h3 span{color:var(--muted);font-weight:700}
+  .rmcol .hint{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+  .rmcards{display:flex;flex-direction:column;gap:8px}
+  .rmcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 11px;cursor:grab}
+  .rmcard:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(0,102,153,.10)}
+  .rmcard.dragging{opacity:.45}
+  .rmcard.done{opacity:.75;background:#f4f8fb}
+  .rmcard .tag{display:inline-block;font-size:10.5px;font-weight:750;letter-spacing:.6px;text-transform:uppercase;color:var(--blue);background:#e7f1f8;border-radius:5px;padding:2px 7px;margin-bottom:6px}
+  .rmcard h4{margin:0 0 4px;font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.3}
+  .rmcard p{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .rmcard .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .rmcard .acts button{font-size:11.5px;font-weight:700;color:var(--blue);border:1px solid var(--line2);border-radius:7px;padding:3px 9px;background:#fff}
+  .rmcard .acts button:hover{border-color:var(--blue)}
+  .rmcard .acts button.donebtn{background:var(--teal);border-color:var(--teal);color:var(--navy)}
+  .rmcard .acts select{font-size:11.5px;font-weight:600;color:var(--deep);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;background:#fff}
+  .rmfoot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);background:#fff}
+  .rmfoot button{color:var(--blue);font-weight:650;font-size:12px}
+  @media (max-width:900px){.rmcols{grid-template-columns:repeat(2,minmax(0,1fr))}.rmadd{grid-template-columns:1fr 1fr}}
+  @media (max-width:560px){.rmcols{grid-template-columns:1fr}.rmadd{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -261,6 +302,8 @@
     <span class="divider"></span>
     <span class="lbl">Role</span>
     <div class="seg" id="roleSeg" role="group" aria-label="Role"></div>
+    <span class="divider"></span>
+    <button class="rmbtn" id="rmOpen">Roadmap <span class="rmcount" id="rmCount"></span></button>
   </div>
 </div>
 
@@ -287,6 +330,35 @@
 
 <footer id="foot"></footer>
 <div id="tip" role="tooltip"></div>
+
+<div class="rmoverlay" id="rmOverlay"></div>
+<aside class="rmpanel" id="rmPanel" aria-label="Product roadmap">
+  <div class="rmhead">
+    <div>
+      <h2>Roadmap: making the map better</h2>
+      <p>What is next for this page, in order. Drag a card to move it, or use the buttons. Mark it done when it ships. Changes save on this machine.</p>
+    </div>
+    <button class="rmclose" id="rmClose" aria-label="Close roadmap">&times;</button>
+  </div>
+  <div class="rmbody">
+    <div class="rmadd">
+      <input id="rmTitle" type="text" placeholder="New item, for example: Show portal score per person" maxlength="90">
+      <input id="rmNote" type="text" placeholder="One line on why it matters" maxlength="180">
+      <select id="rmCol" aria-label="Column">
+        <option value="now">Now</option>
+        <option value="next" selected>Next</option>
+        <option value="later">Later</option>
+      </select>
+      <button id="rmAdd">Add item</button>
+    </div>
+    <div class="rmcols" id="rmCols"></div>
+  </div>
+  <div class="rmfoot">
+    <span id="rmMeta"></span>
+    <button id="rmReset">Reset to the published roadmap</button>
+  </div>
+</aside>
+
 
 <script>
 /* ==========================================================
@@ -843,6 +915,144 @@ document.addEventListener("click", e => { if (!e.target.closest(".search")) hide
 document.getElementById("foot").textContent = DATA.asOf;
 renderToolbar(); renderHub(); renderAreas(); renderTdls();
 select(fromHash(), false);
+</script>
+<script>
+
+/* ==========================================================
+   ROADMAP. Kanban inside the tool. State saves in localStorage
+   on this machine, so moves and done items survive a reload.
+   ========================================================== */
+const RM_KEY = "logix-roadmap-v1";
+const RM_COLS = [
+  {id:"now", title:"Now", hint:"Being worked on."},
+  {id:"next", title:"Next", hint:"Queued up."},
+  {id:"later", title:"Later", hint:"Worth doing, not yet."},
+  {id:"done", title:"Done", hint:"Shipped. Closed out."}
+];
+const RM_DEFAULT = [
+  {id:"finish-tdls", col:"now", tag:"Spec", title:"Finish the 20 remaining TDLs", note:"Layer 2 is still empty for 20 of 23 TDLs. Add the lead, phase, portal score, and what each one does."},
+  {id:"tdl-details", col:"now", tag:"Spec", title:"Mission partner, description, and contact info per TDL", note:"One line on what the TDL does, who the mission partner is, and how to reach the lead."},
+  {id:"eric-edits", col:"now", tag:"Eric", title:"Apply Eric's markups from his review", note:"Eric already sent a few fixes after seeing it. Fold them in and show him the result."},
+  {id:"mod-auto", col:"next", tag:"Angela", title:"A mod change updates the chart by itself", note:"When a mod changes a COR or ACOR, the new name should land in the chart and the short sheets without someone retyping it. Start with COR and ACOR only."},
+  {id:"person-docs", col:"next", tag:"Angela", title:"Click a name, see their documents", note:"RIPs, training records, and links tied to the person, searchable from their name. Angela asked for this."},
+  {id:"partner-view", col:"next", tag:"Eric", title:"A view for mission partners and customers", note:"Let the customer see their contractor team. Open question: they are off the HII network, so access needs a decision before this ships."},
+  {id:"onboarding", col:"next", tag:"Angela", title:"A first day view for new joiners", note:"Hand a new person the chart and they can see who is responsible for what and where they sit, without a deck."},
+  {id:"link-pages", col:"next", tag:"Team", title:"Link the set: AFEB dashboard and master search", note:"Page 2 is the AFEB dashboard. Tie the pages together and add one search across all of them."},
+  {id:"scope-calls", col:"next", tag:"Spec", title:"Settle the open scope questions", note:"Which TDLs are future state versus the current 23, and whether the government side or the EPMO belongs in the chart."},
+  {id:"print-export", col:"later", tag:"Max", title:"A print and export view for the award fee deck", note:"Max has to put an org chart inside the AFEB deck. A clean print view does that without screenshots."},
+  {id:"changelog", col:"later", tag:"Team", title:"A what changed log", note:"Every update lists what moved, so the team can see the chart is alive and what is new since they last looked."},
+  {id:"story-mode", col:"later", tag:"Angela", title:"A guided walkthrough mode", note:"Short tours that move through the chart and tell the story, the way Angela described. No slides."},
+  {id:"ship-v1", col:"done", tag:"Team", title:"Ship v1: a searchable org chart", note:"Searchable by name, role, and TDL. Live on muse-demos, working on the HII laptop."},
+  {id:"tdl-pattern", col:"done", tag:"Spec", title:"Three TDLs filled in to set the pattern", note:"1C8, 1U1, and 1L5 are filled in to show what a finished TDL looks like."}
+];
+let rmCards = [];
+function rmLoad(){
+  try{
+    const raw = localStorage.getItem(RM_KEY);
+    if (raw){
+      const saved = JSON.parse(raw);
+      if (saved && Array.isArray(saved.cards)){
+        rmCards = saved.cards;
+        const have = new Set(rmCards.map(c => c.id));
+        RM_DEFAULT.forEach(d => { if (!have.has(d.id)) rmCards.push({...d}); });
+        return;
+      }
+    }
+  }catch(e){ /* storage unavailable, fall through to defaults */ }
+  rmCards = RM_DEFAULT.map(c => ({...c}));
+}
+function rmSave(){
+  try{ localStorage.setItem(RM_KEY, JSON.stringify({v:1, cards:rmCards})); }catch(e){ /* ignore */ }
+}
+function rmOpenCount(){ return rmCards.filter(c => c.col !== "done").length; }
+function rmRender(){
+  const cols = document.getElementById("rmCols");
+  cols.innerHTML = RM_COLS.map(col => {
+    const cards = rmCards.filter(c => c.col === col.id);
+    return `<div class="rmcol" data-col="${col.id}">
+      <h3>${col.title}<span>${cards.length}</span></h3>
+      <p class="hint">${col.hint}</p>
+      <div class="rmcards">${cards.map(rmCardHtml).join("") || `<p class="hint">Nothing here yet.</p>`}</div>
+    </div>`;
+  }).join("");
+  const open = rmOpenCount();
+  document.getElementById("rmCount").textContent = open;
+  document.getElementById("rmMeta").textContent = open + " open item" + (open === 1 ? "" : "s") + " | " +
+    rmCards.filter(c => c.col === "done").length + " done";
+  cols.querySelectorAll(".rmcard").forEach(el => {
+    el.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", el.dataset.id);
+      el.classList.add("dragging");
+    });
+    el.addEventListener("dragend", () => el.classList.remove("dragging"));
+  });
+  cols.querySelectorAll(".rmcol").forEach(colEl => {
+    colEl.addEventListener("dragover", e => { e.preventDefault(); colEl.classList.add("drop"); });
+    colEl.addEventListener("dragleave", () => colEl.classList.remove("drop"));
+    colEl.addEventListener("drop", e => {
+      e.preventDefault();
+      colEl.classList.remove("drop");
+      const id = e.dataTransfer.getData("text/plain");
+      const card = rmCards.find(c => c.id === id);
+      if (card && card.col !== colEl.dataset.col){ card.col = colEl.dataset.col; rmSave(); rmRender(); }
+    });
+  });
+}
+function rmCardHtml(c){
+  const move = c.col === "done"
+    ? `<button data-act="reopen" data-id="${c.id}">Reopen</button>`
+    : `<button class="donebtn" data-act="done" data-id="${c.id}">Mark done</button>`;
+  const opts = RM_COLS.map(col => `<option value="${col.id}" ${col.id === c.col ? "selected" : ""}>${col.title}</option>`).join("");
+  return `<div class="rmcard ${c.col === "done" ? "done" : ""}" draggable="true" data-id="${c.id}">
+    <span class="tag">${esc(c.tag)}</span>
+    <h4>${esc(c.title)}</h4>
+    <p>${esc(c.note)}</p>
+    <div class="acts">${move}
+      <select data-act="move" data-id="${c.id}" aria-label="Move to">${opts}</select>
+    </div>
+  </div>`;
+}
+document.getElementById("rmCols").addEventListener("click", e => {
+  const btn = e.target.closest("[data-act]");
+  if (!btn) return;
+  const card = rmCards.find(c => c.id === btn.dataset.id);
+  if (!card) return;
+  if (btn.dataset.act === "done") card.col = "done";
+  if (btn.dataset.act === "reopen") card.col = "next";
+  rmSave(); rmRender();
+});
+document.getElementById("rmCols").addEventListener("change", e => {
+  const sel = e.target.closest("select[data-act='move']");
+  if (!sel) return;
+  const card = rmCards.find(c => c.id === sel.dataset.id);
+  if (!card) return;
+  card.col = sel.value;
+  rmSave(); rmRender();
+});
+document.getElementById("rmAdd").addEventListener("click", () => {
+  const title = document.getElementById("rmTitle").value.trim();
+  const note = document.getElementById("rmNote").value.trim() || "Added by the team.";
+  if (!title) { document.getElementById("rmTitle").focus(); return; }
+  rmCards.push({id:"u" + Date.now(), col:document.getElementById("rmCol").value, tag:"Team", title:title, note:note});
+  document.getElementById("rmTitle").value = "";
+  document.getElementById("rmNote").value = "";
+  rmSave(); rmRender();
+});
+document.getElementById("rmReset").addEventListener("click", () => {
+  rmCards = RM_DEFAULT.map(c => ({...c}));
+  rmSave(); rmRender();
+});
+function rmToggle(open){
+  document.getElementById("rmPanel").classList.toggle("open", open);
+  document.getElementById("rmOverlay").classList.toggle("open", open);
+}
+document.getElementById("rmOpen").addEventListener("click", () => rmToggle(true));
+document.getElementById("rmClose").addEventListener("click", () => rmToggle(false));
+document.getElementById("rmOverlay").addEventListener("click", () => rmToggle(false));
+document.addEventListener("keydown", e => { if (e.key === "Escape") rmToggle(false); });
+rmLoad();
+rmRender();
+
 </script>
 </body>
 </html>
