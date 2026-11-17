@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOGIX Program Map</title>
+<style>
+  :root{
+    --navy:#0d2d6b; --blue:#006699; --blue2:#0069AA; --deep:#003560; --deep2:#004F82;
+    --teal:#00C99C; --wash:#f7f9fb; --ink:#1a1a1a; --muted:#6b7280; --muted2:#9ca3af;
+    --line:#e2eaf0; --line2:#d0dce8; --white:#fff;
+    --ease:cubic-bezier(.2,.8,.2,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+       background:var(--wash);color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:8px}
+
+  /* ---------- Top bar ---------- */
+  .top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:40}
+  .top-in{max-width:1440px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .mark{display:flex;align-items:center;gap:12px;flex:1 1 300px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--blue));display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--navy)}
+  .mark h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  .mark p{margin:0;font-size:12px;color:#b8c8e0}
+  .search{position:relative;flex:0 1 360px;min-width:220px}
+  .search input{width:100%;padding:9px 12px 9px 34px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;font-size:13.5px}
+  .search input::placeholder{color:#9fb3d1}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.7}
+  .results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 16px 40px rgba(13,45,107,.25);
+           border:1px solid var(--line2);max-height:380px;overflow:auto;display:none;z-index:50;padding:4px}
+  .results.open{display:block}
+  .res{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:8px}
+  .res.active,.res:hover{background:#eef4f9}
+  .res .k{margin-left:auto;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+  .res small{display:block;color:var(--muted);font-size:12px}
+  .empty{padding:12px;color:var(--muted)}
+
+  /* ---------- Toolbar ---------- */
+  .bar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:62px;z-index:30}
+  .bar-in{max-width:1440px;margin:0 auto;padding:10px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .seg{display:flex;gap:4px;flex-wrap:wrap}
+  .seg button{padding:6px 11px;border-radius:8px;font-size:12.5px;color:var(--deep);font-weight:600;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px}
+  .seg button:hover{background:#f1f6fa}
+  .seg button[aria-pressed="true"]{background:var(--deep);color:#fff}
+  .seg .sw{width:9px;height:9px;border-radius:3px}
+  .lbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);font-weight:700}
+  .divider{width:1px;height:22px;background:var(--line2)}
+
+  /* ---------- Layout ---------- */
+  .app{max-width:1440px;margin:0 auto;padding:20px 24px 60px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+  .canvas{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+  /* ---------- Avatars and nodes ---------- */
+  .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none;
+      transition:transform .2s var(--ease), box-shadow .2s, opacity .25s}
+  .av.lg{width:46px;height:46px;font-size:15px}
+  .av.xl{width:64px;height:64px;font-size:20px}
+  button.dot{border-radius:50%;transition:opacity .25s, transform .2s var(--ease)}
+  button.dot:hover .av{transform:scale(1.18);box-shadow:0 4px 12px rgba(13,45,107,.28)}
+
+  .node{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;width:100%;
+        transition:border-color .2s, box-shadow .2s, opacity .25s, transform .2s var(--ease)}
+  .node:hover{border-color:var(--blue);box-shadow:0 6px 16px rgba(0,102,153,.12);transform:translateY(-1px)}
+  .node .t{min-width:0}
+  .node .n{font-weight:650;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .node .r{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* focus states */
+  .has-sel [data-person]:not(.lit):not(.sel), .has-sel [data-tdl]:not(.lit):not(.sel){opacity:.22}
+  .has-sel .inspector [data-person], .has-sel .inspector [data-tdl], .has-sel .results [data-person], .has-sel .results [data-tdl]{opacity:1}
+  .rolemute{opacity:.18 !important}
+  .lit .av, .node.lit{box-shadow:0 0 0 3px rgba(0,201,156,.55)}
+  .sel .av{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--teal)}
+  .node.sel{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,156,.35)}
+  .node.lit{border-color:var(--teal)}
+
+  /* ---------- Hub ---------- */
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px}
+  .hub{padding:18px 20px 20px;position:relative;overflow:hidden}
+  .hub::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--navy),var(--blue),var(--teal))}
+  .sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .sechead h2{margin:0;font-size:13px;letter-spacing:1.1px;text-transform:uppercase;color:var(--deep2);font-weight:750}
+  .sechead span{font-size:12px;color:var(--muted)}
+  .hubgrid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0}
+  .hubcol{display:flex;flex-direction:column;gap:10px}
+  .hubcol.right{align-items:stretch}
+  .hubmid{display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 22px;position:relative}
+  .todd{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;border:1px dashed var(--line2);border-radius:20px;padding:3px 10px 3px 4px}
+  .todd .av{width:22px;height:22px;font-size:9px}
+  .vline{width:2px;height:14px;background:var(--line2)}
+  .eric{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 18px;border-radius:14px;border:1px solid var(--line2);background:linear-gradient(180deg,#fff,#f4f8fb);
+        transition:box-shadow .2s, transform .2s var(--ease), opacity .25s;min-width:200px}
+  .eric:hover{box-shadow:0 10px 26px rgba(13,45,107,.16);transform:translateY(-2px)}
+  .eric .n{font-weight:750;font-size:15px}
+  .eric .r{font-size:12px;color:var(--blue);font-weight:650}
+  .eric.sel{box-shadow:0 0 0 3px rgba(0,201,156,.4)} .eric.lit{box-shadow:0 0 0 3px rgba(0,201,156,.4)}
+  .hconn{height:2px;background:var(--line2);flex:1}
+  .wing{display:flex;align-items:center}
+  .wing .node{flex:1}
+  .direct{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .direct .lbl{margin-right:4px}
+  .mini{display:inline-flex;align-items:center;gap:7px;padding:4px 10px 4px 4px;border-radius:20px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;
+        transition:border-color .2s, opacity .25s}
+  .mini:hover{border-color:var(--blue)}
+  .mini .av{width:22px;height:22px;font-size:9px}
+  .mini small{font-weight:500;color:var(--muted)}
+
+  /* ---------- Area tiles ---------- */
+  .areas{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+  .tile{grid-column:span 2;padding:14px;display:flex;flex-direction:column;gap:12px;cursor:pointer;position:relative;
+        transition:box-shadow .25s, border-color .25s, background .25s}
+  .tile:hover{box-shadow:0 12px 28px rgba(13,45,107,.10);border-color:var(--line2)}
+  .tile .th{display:flex;align-items:center;gap:10px}
+  .tile .sw{width:10px;height:28px;border-radius:4px;flex:none}
+  .tile h3{margin:0;font-size:14px;font-weight:700;color:var(--deep)}
+  .tile .sub{font-size:12px;color:var(--muted)}
+  .tile .cnt{margin-left:auto;font-size:20px;font-weight:750;color:var(--navy)}
+  .tile .chev{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--muted);transition:transform .3s var(--ease), background .2s}
+  .tile:hover .chev{background:#f1f6fa}
+  .dots{display:flex;flex-wrap:wrap;gap:6px}
+  .roles{font-size:12px;color:var(--muted);line-height:1.5}
+  .roles b{color:var(--deep);font-weight:650}
+  .people{display:none;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+  .chipnote{font-size:12px;color:var(--muted);border:1px dashed var(--line2);border-radius:9px;padding:8px 10px;display:flex;align-items:center}
+
+  .areas.has-open .tile{grid-column:span 1;padding:10px 12px;gap:8px}
+  .areas.has-open .tile .sub,.areas.has-open .tile .roles,.areas.has-open .tile .dots{display:none}
+  .areas.has-open .tile h3{font-size:12.5px}
+  .areas.has-open .tile .cnt{font-size:15px}
+  .areas.has-open .tile .chev{display:none}
+  .areas.has-open .tile .sw{height:20px;width:6px}
+  .areas.has-open .tile.lit{border-color:var(--teal);background:#f2fcf9}
+  .areas.has-open .tile.open{grid-column:1 / -1;padding:16px;gap:14px;cursor:default;border-color:var(--line2);box-shadow:0 14px 34px rgba(13,45,107,.10)}
+  .areas.has-open .tile.open .sub{display:block}
+  .areas.has-open .tile.open h3{font-size:15px}
+  .areas.has-open .tile.open .cnt{font-size:20px}
+  .areas.has-open .tile.open .sw{height:28px;width:10px}
+  .areas.has-open .tile.open .chev{display:grid;transform:rotate(180deg)}
+  .tile.open .people{display:grid;animation:rise .35s var(--ease)}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ---------- TDLs ---------- */
+  .tdlsec{padding:16px 18px 18px}
+  .tdlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+  .tdl{position:relative;border:1px solid var(--line);border-radius:11px;padding:10px 10px 9px 13px;background:#fff;display:flex;flex-direction:column;gap:6px;overflow:hidden;
+       transition:transform .2s var(--ease), box-shadow .2s, border-color .2s, opacity .25s}
+  .tdl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ph)}
+  .tdl:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 10px 22px rgba(13,45,107,.14);border-color:var(--line2);z-index:2}
+  .tdl .id{font-size:16px;font-weight:800;color:var(--navy);letter-spacing:.3px}
+  .tdl .row{display:flex;align-items:center;gap:6px;min-width:0}
+  .tdl .row .av{width:20px;height:20px;font-size:8.5px}
+  .tdl .ln{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tdl .sc{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;background:#eef4f9;color:var(--deep)}
+  .tdl .sc.low{background:var(--navy);color:#fff}
+  .tdl.lit{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,156,.35)}
+  .tdl.sel{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,156,.6)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  /* ---------- Inspector ---------- */
+  .inspector{position:sticky;top:122px;max-height:calc(100vh - 140px);overflow:auto;padding:0}
+  .ins-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2;border-radius:14px 14px 0 0}
+  .ins-head .lbl{color:var(--teal)}
+  .back{font-size:12.5px;color:var(--blue);font-weight:650;display:inline-flex;align-items:center;gap:4px}
+  .ins-body{padding:16px 16px 20px;animation:fade .3s var(--ease)}
+  @keyframes fade{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+  .kpi{border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:var(--wash)}
+  .kpi b{display:block;font-size:24px;line-height:1.1;color:var(--navy);font-weight:750}
+  .kpi span{font-size:11.5px;color:var(--muted)}
+  .blk{margin-top:18px}
+  .blk h4{margin:0 0 8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--deep2);font-weight:750}
+  .stack{display:flex;height:12px;border-radius:7px;overflow:hidden;background:var(--line)}
+  .stack div{height:100%;transition:flex .4s var(--ease)}
+  .slegend{display:flex;gap:12px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .slegend b{color:var(--ink)}
+  .hbar{display:grid;grid-template-columns:110px 1fr 28px;align-items:center;gap:8px;padding:5px 6px;border-radius:7px;width:100%;font-size:12.5px}
+  .hbar:hover{background:#f1f6fa}
+  .hbar .track{height:8px;border-radius:5px;background:var(--line);overflow:hidden}
+  .hbar .fill{height:100%;border-radius:5px}
+  .hbar .v{text-align:right;font-weight:700;color:var(--deep)}
+  .hbar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .prof{display:flex;align-items:center;gap:14px}
+  .prof h3{margin:0;font-size:20px;color:var(--navy);font-weight:750;line-height:1.2}
+  .prof .r{color:var(--blue);font-weight:650;font-size:13px}
+  .area-tag{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;color:var(--muted);font-weight:600}
+  .area-tag i{width:8px;height:8px;border-radius:2px}
+  .chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:14px;padding:8px 10px;background:var(--wash);border-radius:9px}
+  .chain button{color:var(--blue);font-weight:650}
+  .chain .me{color:var(--ink);font-weight:700}
+  .fields{margin-top:6px}
+  .f{padding:12px 0;border-bottom:1px solid var(--line)}
+  .f:last-child{border-bottom:0}
+  .f .fl{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);font-weight:700;margin-bottom:6px}
+  .f .fv{font-size:14px}
+  .missing{color:var(--muted2);font-style:italic}
+  .tchips{display:flex;flex-wrap:wrap;gap:6px}
+  .tchip{border:1px solid var(--line2);border-radius:7px;padding:3px 9px;font-weight:700;color:var(--navy);font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+  .tchip:hover{border-color:var(--blue);background:#f1f6fa}
+  .tchip i{width:7px;height:7px;border-radius:50%}
+  .stacklist{display:flex;flex-direction:column;gap:6px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:650;border-radius:20px;padding:3px 10px}
+  .pill i{width:7px;height:7px;border-radius:50%}
+  .big{font-size:30px;font-weight:800;color:var(--navy);line-height:1}
+  .big small{font-size:12px;color:var(--muted);font-weight:500;margin-left:6px}
+  .bars{display:flex;gap:4px;align-items:flex-end;height:30px;margin-top:10px}
+  .bars div{flex:0 0 16px;background:var(--blue);border-radius:3px 3px 0 0}
+  .barlab{font-size:11px;color:var(--muted);margin-top:4px}
+  .quote{margin-top:10px;font-size:12.5px;background:var(--wash);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+
+  /* tooltip */
+  #tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;font-size:12px;padding:6px 9px;border-radius:7px;z-index:100;opacity:0;transform:translateY(4px);
+       transition:opacity .12s, transform .12s;white-space:nowrap;box-shadow:0 6px 18px rgba(13,45,107,.3)}
+  #tip.on{opacity:1;transform:none}
+  #tip small{display:block;color:#b8c8e0}
+
+  footer{max-width:1440px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:12px}
+
+  @media (max-width:1100px){
+    .app{grid-template-columns:1fr}
+    .inspector{position:relative;top:0;max-height:none}
+    .areas{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .tile{grid-column:span 1}
+    .areas.has-open .tile{grid-column:span 1}
+    .bar{top:0;position:relative}
+  }
+  @media (max-width:700px){
+    .hubgrid{grid-template-columns:1fr}
+    .hubmid{padding:0}
+    .hconn{display:none}
+    .top-in,.bar-in,.app{padding-left:14px;padding-right:14px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <div class="mark">
+      <div class="logo">LX</div>
+      <div><h1>LOGIX Program Map</h1><p>Who runs the program, what each TDL does, and who to talk to.</p></div>
+    </div>
+    <div class="search" role="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search a name, role, or TDL  ( / )" autocomplete="off" aria-label="Search">
+      <div class="results" id="results" role="listbox"></div>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <span class="lbl">Area</span>
+    <div class="seg" id="areaSeg" role="group" aria-label="Area"></div>
+    <span class="divider"></span>
+    <span class="lbl">Role</span>
+    <div class="seg" id="roleSeg" role="group" aria-label="Role"></div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="canvas">
+    <section class="card hub" id="hub" aria-label="Program leadership"></section>
+    <section class="areas" id="areas" aria-label="Program support areas"></section>
+    <section class="card tdlsec" aria-label="TDLs">
+      <div class="sechead">
+        <h2>TDLs</h2>
+        <div class="seg" id="phaseSeg" role="group" aria-label="Phase"></div>
+      </div>
+      <div class="tdlgrid" id="tdlgrid"></div>
+      <div class="legend" style="margin-top:12px">
+        <span><i style="background:var(--teal)"></i>Planning</span>
+        <span><i style="background:var(--blue2)"></i>Initiation</span>
+        <span><i style="background:var(--line2)"></i>Not Started</span>
+        <span><b style="background:var(--navy);color:#fff;border-radius:5px;padding:0 5px;font-size:11px">70</b>&nbsp;Portal score below 90</span>
+      </div>
+    </section>
+  </div>
+  <aside class="card inspector" id="inspector" aria-live="polite"></aside>
+</div>
+
+<footer id="foot"></footer>
+<div id="tip" role="tooltip"></div>
+
+<script>
+/* ==========================================================
+   DATA. Edit here. Everything on the page is built from this.
+   Unknown fields stay null and show as "Not in the record yet."
+   ========================================================== */
+const DATA = {
+  asOf: "Org chart as of November 2, 2026. Phases as of November 9, 2026. Portal scores from AFEB Period 4.",
+
+  areas: [
+    {id:"leadership", title:"Program leadership", short:"Leadership", sub:"Runs the program.", bg:"#0d2d6b", fg:"#ffffff"},
+    {id:"shared", title:"Shared services", short:"Shared services", sub:"Overhead, not direct bill.", bg:"#e2eaf0", fg:"#003560"},
+    {id:"pc", title:"Project Control", short:"Project Control", sub:"Finance, cost reporting, and project control.", bg:"#006699", fg:"#ffffff",
+     extra:"Invoice Support Team (members not in the record yet)"},
+    {id:"perf", title:"Performance Team", short:"Performance", sub:"PMO, performance reporting, deliverables, closeout, and deployments.", bg:"#d0dce8", fg:"#0d2d6b"},
+    {id:"support", title:"Project Support", short:"Project Support", sub:"Travel, the portal, and day to day support.", bg:"#004F82", fg:"#ffffff"},
+    {id:"mission", title:"Mission support", short:"Mission support", sub:"Logistics, ISR, engineering, procurement, transition, and GFE.", bg:"#00C99C", fg:"#0d2d6b"},
+    {id:"tdlleads", title:"TDL leads", short:"TDL leads", sub:"Each runs one or more TDLs.", bg:"#ccf4ea", fg:"#003560"}
+  ],
+
+  people: [
+    {id:"todd", name:"Todd Gentry", role:"ADO", area:"context"},
+
+    {id:"eric", name:"Eric Lachance", role:"Program Manager", area:"leadership", reportsTo:"todd", tdls:"all",
+     owns:"The program, the customer relationships, and the award fee."},
+    {id:"kevin", name:"Kevin Perera", role:"Mission Ops Lead", area:"leadership", reportsTo:"eric", tdls:"all", tdlScope:"mission side",
+     owns:"The mission side: the TDL leads, the mission partners, and delivery."},
+    {id:"joey", name:"Joey Medina", role:"Business Ops Lead", area:"leadership", reportsTo:"eric", tdls:"all", tdlScope:"business side",
+     owns:"The back office: financial management, the portal and its data, SOPs, and the GSA and customer relationships."},
+
+    {id:"christine", name:"Christine Ford", role:"Contracts", area:"shared", tdls:"all", owns:"Contracts."},
+    {id:"sharon", name:"Sharon Korpi", role:"Subcontracts", area:"shared", tdls:"all", owns:"Subcontracts."},
+    {id:"ana", name:"Ana Braxton", role:"Human Resources", area:"shared", tdls:"all", owns:"Human resources."},
+    {id:"heather", name:"Heather Lightner", role:"Security", area:"shared", tdls:"all", owns:"Security."},
+    {id:"lauren", name:"Lauren Schneider", role:"Vendors", area:"shared", tdls:"all", owns:"Vendors."},
+
+    {id:"ricky", name:"Ricky Pang", role:"Finance Manager", area:"pc", tdls:"all", owns:"The program finances, the award fee, and the cost reporting."},
+    {id:"lucas", name:"Lucas Bracy", role:"PC Manager", area:"pc", tdls:"all", owns:"Project control."},
+    {id:"mckenzi", name:"McKenzi Cummins", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"brian", name:"Brian Faben", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"rosemarie", name:"Rosemarie Morse", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"jessica", name:"Jessica Myers", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"tammy", name:"Tammy Ott", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"aggie", name:"Aggie Tanopo", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"laura", name:"Laura Tillbery", role:"PC Analyst", area:"pc", tdls:"all"},
+    {id:"brittany", name:"Brittany Wilson", role:"PC Analyst", area:"pc", tdls:"all"},
+
+    {id:"elizabeth", name:"Elizabeth Egnaczyk", role:"Quality PMO Manager", area:"perf", tdls:"all", owns:"The PMO."},
+    {id:"angela", name:"Angela Edwards", role:"Performance Lead", area:"perf", reportsTo:"elizabeth", tdls:"all",
+     owns:"Performance reporting, the MPRs, and the award fee narrative."},
+    {id:"danita", name:"Danita Sessions", role:"Deliverables Manager", area:"perf", tdls:"all", owns:"The deliverables library and submissions."},
+    {id:"lonniew", name:"Lonnie Williamson", role:"Closeout Lead", area:"perf", tdls:"all", owns:"Closeout."},
+    {id:"olivia", name:"Olivia Corsello", role:"Deployment Coordinator", area:"perf", tdls:"all", owns:"Deployments."},
+
+    {id:"paula", name:"Paula Tudor", role:"PSO Travel Manager", area:"support", tdls:"all", owns:"Travel for all of ADO."},
+    {id:"bill", name:"Bill McDonough", role:"PSO Lead and Portal Admin", area:"support", tdls:"all", tdlScope:"portal",
+     owns:"HII Ground (the portal) and the EPMO roadmap."},
+    {id:"sophia", name:"Sophia Rubsamen", role:"Portal Admin (HII Ground)", area:"support", reportsTo:"bill", tdls:"all", tdlScope:"portal",
+     owns:"Building HII Ground with Bill. One of two developers."},
+    {id:"wes", name:"Wes Baquero", role:"Project Support", area:"support", tdls:"all"},
+    {id:"ermiyes", name:"Ermiyes Alemayehu", role:"Project Support", area:"support", tdls:"all"},
+    {id:"tyara", name:"Tyara Heike", role:"Project Support", area:"support", tdls:"all"},
+
+    {id:"jack", name:"Jack Dills", role:"Logistics Lead", area:"mission", tdls:"all", owns:"Logistics."},
+    {id:"kim", name:"Kim Huber", role:"Deputy Ops Lead", area:"mission", reportsTo:"eric", owns:"Mission support."},
+    {id:"mike", name:"Mike Kwiatkowski", role:"ISR Lead", area:"mission", tdls:"all", owns:"ISR."},
+    {id:"chris", name:"Chris Shannon", role:"Engineering Lead", area:"mission", tdls:"all", owns:"Engineering."},
+    {id:"marcj", name:"Marc Johnson", role:"Procurement Specialist (Pre award)", area:"mission", reportsTo:"eric", tdls:"all", tdlScope:"pre award",
+     owns:"The procurement process, cradle to grave. Runs pre award."},
+    {id:"william", name:"William Beaty", role:"Transition Specialist", area:"mission", tdls:"all", owns:"Transition."},
+    {id:"victor", name:"Victor Mastrucci", role:"GFE Inventory Manager", area:"mission", tdls:"all", owns:"Government furnished equipment inventory."},
+
+    {id:"austin", name:"Austin Burke", area:"tdlleads", reportsTo:"kevin"},
+    {id:"benjamin", name:"Benjamin Boardman", area:"tdlleads", reportsTo:"kevin"},
+    {id:"matthew", name:"Matthew Smith", area:"tdlleads", reportsTo:"kevin"},
+    {id:"jeremy", name:"Jeremy Newman", area:"tdlleads", reportsTo:"kevin"},
+    {id:"jasona", name:"Jason Anderson", area:"tdlleads", reportsTo:"kevin"},
+    {id:"rebecca", name:"Rebecca Long", area:"tdlleads", reportsTo:"kevin"},
+    {id:"kregg", name:"Kregg Gose", area:"tdlleads", reportsTo:"kevin"},
+    {id:"jj", name:"Jason (JJ) Johnson", area:"tdlleads", reportsTo:"kevin"},
+    {id:"gina", name:"Gina Starnes", area:"tdlleads", reportsTo:"kevin"},
+    {id:"lonniem", name:"Lonnie Marksberry", area:"tdlleads", reportsTo:"kevin"},
+    {id:"paul", name:"Paul Davidson", area:"tdlleads", reportsTo:"kevin"},
+    {id:"charles", name:"Charles Faison", area:"tdlleads", reportsTo:"kevin"},
+    {id:"evan", name:"Evan Delameter", area:"tdlleads", reportsTo:"kevin"},
+    {id:"brent", name:"Brent Martin", area:"tdlleads", reportsTo:"kevin"},
+    {id:"jasoni", name:"Jason Ingram", area:"tdlleads", reportsTo:"kevin"}
+  ],
+
+  tdlSupport: [
+    {id:"ricky", label:"Finance"}, {id:"lucas", label:"Project control"}, {id:"angela", label:"Performance"},
+    {id:"danita", label:"Deliverables"}, {id:"bill", label:"Portal"}, {id:"sophia", label:"Portal"}
+  ],
+
+  tdls: [
+    {id:"1A1", lead:"austin", phase:"Planning",
+     does:"ASARS 2C radar processor modernization, ATR governance, and U2 flight test support.",
+     score:96, monthly:[100,100,100,100,100,100], comment:"Katie Logged into the Portal and is looking to maybe use it more."},
+    {id:"1A2", lead:"benjamin", phase:"Initiation", score:94, monthly:[95]},
+    {id:"1A3", lead:"matthew", phase:"Not Started", score:96, monthly:[100,100,100,100]},
+    {id:"1A5", lead:"benjamin", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100]},
+    {id:"1C1", lead:"jeremy", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100],
+     comment:"Offered training to the new SETA contractor."},
+    {id:"1C2", lead:"jasona", phase:"Not Started"},
+    {id:"1C3", lead:"rebecca", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100]},
+    {id:"1C5", lead:"kregg", phase:"Initiation", score:96,
+     comment:"Email attachments to MP due to firewall issues to enable MP Approval."},
+    {id:"1C6", lead:"jj", phase:"Not Started"},
+    {id:"1C7", lead:"kregg", phase:"Not Started"},
+    {id:"1C8", lead:"gina", phase:"Not Started", does:"DDG and CVN installation work.",
+     score:70, monthly:[100,100,100,100,100,100], comment:"Worked with MP to approve deliverables."},
+    {id:"1C9", lead:"lonniem", phase:"Not Started", score:96, monthly:[100,100,100,100]},
+    {id:"1C13", lead:"benjamin", phase:"Not Started", score:95, monthly:[100,100,100]},
+    {id:"1C14", lead:"jj", phase:"Not Started"},
+    {id:"1C18", lead:"paul", phase:"Not Started"},
+    {id:"1D1", lead:"charles", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100],
+     comment:"Portal Access is fine. MP is working it."},
+    {id:"1E1", lead:"austin", phase:"Not Started"},
+    {id:"1L4", lead:"evan", phase:"Not Started"},
+    {id:"1L5", lead:"evan", phase:"Not Started", score:92, monthly:[100,100,100,100,100,100],
+     comment:"Portal is not being used / How to Approved GFE CDRLs / MP acknowledge Portal and say that they will not."},
+    {id:"1L7", lead:null, phase:"Not Started"},
+    {id:"1R1", lead:"kim", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100]},
+    {id:"1U1", lead:"brent", phase:"Not Started", score:85, monthly:[95,95,95,96.5,97,97]},
+    {id:"1U2", lead:"jasoni", phase:"Not Started", score:96, monthly:[100,100,100,100,100,100]}
+  ]
+};
+
+/* ==========================================================
+   Indexes and helpers
+   ========================================================== */
+const P = Object.fromEntries(DATA.people.map(p => [p.id, p]));
+const T = Object.fromEntries(DATA.tdls.map(t => [t.id, t]));
+const A = Object.fromEntries(DATA.areas.map(a => [a.id, a]));
+const PHASE = {"Planning":"#00C99C","Initiation":"#0069AA","Not Started":"#d0dce8"};
+const PHASE_TXT = {"Planning":"#005f4a","Initiation":"#004F82","Not Started":"#6b7280"};
+const PHASE_BG = {"Planning":"rgba(0,201,156,.13)","Initiation":"rgba(0,105,170,.11)","Not Started":"#f0f2f5"};
+const MISSING = '<span class="missing">Not in the record yet.</span>';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const listJoin = a => a.length <= 1 ? a.join("") : a.length === 2 ? a.join(" and ") : a.slice(0,-1).join(", ") + ", and " + a[a.length-1];
+const initials = n => n.replace(/\(.*?\)/g,"").trim().split(/\s+/).map(w => w[0]).filter(Boolean).slice(0,1).concat(n.replace(/\(.*?\)/g,"").trim().split(/\s+/).slice(-1).map(w=>w[0])).join("").toUpperCase();
+
+DATA.people.forEach(p => p.leads = []);
+DATA.tdls.forEach(t => { if (t.lead) P[t.lead].leads.push(t.id); });
+DATA.people.forEach(p => {
+  if (p.area === "tdlleads"){
+    p.role = "TDL Lead, " + listJoin(p.leads);
+    p.owns = p.leads.length === 1 ? "TDL " + p.leads[0] + "." : listJoin(p.leads) + ".";
+    p.tdls = p.leads.slice();
+  }
+  if (p.id === "kim"){ p.tdls = p.leads.slice(); p.owns = "Mission support, and TDL " + listJoin(p.leads) + "."; }
+});
+const reportsOf = id => DATA.people.filter(p => p.reportsTo === id);
+const inArea = id => DATA.people.filter(p => p.area === id);
+
+function roleType(p){
+  if (p.area === "tdlleads" || (p.leads && p.leads.length)) return "tdllead";
+  if (/\b(Lead|Manager)\b/.test(p.role)) return "leader";
+  return "specialist";
+}
+const ROLES = [
+  {id:"all", label:"Everyone"},
+  {id:"leader", label:"Leads and managers"},
+  {id:"tdllead", label:"TDL leads"},
+  {id:"specialist", label:"Specialists and support"}
+];
+
+function av(p, size=""){
+  const a = A[p.area] || {bg:"#e2eaf0", fg:"#6b7280"};
+  return `<span class="av ${size}" style="background:${a.bg};color:${a.fg}">${esc(initials(p.name))}</span>`;
+}
+const tip = p => `data-tip="${esc(p.name)}" data-tip2="${esc(p.role)}"`;
+const node = p => `<button class="node" data-person="${p.id}">${av(p)}<span class="t"><div class="n">${esc(p.name)}</div><div class="r">${esc(p.role)}</div></span></button>`;
+const dot = p => `<button class="dot" data-person="${p.id}" ${tip(p)} aria-label="${esc(p.name)}, ${esc(p.role)}">${av(p)}</button>`;
+const mini = (p, sub) => `<button class="mini" data-person="${p.id}">${av(p)}${esc(p.name)}${sub ? ` <small>${esc(sub)}</small>` : ""}</button>`;
+const pill = ph => `<span class="pill" style="background:${PHASE_BG[ph]};color:${PHASE_TXT[ph]}"><i style="background:${PHASE[ph]}"></i>${esc(ph)}</span>`;
+
+/* ==========================================================
+   State
+   ========================================================== */
+const state = { area:null, role:"all", phase:"All", sel:null };
+
+/* ==========================================================
+   Render: toolbar
+   ========================================================== */
+function renderToolbar(){
+  const areas = [{id:null, short:"All areas"}].concat(DATA.areas);
+  document.getElementById("areaSeg").innerHTML = areas.map(a =>
+    `<button data-area="${a.id || ""}" aria-pressed="${state.area === a.id}">${a.id ? `<i class="sw" style="background:${a.bg};border:1px solid rgba(0,0,0,.06)"></i>` : ""}${esc(a.short)}</button>`).join("");
+  document.getElementById("roleSeg").innerHTML = ROLES.map(r =>
+    `<button data-role="${r.id}" aria-pressed="${state.role === r.id}">${esc(r.label)}</button>`).join("");
+  const phases = ["All","Planning","Initiation","Not Started"];
+  document.getElementById("phaseSeg").innerHTML = phases.map(ph => {
+    const n = ph === "All" ? DATA.tdls.length : DATA.tdls.filter(t => t.phase === ph).length;
+    return `<button data-phase="${ph}" aria-pressed="${state.phase === ph}">${ph} ${n}</button>`;
+  }).join("");
+}
+
+/* ==========================================================
+   Render: hub
+   ========================================================== */
+function renderHub(){
+  const eric = P.eric;
+  const direct = reportsOf("eric").filter(p => p.area !== "leadership");
+  document.getElementById("hub").innerHTML = `
+    <div class="sechead"><h2>Program leadership</h2><span>Click anyone to see who they connect to</span></div>
+    <div class="hubgrid">
+      <div class="hubcol"><div class="wing">${node(P.kevin)}<span class="hconn"></span></div></div>
+      <div class="hubmid">
+        <button class="todd" data-person="todd" ${tip(P.todd)}>${av(P.todd)}Reports to Todd Gentry, ADO</button>
+        <span class="vline"></span>
+        <button class="eric" data-person="eric">${av(eric,"lg")}<span class="n">${esc(eric.name)}</span><span class="r">${esc(eric.role)}</span></button>
+      </div>
+      <div class="hubcol right"><div class="wing"><span class="hconn"></span>${node(P.joey)}</div></div>
+    </div>
+    ${direct.length ? `<div class="direct"><span class="lbl">Also reports to Eric</span>${direct.map(p => mini(p, p.role)).join("")}</div>` : ""}`;
+}
+
+/* ==========================================================
+   Render: area tiles
+   ========================================================== */
+function roleSummary(list){
+  const counts = {};
+  list.forEach(p => { const r = p.area === "tdlleads" ? "TDL Lead" : p.role; counts[r] = (counts[r] || 0) + 1; });
+  return Object.entries(counts).map(([r,n]) => n > 1 ? `<b>${n}</b> ${esc(r)}s` : esc(r)).join(", ");
+}
+function renderAreas(){
+  const el = document.getElementById("areas");
+  el.innerHTML = DATA.areas.filter(a => a.id !== "leadership").map(a => {
+    const list = inArea(a.id);
+    return `<article class="card tile" data-tile="${a.id}" tabindex="0" role="button" aria-expanded="false" aria-label="${esc(a.title)}, ${list.length} people">
+      <div class="th">
+        <span class="sw" style="background:${a.bg}"></span>
+        <div style="min-width:0"><h3>${esc(a.title)}</h3><div class="sub">${esc(a.sub)}</div></div>
+        <span class="cnt">${list.length}</span>
+        <span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg></span>
+      </div>
+      <div class="dots">${list.map(dot).join("")}</div>
+      <div class="roles">${roleSummary(list)}</div>
+      <div class="people">${list.map(node).join("")}${a.extra ? `<div class="chipnote">${esc(a.extra)}</div>` : ""}</div>
+    </article>`;
+  }).join("");
+}
+
+function setOpenArea(id, animate=true){
+  const el = document.getElementById("areas");
+  const tiles = [...el.querySelectorAll(".tile")];
+  const first = animate ? tiles.map(t => t.getBoundingClientRect()) : null;
+  tiles.forEach(t => { const on = t.dataset.tile === id; t.classList.toggle("open", on); t.setAttribute("aria-expanded", on); });
+  el.classList.toggle("has-open", !!id && id !== "leadership");
+  if (animate){
+    tiles.forEach((t,i) => {
+      const last = t.getBoundingClientRect();
+      const dx = first[i].left - last.left, dy = first[i].top - last.top;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1)
+        t.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"none"}], {duration:380, easing:"cubic-bezier(.2,.8,.2,1)"});
+    });
+  }
+}
+
+/* ==========================================================
+   Render: TDLs
+   ========================================================== */
+function renderTdls(){
+  const list = DATA.tdls.filter(t => state.phase === "All" || t.phase === state.phase);
+  document.getElementById("tdlgrid").innerHTML = list.map(t => {
+    const lead = t.lead ? P[t.lead] : null;
+    const sc = t.score != null ? `<span class="sc ${t.score < 90 ? "low" : ""}">${t.score}</span>` : "";
+    return `<button class="tdl" data-tdl="${t.id}" style="--ph:${PHASE[t.phase]}" data-tip="TDL ${t.id}" data-tip2="${esc(t.phase)}${lead ? ", " + esc(lead.name) : ""}">
+      ${sc}<span class="id">${t.id}</span>
+      <span class="row">${lead ? av(lead) : `<span class="av" style="background:#f0f2f5;color:#9ca3af">?</span>`}<span class="ln">${lead ? esc(lead.name) : "Lead not named"}</span></span>
+    </button>`;
+  }).join("");
+  applyHighlights();
+}
+
+/* ==========================================================
+   Inspector
+   ========================================================== */
+const ins = document.getElementById("inspector");
+
+function insOverview(){
+  const n = ph => DATA.tdls.filter(t => t.phase === ph).length;
+  const scored = DATA.tdls.filter(t => t.score != null).sort((a,b) => b.score - a.score);
+  const ppl = DATA.people.filter(p => p.area !== "context");
+  const areaRows = DATA.areas.map(a => ({a, n: inArea(a.id).length}));
+  const max = Math.max(...areaRows.map(r => r.n));
+  return `
+    <div class="ins-head"><span class="lbl">Program at a glance</span></div>
+    <div class="ins-body">
+      <div class="kpis">
+        <div class="kpi"><b>${DATA.tdls.length}</b><span>Active TDLs</span></div>
+        <div class="kpi"><b>${ppl.length}</b><span>People on the map</span></div>
+        <div class="kpi"><b>${inArea("tdlleads").length + DATA.people.filter(p => p.area !== "tdlleads" && p.leads.length).length}</b><span>TDL leads</span></div>
+        <div class="kpi"><b>${scored.length}<small style="font-size:13px;color:var(--muted);font-weight:500"> of ${DATA.tdls.length}</small></b><span>TDLs with a portal score</span></div>
+      </div>
+      <div class="blk"><h4>TDLs by phase</h4>
+        <div class="stack">${["Planning","Initiation","Not Started"].map(ph => `<div style="flex:${n(ph)};background:${PHASE[ph]}" title="${ph}: ${n(ph)}"></div>`).join("")}</div>
+        <div class="slegend">${["Planning","Initiation","Not Started"].map(ph => `<button data-phase="${ph}"><b>${n(ph)}</b> ${ph}</button>`).join("")}</div>
+      </div>
+      <div class="blk"><h4>Portal scores, AFEB Period 4</h4>
+        ${scored.map(t => `<button class="hbar" data-tdl="${t.id}"><span class="nm">TDL ${t.id}</span><span class="track"><span class="fill" style="display:block;width:${t.score}%;background:${t.score < 90 ? "var(--navy)" : "var(--teal)"}"></span></span><span class="v">${t.score}</span></button>`).join("")}
+      </div>
+      <div class="blk"><h4>People by area</h4>
+        ${areaRows.map(r => `<button class="hbar" data-area="${r.a.id}"><span class="nm">${esc(r.a.short)}</span><span class="track"><span class="fill" style="display:block;width:${r.n / max * 100}%;background:${r.a.bg}"></span></span><span class="v">${r.n}</span></button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function chainOf(p){
+  const out = []; let cur = p; const seen = new Set();
+  while (cur && cur.reportsTo && P[cur.reportsTo] && !seen.has(cur.id)){ seen.add(cur.id); cur = P[cur.reportsTo]; out.unshift(cur); }
+  return out;
+}
+
+function insPerson(p){
+  const a = A[p.area];
+  const chain = chainOf(p);
+  const reports = reportsOf(p.id);
+  const plainReports = reports.filter(r => r.area !== "tdlleads");
+  const leadReports = reports.filter(r => r.area === "tdlleads");
+  let tdls;
+  if (p.tdls === "all") tdls = `All TDLs${p.tdlScope ? " (" + esc(p.tdlScope) + ")" : ""}`;
+  else if (Array.isArray(p.tdls) && p.tdls.length) tdls = `<div class="tchips">${p.tdls.map(id => `<button class="tchip" data-tdl="${id}"><i style="background:${PHASE[T[id].phase]}"></i>${id}</button>`).join("")}</div>`;
+  else tdls = MISSING;
+
+  return `
+    <div class="ins-head"><span class="lbl">Person</span><button class="back" data-clear>‹ Overview</button></div>
+    <div class="ins-body">
+      <div class="prof">${av(p,"xl")}<div><h3>${esc(p.name)}</h3><div class="r">${esc(p.role)}</div>
+        ${a ? `<button class="area-tag" data-area="${a.id}"><i style="background:${a.bg}"></i>${esc(a.title)}</button>` : ""}</div></div>
+      ${chain.length ? `<div class="chain">${chain.map(c => `<button data-person="${c.id}">${esc(c.name)}</button><span>›</span>`).join("")}<span class="me">${esc(p.name)}</span></div>` : ""}
+      <div class="fields">
+        <div class="f"><div class="fl">Role</div><div class="fv">${esc(p.role)}</div></div>
+        <div class="f"><div class="fl">Reports to</div><div class="fv">${p.reportsTo ? node(P[p.reportsTo]) : MISSING}</div></div>
+        ${plainReports.length || leadReports.length ? `<div class="f"><div class="fl">Direct reports</div><div class="fv stacklist">
+          ${plainReports.map(node).join("")}
+          ${leadReports.length ? `<div class="dots" style="margin-top:4px">${leadReports.map(dot).join("")}</div><div class="barlab">${leadReports.length} TDL leads</div>` : ""}
+        </div></div>` : ""}
+        <div class="f"><div class="fl">TDLs</div><div class="fv">${tdls}</div></div>
+        <div class="f"><div class="fl">Owns</div><div class="fv">${p.owns ? esc(p.owns) : MISSING}</div></div>
+      </div>
+    </div>`;
+}
+
+function insTdl(t){
+  const lead = t.lead ? P[t.lead] : null;
+  const via = lead && lead.reportsTo ? P[lead.reportsTo] : null;
+  let score = MISSING;
+  if (t.score != null){
+    score = `<div class="big">${t.score}<small>subfactor 1.d</small></div>`;
+    if (t.monthly) score += `<div class="bars">${t.monthly.map(v => `<div style="height:${Math.max(4, v / 100 * 30)}px" title="${v}"></div>`).join("")}</div><div class="barlab">Monthly: ${t.monthly.join(", ")}</div>`;
+    if (t.comment) score += `<div class="quote">Award fee comment: "${esc(t.comment)}"</div>`;
+  }
+  return `
+    <div class="ins-head"><span class="lbl">TDL</span><button class="back" data-clear>‹ Overview</button></div>
+    <div class="ins-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <h3 style="margin:0;font-size:26px;color:var(--navy);font-weight:800">TDL ${t.id}</h3>${pill(t.phase)}
+      </div>
+      <div class="fields" style="margin-top:10px">
+        <div class="f"><div class="fl">Lead</div><div class="fv">${lead ? node(lead) : MISSING}</div></div>
+        <div class="f"><div class="fl">Lead reports to</div><div class="fv">${via ? node(via) : MISSING}</div></div>
+        <div class="f"><div class="fl">Mission partner</div><div class="fv">${MISSING}</div></div>
+        <div class="f"><div class="fl">What it does</div><div class="fv">${t.does ? esc(t.does) : '<span class="missing">Not in the record yet. See the task order, Section C.</span>'}</div></div>
+        <div class="f"><div class="fl">Portal score</div><div class="fv">${score}</div></div>
+        <div class="f"><div class="fl">Key personnel</div><div class="fv stacklist">
+          ${DATA.tdlSupport.map(s => `<button class="node" data-person="${s.id}">${av(P[s.id])}<span class="t"><div class="n">${esc(P[s.id].name)}</div><div class="r">${esc(s.label)}</div></span></button>`).join("")}
+        </div></div>
+      </div>
+    </div>`;
+}
+
+function insArea(a){
+  const list = inArea(a.id);
+  return `
+    <div class="ins-head"><span class="lbl">Area</span><button class="back" data-clear>‹ Overview</button></div>
+    <div class="ins-body">
+      <div class="prof"><span class="av xl" style="background:${a.bg};color:${a.fg}">${list.length}</span>
+        <div><h3>${esc(a.title)}</h3><div class="r" style="color:var(--muted);font-weight:500">${esc(a.sub)}</div></div></div>
+      <div class="blk"><h4>People</h4><div class="stacklist">${list.map(node).join("")}</div></div>
+      ${a.extra ? `<div class="blk"><div class="chipnote">${esc(a.extra)}</div></div>` : ""}
+    </div>`;
+}
+
+function renderInspector(){
+  const s = state.sel;
+  ins.innerHTML = !s ? insOverview()
+    : s.k === "person" ? insPerson(P[s.id])
+    : s.k === "tdl" ? insTdl(T[s.id])
+    : insArea(A[s.id]);
+  ins.scrollTop = 0;
+  applyHighlights();
+}
+
+/* ==========================================================
+   Highlights: selection lights up connections, role mutes
+   ========================================================== */
+function relatedSet(){
+  const s = state.sel, people = new Set(), tdls = new Set(), areas = new Set();
+  if (!s || s.k === "area") return null;
+  if (s.k === "person"){
+    const p = P[s.id];
+    people.add(p.id);
+    chainOf(p).forEach(c => people.add(c.id));
+    reportsOf(p.id).forEach(r => people.add(r.id));
+    if (Array.isArray(p.tdls)) p.tdls.forEach(id => tdls.add(id));
+    if (p.tdls === "all") DATA.tdls.forEach(t => tdls.add(t.id));
+  } else {
+    const t = T[s.id]; tdls.add(t.id);
+    if (t.lead){ people.add(t.lead); chainOf(P[t.lead]).forEach(c => people.add(c.id)); }
+    DATA.tdlSupport.forEach(x => people.add(x.id));
+  }
+  people.forEach(id => areas.add(P[id].area));
+  return {people, tdls, areas};
+}
+
+function applyHighlights(){
+  const rel = relatedSet();
+  const canvas = document.querySelector(".canvas");
+  document.body.classList.toggle("has-sel", !!rel);
+  canvas.querySelectorAll("[data-person]").forEach(el => {
+    const id = el.dataset.person;
+    el.classList.toggle("sel", !!rel && state.sel.k === "person" && state.sel.id === id);
+    el.classList.toggle("lit", !!rel && rel.people.has(id) && !(state.sel.k === "person" && state.sel.id === id));
+    const p = P[id];
+    el.classList.toggle("rolemute", state.role !== "all" && p.area !== "context" && roleType(p) !== state.role && !(state.role === "tdllead" && p.leads.length));
+  });
+  canvas.querySelectorAll("[data-tdl]").forEach(el => {
+    const id = el.dataset.tdl;
+    el.classList.toggle("sel", !!rel && state.sel.k === "tdl" && state.sel.id === id);
+    el.classList.toggle("lit", !!rel && rel.tdls.has(id) && !(state.sel.k === "tdl" && state.sel.id === id));
+  });
+  document.querySelectorAll(".tile").forEach(t => t.classList.toggle("lit", !!rel && rel.areas.has(t.dataset.tile)));
+}
+
+/* ==========================================================
+   Selection and routing (#p/id, #t/id, #a/id)
+   ========================================================== */
+function select(sel, push=true){
+  state.sel = sel;
+  if (sel && sel.k === "person"){
+    const area = P[sel.id].area;
+    state.area = (area === "context" || area === "leadership") ? null : area;
+  } else if (sel && sel.k === "area"){
+    state.area = sel.id === "leadership" ? null : sel.id;
+  } else if (sel && sel.k === "tdl"){
+    state.area = null;
+  }
+  renderToolbar();
+  setOpenArea(state.area);
+  renderInspector();
+  if (push){
+    const h = !sel ? "" : (sel.k === "person" ? "p/" : sel.k === "tdl" ? "t/" : "a/") + sel.id;
+    if (location.hash.replace("#","") !== h) history.pushState(null, "", h ? "#" + h : location.pathname + location.search);
+  }
+  if (window.innerWidth <= 1100 && sel) ins.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function fromHash(){
+  const [k, id] = location.hash.replace("#","").split("/");
+  if (k === "p" && P[id]) return {k:"person", id};
+  if (k === "t" && T[id]) return {k:"tdl", id};
+  if (k === "a" && A[id]) return {k:"area", id};
+  return null;
+}
+window.addEventListener("popstate", () => select(fromHash(), false));
+
+/* ==========================================================
+   Events
+   ========================================================== */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-person],[data-tdl],[data-area],[data-role],[data-phase],[data-clear],[data-tile]");
+  if (!el) return;
+  if (el.closest(".results")) hideResults();
+  if (el.hasAttribute("data-clear")) return select(null);
+  if (el.dataset.person) return select({k:"person", id:el.dataset.person});
+  if (el.dataset.tdl) return select({k:"tdl", id:el.dataset.tdl});
+  if (el.dataset.role){ state.role = el.dataset.role; renderToolbar(); applyHighlights(); return; }
+  if (el.dataset.phase){ state.phase = el.dataset.phase; renderToolbar(); renderTdls(); document.querySelector(".tdlsec").scrollIntoView({behavior:"smooth", block:"nearest"}); return; }
+  if (el.dataset.area !== undefined){
+    const id = el.dataset.area || null;
+    if (!id) return select(null);
+    select({k:"area", id});
+    if (id !== "leadership") document.querySelector(`[data-tile="${id}"]`).scrollIntoView({behavior:"smooth", block:"nearest"});
+    else document.getElementById("hub").scrollIntoView({behavior:"smooth", block:"nearest"});
+    return;
+  }
+  if (el.dataset.tile){
+    const id = el.dataset.tile;
+    if (state.area === id && el.classList.contains("open") && !e.target.closest(".chev")) return;
+    if (state.area === id) return select(null);
+    select({k:"area", id});
+  }
+});
+document.addEventListener("keydown", e => {
+  const t = e.target.closest && e.target.closest(".tile");
+  if (t && e.target === t && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); t.click(); }
+  if (e.key === "/" && document.activeElement !== q){ e.preventDefault(); q.focus(); }
+  if (e.key === "Escape" && document.activeElement !== q && state.sel) select(null);
+});
+
+/* Tooltip */
+const tipEl = document.getElementById("tip");
+document.addEventListener("mouseover", e => {
+  const el = e.target.closest("[data-tip]");
+  if (!el){ tipEl.classList.remove("on"); return; }
+  tipEl.innerHTML = `${esc(el.dataset.tip)}${el.dataset.tip2 ? `<small>${esc(el.dataset.tip2)}</small>` : ""}`;
+  const r = el.getBoundingClientRect();
+  tipEl.classList.add("on");
+  const w = tipEl.offsetWidth;
+  tipEl.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + "px";
+  tipEl.style.top = (r.top - tipEl.offsetHeight - 8) + "px";
+});
+document.addEventListener("scroll", () => tipEl.classList.remove("on"), true);
+
+/* Search */
+const q = document.getElementById("q"), results = document.getElementById("results");
+let hits = [], active = 0;
+function search(term){
+  term = term.trim().toLowerCase(); if (!term) return [];
+  const out = [];
+  DATA.tdls.forEach(t => {
+    const lead = t.lead ? P[t.lead].name : "";
+    if (("tdl " + t.id + " " + lead + " " + t.phase + " " + (t.does || "")).toLowerCase().includes(term))
+      out.push({k:"tdl", id:t.id, title:"TDL " + t.id, sub:(lead || "Lead not named") + ", " + t.phase, rank: t.id.toLowerCase().startsWith(term) ? 0 : 2});
+  });
+  DATA.people.forEach(p => {
+    if ((p.name + " " + p.role + " " + (p.owns || "") + " " + (A[p.area] ? A[p.area].title : "")).toLowerCase().includes(term))
+      out.push({k:"person", id:p.id, title:p.name, sub:p.role, rank: p.name.toLowerCase().split(/\s+/).some(w => w.startsWith(term)) ? 0 : 1});
+  });
+  return out.sort((a,b) => a.rank - b.rank).slice(0, 12);
+}
+function drawResults(){
+  if (!q.value.trim()){ hideResults(); return; }
+  results.innerHTML = hits.length ? hits.map((h,i) => {
+    const icon = h.k === "person" ? av(P[h.id]) : `<span class="av" style="background:${PHASE_BG[T[h.id].phase]};color:var(--navy);font-size:9.5px">${h.id}</span>`;
+    return `<button class="res ${i === active ? "active" : ""}" role="option" data-${h.k}="${h.id}">${icon}<span><b>${esc(h.title)}</b><small>${esc(h.sub)}</small></span><span class="k">${h.k === "tdl" ? "TDL" : "Person"}</span></button>`;
+  }).join("") : `<div class="empty">No match. Try a last name, a role, or a TDL like 1C8.</div>`;
+  results.classList.add("open");
+}
+function hideResults(){ results.classList.remove("open"); }
+q.addEventListener("input", () => { hits = search(q.value); active = 0; drawResults(); });
+q.addEventListener("keydown", e => {
+  if (e.key === "ArrowDown"){ e.preventDefault(); active = Math.min(active + 1, hits.length - 1); drawResults(); }
+  else if (e.key === "ArrowUp"){ e.preventDefault(); active = Math.max(active - 1, 0); drawResults(); }
+  else if (e.key === "Enter" && hits[active]){ select({k:hits[active].k, id:hits[active].id}); hideResults(); q.value = ""; q.blur(); }
+  else if (e.key === "Escape"){ q.value = ""; hideResults(); q.blur(); }
+});
+document.addEventListener("click", e => { if (!e.target.closest(".search")) hideResults(); });
+
+/* ==========================================================
+   Start
+   ========================================================== */
+document.getElementById("foot").textContent = DATA.asOf;
+renderToolbar(); renderHub(); renderAreas(); renderTdls();
+select(fromHash(), false);
+</script>
+</body>
+</html>
